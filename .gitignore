@@ -1,27 +1,77 @@
-*.log
-.DS_Store
+# =========================================================
+# Environment & Secrets
+# =========================================================
 .env
+.env.*
+!.env.example
 .env.backup
 .env.production
-.phpactor.json
-.phpunit.result.cache
+auth.json
+*.key
+*.pem
+*.cert
+/storage/*.key
+
+# =========================================================
+# Dependencies
+# =========================================================
+/node_modules
+/vendor
+
+# =========================================================
+# Logs, Chat Logs & Transcripts
+# =========================================================
+*.log
+/logs/
+*.jsonl
+*.chat
+*.transcript
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+!storage/logs/.gitignore
+
+# =========================================================
+# AI Assistant & Chat Tool Artifacts
+# =========================================================
+.claude/
+.kiro/
+.gemini/
+.agent/
+.agents/
+.ai/
+CLAUDE.md
+AGENTS.md
+.mcp.json
+boost.json
+
+# =========================================================
+# IDEs, Editors & OS Files
+# =========================================================
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+*.swo
 /.codex
 /.cursor/
-/.idea
 /.nova
-/.phpunit.cache
-/.vscode
 /.zed
-/auth.json
-/node_modules
+.phpactor.json
+_ide_helper.php
+Homestead.json
+Homestead.yaml
+
+# =========================================================
+# Laravel Storage, Caches & Builds
+# =========================================================
 /public/build
 /public/fonts-manifest.dev.json
 /public/hot
 /public/storage
-/storage/*.key
 /storage/pail
-/vendor
-_ide_helper.php
-Homestead.json
-Homestead.yaml
-Thumbs.db
+.phpunit.result.cache
+/.phpunit.cache
