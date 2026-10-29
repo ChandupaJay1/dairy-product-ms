@@ -56,6 +56,24 @@
                         <span class="truncate">{{ __('Dashboard') }}</span>
                     </a>
 
+                    <!-- Products Directory Link -->
+                    <a href="{{ route('products.index') }}" 
+                       class="group flex items-center gap-3.5 px-3 py-2.5 rounded-xl text-xs font-medium transition-all duration-200 {{ request()->routeIs('products.*') ? 'border-l-2 border-lime-600 dark:border-lime-400 bg-lime-500/10 dark:bg-lime-400/10 text-lime-800 dark:text-lime-300 font-semibold shadow-sm dark:shadow-[inset_0_0_20px_rgba(163,230,53,0.06)]' : 'border-l-2 border-transparent text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 hover:bg-zinc-100/70 dark:hover:bg-white/[0.03] hover:translate-x-1' }}">
+                        <svg class="w-4 h-4 shrink-0 {{ request()->routeIs('products.*') ? 'text-lime-600 dark:text-lime-400' : 'text-zinc-400 dark:text-zinc-500 group-hover:text-amber-500 dark:group-hover:text-amber-400 transition-colors' }}" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+                        </svg>
+                        <span class="truncate">{{ __('Products Directory') }}</span>
+                    </a>
+
+                    <!-- Stocks Management Link -->
+                    <a href="{{ route('stocks.index') }}" 
+                       class="group flex items-center gap-3.5 px-3 py-2.5 rounded-xl text-xs font-medium transition-all duration-200 {{ request()->routeIs('stocks.*') ? 'border-l-2 border-lime-600 dark:border-lime-400 bg-lime-500/10 dark:bg-lime-400/10 text-lime-800 dark:text-lime-300 font-semibold shadow-sm dark:shadow-[inset_0_0_20px_rgba(163,230,53,0.06)]' : 'border-l-2 border-transparent text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 hover:bg-zinc-100/70 dark:hover:bg-white/[0.03] hover:translate-x-1' }}">
+                        <svg class="w-4 h-4 shrink-0 {{ request()->routeIs('stocks.*') ? 'text-lime-600 dark:text-lime-400' : 'text-zinc-400 dark:text-zinc-500 group-hover:text-amber-500 dark:group-hover:text-amber-400 transition-colors' }}" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+                        </svg>
+                        <span class="truncate">{{ __('Stocks Management') }}</span>
+                    </a>
+
                     <!-- Profile Link -->
                     <a href="{{ route('profile.edit') }}" 
                        class="group flex items-center gap-3.5 px-3 py-2.5 rounded-xl text-xs font-medium transition-all duration-200 {{ request()->routeIs('profile.edit') ? 'border-l-2 border-lime-600 dark:border-lime-400 bg-lime-500/10 dark:bg-lime-400/10 text-lime-800 dark:text-lime-300 font-semibold shadow-sm dark:shadow-[inset_0_0_20px_rgba(163,230,53,0.06)]' : 'border-l-2 border-transparent text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 hover:bg-zinc-100/70 dark:hover:bg-white/[0.03] hover:translate-x-1' }}">
@@ -186,6 +204,24 @@
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
                 </svg>
                 <span>{{ __('Dashboard') }}</span>
+            </a>
+
+            <a href="{{ route('products.index') }}" 
+               @click="sidebarOpen = false"
+               class="flex items-center gap-3.5 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 {{ request()->routeIs('products.*') ? 'border-l-2 border-lime-600 dark:border-lime-400 bg-lime-500/10 dark:bg-lime-400/10 text-lime-800 dark:text-lime-300 font-semibold shadow-sm' : 'border-l-2 border-transparent text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-white/[0.03]' }}">
+                <svg class="w-4 h-4 shrink-0 {{ request()->routeIs('products.*') ? 'text-lime-600 dark:text-lime-400' : 'text-zinc-400 dark:text-zinc-500' }}" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+                </svg>
+                <span>{{ __('Products Directory') }}</span>
+            </a>
+
+            <a href="{{ route('stocks.index') }}" 
+               @click="sidebarOpen = false"
+               class="flex items-center gap-3.5 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 {{ request()->routeIs('stocks.*') ? 'border-l-2 border-lime-600 dark:border-lime-400 bg-lime-500/10 dark:bg-lime-400/10 text-lime-800 dark:text-lime-300 font-semibold shadow-sm' : 'border-l-2 border-transparent text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-white/[0.03]' }}">
+                <svg class="w-4 h-4 shrink-0 {{ request()->routeIs('stocks.*') ? 'text-lime-600 dark:text-lime-400' : 'text-zinc-400 dark:text-zinc-500' }}" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+                </svg>
+                <span>{{ __('Stocks Management') }}</span>
             </a>
 
             <a href="{{ route('profile.edit') }}" 
