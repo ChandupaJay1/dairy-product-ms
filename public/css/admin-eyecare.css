@@ -1,0 +1,1063 @@
+/**
+ * Back-Office Admin & Financial Analytics Styling
+ * Aligned with PulseERP Theme (dairy-product-ms)
+ */
+
+/* ========================================================
+   1. ADMIN KPI METRIC OVERVIEW CARDS
+   ======================================================== */
+.admin-metrics-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1.25rem;
+    margin-bottom: 2rem;
+}
+
+@media (min-width: 640px) {
+    .admin-metrics-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (min-width: 1024px) {
+    .admin-metrics-grid {
+        grid-template-columns: repeat(4, 1fr);
+    }
+}
+
+.metric-card-box {
+    background: var(--bg-surface);
+    backdrop-filter: blur(28px);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-xl);
+    padding: 1.5rem;
+    box-shadow: var(--shadow-glass);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 0.75rem;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.25s ease;
+}
+
+.metric-card-box:hover {
+    border-color: var(--border-medium);
+    transform: translateY(-2px);
+}
+
+.metric-top-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.metric-category-tag {
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--text-muted);
+}
+
+.metric-icon-pill {
+    width: 36px;
+    height: 36px;
+    border-radius: var(--radius-sm);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.1rem;
+    background: var(--bg-surface-elevated);
+    border: 1px solid var(--border-subtle);
+}
+
+.metric-value-huge {
+    font-size: 1.85rem;
+    font-weight: 900;
+    font-family: monospace;
+    letter-spacing: -0.03em;
+    color: var(--text-heading);
+}
+
+.metric-sub-note {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+/* ========================================================
+   2. DATA TABLES & RECENT ACTIVITY
+   ======================================================== */
+.data-table-container {
+    width: 100%;
+    overflow-x: auto;
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--border-subtle);
+    background: var(--bg-surface);
+}
+
+.custom-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.85rem;
+    text-align: left;
+}
+
+.custom-table th {
+    background: var(--bg-surface-elevated);
+    padding: 0.9rem 1.15rem;
+    font-weight: 700;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    font-size: 0.72rem;
+    border-bottom: 1px solid var(--border-subtle);
+}
+
+.custom-table td {
+    padding: 0.9rem 1.15rem;
+    border-bottom: 1px solid var(--border-subtle);
+    color: var(--text-primary);
+}
+
+.custom-table tr:last-child td {
+    border-bottom: none;
+}
+
+.custom-table tr:hover td {
+    background: var(--bg-surface-hover);
+}
+
+/* ========================================================
+   3. REPORTS & CHARTS
+   ======================================================== */
+.reports-dashboard-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+}
+
+@media (min-width: 900px) {
+    .reports-dashboard-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+/* ========================================================
+   4. EXPANSIVE FULL-WIDTH MAIN ADMIN OPERATIONS LAYOUT
+   ======================================================== */
+.admin-main-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 1.75rem;
+    align-items: stretch;
+    width: 100%;
+    min-width: 0;
+    max-width: 100%;
+}
+
+.admin-grid-col {
+    display: flex;
+    flex-direction: column;
+    gap: 1.75rem;
+    min-width: 0;
+    max-width: 100%;
+    width: 100%;
+}
+
+.max-h-300 { max-height: 300px; overflow-y: auto; }
+.max-h-350 { max-height: 350px; overflow-y: auto; }
+.max-h-500 { max-height: 500px; overflow-y: auto; }
+
+/* ========================================================
+   5. POLONNARUWA REGIONAL FLEET GPS RADAR & TELEMETRY
+   ======================================================== */
+.map-simulation-container {
+    position: relative;
+    width: 100%;
+    height: 480px;
+    min-height: 480px;
+    background: radial-gradient(circle at 50% 50%, rgba(16, 185, 129, 0.09) 0%, rgba(9, 14, 26, 0.98) 80%), #060b14;
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    box-shadow: inset 0 0 50px rgba(0, 0, 0, 0.85);
+}
+
+[data-theme="light"] .map-simulation-container,
+html:not(.dark) .map-simulation-container {
+    background: radial-gradient(circle at 48% 52%, rgba(14, 165, 233, 0.08) 0%, #f1f5f9 85%), #e2e8f0;
+    border-color: #cbd5e1;
+    box-shadow: inset 0 0 35px rgba(0, 0, 0, 0.06);
+}
+
+/* Radar Telemetry Top HUD */
+.radar-telemetry-hud {
+    position: relative;
+    z-index: 30;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.65rem 1rem;
+    background: rgba(6, 11, 20, 0.8);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    font-size: 0.72rem;
+    font-family: monospace;
+    letter-spacing: 0.04em;
+    color: var(--text-secondary);
+}
+
+[data-theme="light"] .radar-telemetry-hud,
+html:not(.dark) .radar-telemetry-hud {
+    background: rgba(255, 255, 255, 0.88);
+    border-bottom-color: rgba(0, 0, 0, 0.08);
+    color: #475569;
+}
+
+.hud-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.hud-pill {
+    padding: 2px 7px;
+    border-radius: 999px;
+    background: rgba(16, 185, 129, 0.15);
+    color: #34d399;
+    border: 1px solid rgba(16, 185, 129, 0.3);
+    font-weight: 700;
+}
+
+/* Map Graphic Layer with Radar Grid */
+.map-graphic-layer {
+    position: relative;
+    flex: 1;
+    width: 100%;
+    overflow: hidden;
+}
+
+/* Radar Sweep Line / Beam */
+.radar-sweep {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 700px;
+    height: 700px;
+    margin-top: -350px;
+    margin-left: -350px;
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 5;
+    background: conic-gradient(
+        from 0deg,
+        transparent 0deg,
+        transparent 280deg,
+        rgba(16, 185, 129, 0.03) 300deg,
+        rgba(16, 185, 129, 0.24) 360deg
+    );
+    animation: radarSweep 6s linear infinite;
+}
+
+[data-theme="light"] .radar-sweep,
+html:not(.dark) .radar-sweep {
+    background: conic-gradient(
+        from 0deg,
+        transparent 0deg,
+        transparent 280deg,
+        rgba(14, 165, 233, 0.03) 300deg,
+        rgba(14, 165, 233, 0.22) 360deg
+    );
+}
+
+@keyframes radarSweep {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* SVG Vector Grid & Radar Circles */
+.radar-svg-grid {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 2;
+}
+
+/* Route Vector Lines */
+.route-path-line {
+    stroke-dasharray: 6 4;
+    animation: routeFlow 20s linear infinite;
+}
+
+@keyframes routeFlow {
+    to { stroke-dashoffset: -100; }
+}
+
+/* Map Hubs / Landmarks */
+.map-hub {
+    position: absolute;
+    transform: translate(-50%, -50%);
+    z-index: 15;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    transition: transform 0.2s ease;
+}
+
+.map-hub:hover {
+    transform: translate(-50%, -50%) scale(1.08);
+    z-index: 25;
+}
+
+/* Hub Radar Ring Pulse */
+.hub-radar-ring {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 28px;
+    height: 28px;
+    margin-top: -14px;
+    margin-left: -14px;
+    border-radius: 50%;
+    border: 1.5px solid var(--accent-amber);
+    opacity: 0.8;
+    pointer-events: none;
+    animation: hubPulse 2.8s cubic-bezier(0.2, 0.8, 0.2, 1) infinite;
+}
+
+@keyframes hubPulse {
+    0% {
+        transform: scale(0.6);
+        opacity: 0.9;
+    }
+    100% {
+        transform: scale(2.6);
+        opacity: 0;
+    }
+}
+
+.hub-kaduruwela .hub-radar-ring {
+    border-color: #f59e0b;
+    border-width: 2px;
+}
+
+.hub-hingurakgoda .hub-radar-ring,
+.hub-minneriya .hub-radar-ring {
+    border-color: #06b6d4;
+}
+
+.hub-medirigiriya .hub-radar-ring,
+.hub-dimbulagala .hub-radar-ring {
+    border-color: #a855f7;
+}
+
+/* Hub Label */
+.hub-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 3px 8px;
+    border-radius: var(--radius-sm);
+    font-size: 0.7rem;
+    font-weight: 600;
+    white-space: nowrap;
+    background: rgba(15, 23, 42, 0.88);
+    color: #e2e8f0;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    transition: all 0.2s ease;
+}
+
+[data-theme="light"] .hub-label,
+html:not(.dark) .hub-label {
+    background: rgba(255, 255, 255, 0.92);
+    color: #1e293b;
+    border-color: rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+}
+
+.hub-kaduruwela .hub-label {
+    border-color: rgba(245, 158, 11, 0.5);
+    background: rgba(30, 24, 10, 0.92);
+    color: #fbbf24;
+}
+
+[data-theme="light"] .hub-kaduruwela .hub-label,
+html:not(.dark) .hub-kaduruwela .hub-label {
+    background: #fef3c7;
+    color: #92400e;
+    border-color: rgba(245, 158, 11, 0.4);
+}
+
+/* Hub Coordinates in Container */
+.hub-kaduruwela { top: 50%; left: 50%; }
+.hub-hingurakgoda { top: 32%; left: 26%; }
+.hub-minneriya { top: 48%; left: 12%; }
+.hub-medirigiriya { top: 20%; left: 74%; }
+.hub-dimbulagala { top: 76%; left: 78%; }
+
+/* Vehicle GPS Markers */
+.vehicle-gps-marker {
+    position: absolute;
+    transform: translate(-50%, -50%);
+    z-index: 22;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 9px;
+    border-radius: 999px;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    white-space: nowrap;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.vehicle-gps-marker:hover {
+    transform: translate(-50%, -50%) scale(1.12);
+    box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);
+    z-index: 35;
+}
+
+.marker-truck-1 {
+    top: 41%;
+    left: 38%;
+    background: rgba(16, 185, 129, 0.25);
+    color: #34d399;
+    border: 1.5px solid #10b981;
+    animation: patrolRoute1 18s ease-in-out infinite alternate;
+}
+
+@keyframes patrolRoute1 {
+    0% {
+        top: 50%;
+        left: 46%;
+    }
+    50% {
+        top: 40%;
+        left: 36%;
+    }
+    100% {
+        top: 33%;
+        left: 29%;
+    }
+}
+
+.marker-truck-2 {
+    top: 59%;
+    left: 54%;
+    background: rgba(14, 165, 233, 0.22);
+    color: #38bdf8;
+    border: 1.5px solid #0ea5e9;
+}
+
+/* SOS Radar Ping */
+.sos-radar-ping {
+    position: absolute;
+    top: 36%;
+    left: 68%;
+    transform: translate(-50%, -50%);
+    z-index: 28;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.ping-wave {
+    position: absolute;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    border: 2px solid #ef4444;
+    animation: sosWave 1.4s ease-out infinite;
+}
+
+@keyframes sosWave {
+    0% {
+        transform: scale(0.4);
+        opacity: 1;
+    }
+    100% {
+        transform: scale(3.2);
+        opacity: 0;
+    }
+}
+
+.ping-core {
+    position: relative;
+    z-index: 2;
+    padding: 4px 10px;
+    border-radius: 999px;
+    font-size: 0.72rem;
+    font-weight: 800;
+    background: #ef4444;
+    color: #ffffff;
+    box-shadow: 0 0 16px rgba(239, 68, 68, 0.8);
+    animation: sosFlash 1s ease-in-out infinite alternate;
+}
+
+@keyframes sosFlash {
+    from { opacity: 0.85; transform: scale(0.96); }
+    to { opacity: 1; transform: scale(1.04); }
+}
+
+/* Map Legend Bar at Bottom */
+.map-legend {
+    position: relative;
+    z-index: 30;
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 0.65rem 1rem;
+    background: rgba(6, 11, 20, 0.85);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    font-size: 0.72rem;
+    color: var(--text-secondary);
+}
+
+[data-theme="light"] .map-legend,
+html:not(.dark) .map-legend {
+    background: rgba(255, 255, 255, 0.92);
+    border-top-color: rgba(0, 0, 0, 0.08);
+    color: #475569;
+}
+
+.map-legend span {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-weight: 500;
+}
+
+/* ========================================================
+   3. REPORTS & ANALYTICS VIEW REFINED STYLING (SIMPLIFIED)
+   ======================================================== */
+.flex-between {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.report-header-banner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 1rem;
+    padding-bottom: 1.25rem;
+    border-bottom: 1px solid var(--border-subtle, rgba(255, 255, 255, 0.08));
+}
+
+.report-title-area h2 {
+    font-size: 1.25rem;
+    font-weight: 800;
+    color: var(--text-heading);
+    margin: 0;
+    letter-spacing: -0.02em;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.report-title-area p {
+    font-size: 0.78rem;
+    color: var(--text-muted);
+    margin: 3px 0 0;
+}
+
+.btn-report-action {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 14px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    border-radius: 8px;
+    background: var(--bg-surface-elevated, rgba(255, 255, 255, 0.06));
+    border: 1px solid var(--border-medium, rgba(255, 255, 255, 0.12));
+    color: var(--text-primary);
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btn-report-action:hover {
+    background: var(--bg-surface-hover, rgba(255, 255, 255, 0.1));
+    border-color: var(--border-highlight, rgba(255, 255, 255, 0.2));
+    transform: translateY(-1px);
+}
+
+/* Compact Segmented Sub-Tab Bar - Styled in Section 4 */
+
+/* Simplified Metric Cards Grid */
+.report-cards-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+    gap: 12px;
+    margin-bottom: 1.25rem;
+}
+
+.report-card {
+    background: var(--bg-surface-elevated, rgba(15, 23, 42, 0.5));
+    border: 1px solid var(--border-subtle, rgba(255, 255, 255, 0.08));
+    border-radius: var(--radius-lg, 12px);
+    padding: 1rem 1.15rem;
+    transition: all 0.2s ease;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.report-card:hover {
+    border-color: var(--border-medium, rgba(255, 255, 255, 0.16));
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px -4px rgba(0, 0, 0, 0.25);
+}
+
+.report-card-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 8px;
+    margin-bottom: 0.65rem;
+}
+
+.report-card-title {
+    font-size: 0.92rem;
+    font-weight: 700;
+    color: var(--text-heading);
+    margin: 0;
+}
+
+.report-card-sub {
+    font-size: 0.72rem;
+    color: var(--text-muted);
+    margin-top: 2px;
+}
+
+.report-hero-metric {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 8px;
+    margin: 0.4rem 0 0.75rem;
+    padding-bottom: 0.65rem;
+    border-bottom: 1px dashed var(--border-subtle, rgba(255, 255, 255, 0.1));
+}
+
+.report-hero-val {
+    font-size: 1.35rem;
+    font-weight: 800;
+    font-family: monospace;
+    color: var(--color-cash, #10b981);
+}
+
+.report-pill-badge {
+    padding: 3px 8px;
+    border-radius: 999px;
+    font-size: 0.72rem;
+    font-weight: 700;
+    background: rgba(16, 185, 129, 0.12);
+    color: #10b981;
+    border: 1px solid rgba(16, 185, 129, 0.25);
+}
+
+.report-stats-row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 6px;
+    font-size: 0.75rem;
+}
+
+.report-stat-col {
+    display: flex;
+    flex-direction: column;
+}
+
+.report-stat-label {
+    font-size: 0.68rem;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+}
+
+.report-stat-val {
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    margin-top: 2px;
+    white-space: nowrap;
+}
+
+/* Simplified Tables Box */
+.report-table-box {
+    background: var(--bg-surface-elevated, rgba(15, 23, 42, 0.5));
+    border: 1px solid var(--border-subtle, rgba(255, 255, 255, 0.08));
+    border-radius: var(--radius-lg, 12px);
+    padding: 1.25rem;
+    overflow: hidden;
+}
+
+.report-table-title {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: var(--text-heading);
+    margin: 0 0 0.85rem;
+}
+
+/* ========================================================
+   4. APPROVAL CENTER & TACTILE SEGMENTED TABS
+   ======================================================== */
+#approvalCenterSection {
+    scroll-margin-top: 100px !important;
+    margin-top: 1.5rem !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+}
+
+.approval-center-card {
+    background: var(--bg-surface, rgba(24, 24, 27, 0.75)) !important;
+    backdrop-filter: blur(24px) !important;
+    -webkit-backdrop-filter: blur(24px) !important;
+    border: 1px solid var(--border-subtle, rgba(255, 255, 255, 0.1)) !important;
+    border-radius: var(--radius-xl, 20px) !important;
+    padding: 1.5rem !important;
+    box-shadow: var(--shadow-card, 0 4px 20px rgba(0, 0, 0, 0.4)) !important;
+    scroll-margin-top: 100px !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+}
+
+.approval-center-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin-bottom: 1.25rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--border-subtle, rgba(255, 255, 255, 0.08));
+}
+
+.approval-center-title {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.approval-center-title h3 {
+    font-size: 1.15rem !important;
+    font-weight: 800 !important;
+    color: var(--text-heading, #ffffff) !important;
+    margin: 0 !important;
+}
+
+.approval-badge-count {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 14px;
+    border-radius: 999px;
+    font-size: 0.82rem;
+    font-weight: 800;
+    background: rgba(245, 158, 11, 0.15);
+    border: 1px solid rgba(245, 158, 11, 0.4);
+    color: #f59e0b;
+}
+
+.approval-badge-count.approval-badge-zero {
+    background: rgba(16, 185, 129, 0.15);
+    border-color: rgba(16, 185, 129, 0.4);
+    color: #10b981;
+}
+
+/* Nav Tabs Container - Symmetrical Grid Layout */
+.approval-nav-tabs {
+    display: grid !important;
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 10px !important;
+    padding: 8px !important;
+    background: rgba(15, 23, 42, 0.75) !important;
+    border-radius: 14px !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    margin-bottom: 1.25rem !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+}
+
+@media (min-width: 1100px) {
+    .approval-nav-tabs {
+        grid-template-columns: repeat(4, 1fr) !important;
+    }
+}
+
+/* Fleet & Staff Hub: 3 Balanced Columns */
+#fleetStaffManagementCard .approval-nav-tabs {
+    grid-template-columns: repeat(3, 1fr) !important;
+}
+
+@media (max-width: 768px) {
+    #fleetStaffManagementCard .approval-nav-tabs {
+        grid-template-columns: 1fr !important;
+    }
+}
+
+/* Reports Sub-Nav: 4 Balanced Columns */
+.report-subnav {
+    display: grid !important;
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 8px !important;
+    padding: 8px !important;
+    background: rgba(15, 23, 42, 0.75) !important;
+    border-radius: 14px !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    margin-bottom: 1.25rem !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+}
+
+@media (min-width: 900px) {
+    .report-subnav {
+        grid-template-columns: repeat(4, 1fr) !important;
+    }
+}
+
+/* Distinct, Tactile, Recognizable Button Tabs */
+.approval-tab-btn,
+.report-tab-btn {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 8px !important;
+    padding: 10px 14px !important;
+    font-size: 0.84rem !important;
+    font-weight: 700 !important;
+    color: #e2e8f0 !important;
+    background: rgba(30, 41, 59, 0.9) !important;
+    border: 1px solid rgba(255, 255, 255, 0.15) !important;
+    border-radius: 10px !important;
+    cursor: pointer !important;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35) !important;
+    user-select: none !important;
+    outline: none !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+    text-align: center !important;
+    min-height: 44px !important;
+}
+
+.approval-tab-btn span:nth-child(2),
+.report-tab-btn span:nth-child(2) {
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+}
+
+.approval-tab-btn:hover,
+.report-tab-btn:hover {
+    color: #ffffff !important;
+    background: rgba(51, 65, 85, 0.98) !important;
+    border-color: rgba(56, 189, 248, 0.5) !important;
+    transform: translateY(-2px) !important;
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.45) !important;
+}
+
+/* Active Selected Tab Button */
+.approval-tab-btn.active,
+.report-tab-btn.active {
+    background: linear-gradient(135deg, rgba(14, 165, 233, 0.3) 0%, rgba(56, 189, 248, 0.18) 100%) !important;
+    color: #38bdf8 !important;
+    border: 2px solid #38bdf8 !important;
+    box-shadow: 0 0 18px rgba(56, 189, 248, 0.35), inset 0 0 8px rgba(56, 189, 248, 0.12) !important;
+    font-weight: 800 !important;
+    transform: translateY(-1px) !important;
+}
+
+/* Tab Counter Pill Badges */
+.approval-tab-pill {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    min-width: 22px !important;
+    height: 20px !important;
+    padding: 0 6px !important;
+    font-size: 0.74rem !important;
+    font-weight: 800 !important;
+    border-radius: 999px !important;
+    background: rgba(255, 255, 255, 0.14) !important;
+    color: #94a3b8 !important;
+    line-height: 1 !important;
+    flex-shrink: 0 !important;
+}
+
+.approval-tab-pill.pill-alert {
+    background: #f59e0b !important;
+    color: #0f172a !important;
+    box-shadow: 0 0 8px rgba(245, 158, 11, 0.6) !important;
+}
+
+.approval-tab-btn.active .approval-tab-pill {
+    background: #38bdf8 !important;
+    color: #09090b !important;
+}
+
+.approval-tab-btn.active .approval-tab-pill.pill-alert {
+    background: #f59e0b !important;
+    color: #0f172a !important;
+}
+
+/* Approval Content Box */
+.approval-content-box {
+    background: rgba(15, 23, 42, 0.4);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 12px;
+    padding: 1rem;
+}
+
+.approval-empty-state {
+    text-align: center;
+    padding: 2.5rem 1.5rem;
+    color: var(--text-muted, #94a3b8);
+    font-weight: 600;
+    font-size: 0.95rem;
+}
+
+/* ========================================================
+   5. SLEEK COMPACT OUTLINE BUTTONS
+   ======================================================== */
+.btn-outline-primary {
+    background: rgba(56, 189, 248, 0.08) !important;
+    border: 1px solid rgba(56, 189, 248, 0.3) !important;
+    color: #38bdf8 !important;
+    font-weight: 600;
+    box-shadow: none !important;
+}
+.btn-outline-primary:hover {
+    background: rgba(56, 189, 248, 0.2) !important;
+    border-color: #38bdf8 !important;
+    color: #ffffff !important;
+    transform: translateY(-1px);
+}
+
+.btn-outline-cyan {
+    background: rgba(6, 182, 212, 0.08) !important;
+    border: 1px solid rgba(6, 182, 212, 0.35) !important;
+    color: #22d3ee !important;
+    font-weight: 600;
+    box-shadow: none !important;
+}
+.btn-outline-cyan:hover {
+    background: rgba(6, 182, 212, 0.22) !important;
+    border-color: #06b6d4 !important;
+    color: #ffffff !important;
+    transform: translateY(-1px);
+}
+
+.btn-outline-danger {
+    background: rgba(239, 68, 68, 0.08) !important;
+    border: 1px solid rgba(239, 68, 68, 0.3) !important;
+    color: #f87171 !important;
+    font-weight: 600;
+    box-shadow: none !important;
+}
+.btn-outline-danger:hover {
+    background: rgba(239, 68, 68, 0.2) !important;
+    border-color: #ef4444 !important;
+    color: #ffffff !important;
+    transform: translateY(-1px);
+}
+
+.btn-outline-success {
+    background: rgba(16, 185, 129, 0.08) !important;
+    border: 1px solid rgba(16, 185, 129, 0.3) !important;
+    color: #34d399 !important;
+    font-weight: 600;
+    box-shadow: none !important;
+}
+.btn-outline-success:hover {
+    background: rgba(16, 185, 129, 0.2) !important;
+    border-color: #10b981 !important;
+    color: #ffffff !important;
+    transform: translateY(-1px);
+}
+
+.btn-xs {
+    padding: 0.28rem 0.6rem !important;
+    font-size: 0.74rem !important;
+    border-radius: 6px !important;
+    line-height: 1.2 !important;
+    height: auto !important;
+}
+
+/* Fix Card Header Toolbar & Alignment */
+.card-header-toolbar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: nowrap;
+}
+
+@media (max-width: 640px) {
+    .card-header-toolbar {
+        flex-wrap: wrap;
+        width: 100%;
+    }
+}
+
+/* Prevent duplicate search icon in Chromium engines */
+input[type="search"]::-webkit-search-decoration,
+input[type="search"]::-webkit-search-cancel-button,
+input[type="search"]::-webkit-search-results-button,
+input[type="search"]::-webkit-search-results-decoration {
+    -webkit-appearance: none;
+    appearance: none;
+}
+
+/* Polished Table Cells & Headers in Eyecare Cards */
+.eyecare-table th {
+    font-size: 0.72rem !important;
+    font-weight: 700 !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.05em !important;
+    color: var(--text-muted) !important;
+    padding: 0.65rem 0.75rem !important;
+    white-space: nowrap !important;
+    border-bottom: 1px solid var(--border-medium) !important;
+}
+
+.eyecare-table td {
+    padding: 0.65rem 0.75rem !important;
+    vertical-align: middle !important;
+    border-bottom: 1px solid var(--border-subtle) !important;
+}
+
+.card-header h3 {
+    font-size: 1rem !important;
+    font-weight: 700 !important;
+    margin: 0 !important;
+}
+
+

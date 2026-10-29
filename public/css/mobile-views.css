@@ -1,0 +1,827 @@
+/**
+ * Mobile-First & Responsive Layout Architecture
+ * Aligned with PulseERP Modern Aesthetics & Step-by-Step Experience
+ */
+
+/* ========================================================
+   1. SALES REPRESENTATIVE GUIDED WIZARD
+   ======================================================== */
+.sales-wizard-shell {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.wizard-grid-layout {
+    display: flex;
+    flex-direction: column;
+    gap: 1.75rem;
+    width: 100%;
+}
+
+@media (min-width: 1024px) {
+    .wizard-grid-layout {
+        display: flex;
+        flex-direction: column;
+        gap: 1.75rem;
+        width: 100%;
+    }
+}
+
+/* Step 1: Shop Selection Cards */
+.shop-search-bar-wrap {
+    position: relative;
+    margin-bottom: 1rem;
+}
+
+.shop-search-input {
+    width: 100%;
+    padding: 0.8rem 1rem 0.8rem 2.5rem;
+    border-radius: var(--radius-md);
+    background: var(--bg-input);
+    border: 1px solid var(--border-medium);
+    color: var(--text-primary);
+    font-size: 0.88rem;
+    outline: none;
+    transition: all 0.2s ease;
+}
+
+.shop-search-input:focus {
+    border-color: var(--accent-lime);
+    box-shadow: 0 0 0 3px rgba(163, 230, 53, 0.2);
+}
+
+.shop-search-icon {
+    position: absolute;
+    left: 0.85rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-muted);
+    font-size: 0.95rem;
+}
+
+.shop-cards-scroll-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.65rem;
+    max-height: 480px;
+    overflow-y: auto;
+    padding-right: 4px;
+}
+
+.shop-select-card {
+    padding: 0.85rem 1rem;
+    border-radius: var(--radius-md);
+    background: var(--bg-surface-elevated);
+    border: 1.5px solid var(--border-subtle);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+}
+
+.shop-select-card:hover {
+    border-color: var(--accent-lime);
+    background: var(--bg-surface-hover);
+    transform: translateY(-1px);
+}
+
+.shop-select-card.selected {
+    border-color: var(--accent-lime);
+    background: var(--accent-lime-soft);
+    box-shadow: inset 0 0 15px rgba(163, 230, 53, 0.08);
+}
+
+.shop-header-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.shop-name-title {
+    font-size: 0.92rem;
+    font-weight: 700;
+    color: var(--text-heading);
+}
+
+.tier-badge {
+    font-size: 0.68rem;
+    font-weight: 800;
+    padding: 0.2rem 0.55rem;
+    border-radius: var(--radius-full);
+    text-transform: uppercase;
+    font-family: monospace;
+}
+
+.tier-badge.tier-a {
+    background: rgba(16, 185, 129, 0.15);
+    color: var(--color-cash);
+    border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+.tier-badge.tier-b {
+    background: rgba(14, 165, 233, 0.15);
+    color: var(--color-info);
+    border: 1px solid rgba(14, 165, 233, 0.3);
+}
+
+.tier-badge.tier-c {
+    background: rgba(245, 158, 11, 0.15);
+    color: var(--color-credit);
+    border: 1px solid rgba(245, 158, 11, 0.3);
+}
+
+.tier-badge.tier-blocked {
+    background: rgba(244, 63, 94, 0.15);
+    color: var(--color-sos);
+    border: 1px solid rgba(244, 63, 94, 0.3);
+}
+
+.shop-meta-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 0.75rem;
+    color: var(--text-muted);
+}
+
+/* Step 2: Yogurt Flavor Product Cards Grid */
+.products-flavor-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1.25rem;
+}
+
+@media (min-width: 640px) {
+    .products-flavor-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (min-width: 1100px) {
+    .products-flavor-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+@media (min-width: 1440px) {
+    .products-flavor-grid {
+        grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    }
+}
+
+.flavor-product-card {
+    background: var(--bg-surface-elevated);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-lg);
+    padding: 1.15rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 0.85rem;
+    transition: all 0.2s ease;
+    box-shadow: var(--shadow-card);
+}
+
+.flavor-product-card:hover {
+    border-color: var(--border-medium);
+    transform: translateY(-2px);
+}
+
+.flavor-card-top {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 0.75rem;
+}
+
+.flavor-icon-box {
+    width: 44px;
+    height: 44px;
+    border-radius: var(--radius-md);
+    background: var(--bg-surface);
+    border: 1px solid var(--border-subtle);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    flex-shrink: 0;
+}
+
+.flavor-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.flavor-name {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: var(--text-heading);
+}
+
+.flavor-price-tag {
+    font-size: 0.8rem;
+    font-family: monospace;
+    font-weight: 700;
+    color: var(--accent-amber);
+    margin-top: 2px;
+}
+
+.flavor-truck-stock {
+    font-size: 0.72rem;
+    color: var(--text-muted);
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    margin-top: 2px;
+}
+
+.stock-tag-indicator {
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--color-cash);
+}
+
+/* Quantity Control Box */
+.flavor-counter-box {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: var(--bg-surface);
+    border: 1px solid var(--border-medium);
+    border-radius: var(--radius-md);
+    padding: 0.45rem 0.65rem;
+    gap: 4px;
+}
+
+.counter-btn {
+    min-width: 36px;
+    height: 36px;
+    padding: 0 4px;
+    border-radius: var(--radius-sm);
+    background: var(--bg-surface-elevated);
+    border: 1px solid var(--border-subtle);
+    color: var(--text-primary);
+    font-size: 0.85rem;
+    font-weight: 800;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.counter-btn:hover {
+    background: var(--accent-lime-soft);
+    color: var(--accent-lime-dark);
+}
+
+.counter-input-field {
+    width: 70px;
+    text-align: center;
+    background: transparent;
+    border: none;
+    color: var(--text-heading);
+    font-size: 1.15rem;
+    font-weight: 800;
+    font-family: monospace;
+    outline: none;
+}
+
+/* Live Order Summary Sticky Bar on Mobile */
+.mobile-cart-bottom-bar {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 35;
+    background: var(--bg-surface-elevated);
+    backdrop-filter: blur(28px);
+    border-top: 1px solid var(--border-medium);
+    padding: 0.85rem 1.25rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    box-shadow: 0 -10px 30px rgba(0, 0, 0, 0.25);
+}
+
+@media (min-width: 1024px) {
+    .mobile-cart-bottom-bar {
+        display: none;
+    }
+}
+
+.cart-summary-total-group {
+    display: flex;
+    flex-direction: column;
+}
+
+.cart-summary-label {
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    font-weight: 600;
+}
+
+.cart-summary-amount {
+    font-size: 1.25rem;
+    font-weight: 900;
+    color: var(--text-heading);
+    font-family: monospace;
+}
+
+/* Step 3: Payment Choice Cards */
+.payment-selector-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1.25rem;
+    margin-top: 1rem;
+}
+
+@media (min-width: 640px) {
+    .payment-selector-grid {
+        grid-template-columns: 1fr 1fr;
+    }
+}
+
+.payment-method-card {
+    padding: 1.5rem;
+    border-radius: var(--radius-xl);
+    border: 2px solid var(--border-medium);
+    background: var(--bg-surface-elevated);
+    cursor: pointer;
+    transition: all 0.25s ease;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 0.75rem;
+    position: relative;
+    overflow: hidden;
+}
+
+.payment-method-card:hover {
+    transform: translateY(-2px);
+}
+
+.payment-method-card.cash-choice:hover, .payment-method-card.cash-choice.selected {
+    border-color: var(--color-cash);
+    background: var(--color-cash-soft);
+    box-shadow: 0 10px 25px rgba(16, 185, 129, 0.2);
+}
+
+.payment-method-card.credit-choice:hover, .payment-method-card.credit-choice.selected {
+    border-color: var(--color-credit);
+    background: var(--color-credit-soft);
+    box-shadow: 0 10px 25px rgba(245, 158, 11, 0.2);
+}
+
+.payment-method-icon {
+    font-size: 2.2rem;
+}
+
+.payment-method-title {
+    font-size: 1.1rem;
+    font-weight: 800;
+    color: var(--text-heading);
+}
+
+.payment-method-desc {
+    font-size: 0.78rem;
+    color: var(--text-secondary);
+}
+
+/* ========================================================
+   2. DRIVER ROUTE STOPS CHECKLIST & TELEMETRY
+   ======================================================== */
+.driver-hero-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1.25rem;
+    margin-bottom: 1.5rem;
+}
+
+@media (min-width: 768px) {
+    .driver-hero-grid {
+        grid-template-columns: 2fr 1fr;
+    }
+}
+
+/* Chiller Telemetry Gauge Tile */
+.chiller-temp-card {
+    padding: 1.25rem;
+    border-radius: var(--radius-lg);
+    background: var(--bg-surface-elevated);
+    border: 1px solid var(--border-subtle);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.temp-gauge-val {
+    font-size: 2.2rem;
+    font-weight: 900;
+    font-family: monospace;
+    letter-spacing: -0.04em;
+}
+
+.temp-gauge-val.temp-safe {
+    color: var(--color-cash);
+}
+
+.temp-gauge-val.temp-warn {
+    color: var(--color-credit);
+}
+
+.temp-gauge-val.temp-danger {
+    color: var(--color-sos);
+}
+
+/* Delivery Route Stops Progression */
+.delivery-stops-stepper-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.stop-checklist-item {
+    background: var(--bg-surface-elevated);
+    border: 1.5px solid var(--border-subtle);
+    border-radius: var(--radius-lg);
+    padding: 1.15rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    transition: all 0.2s ease;
+}
+
+.stop-checklist-item.active-stop {
+    border-color: var(--accent-lime);
+    background: var(--accent-lime-soft);
+    box-shadow: 0 8px 25px rgba(163, 230, 53, 0.15);
+}
+
+.stop-checklist-item.completed-stop {
+    border-color: rgba(16, 185, 129, 0.3);
+    opacity: 0.75;
+}
+
+.stop-num-badge {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+    font-size: 0.85rem;
+    background: var(--bg-surface);
+    border: 1.5px solid var(--border-medium);
+    flex-shrink: 0;
+}
+
+.stop-checklist-item.active-stop .stop-num-badge {
+    background: var(--brand-gradient);
+    color: #000;
+    border-color: transparent;
+}
+
+.stop-checklist-item.completed-stop .stop-num-badge {
+    background: var(--color-cash);
+    color: #fff;
+    border-color: transparent;
+}
+
+.stop-details-group {
+    flex: 1;
+    min-width: 0;
+}
+
+.stop-shop-name {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: var(--text-heading);
+}
+
+.stop-address-text {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+}
+
+/* ========================================================
+   3. DAY-END SETTLEMENT RECONCILIATION
+   ======================================================== */
+.settlement-step-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1.25rem;
+}
+
+@media (min-width: 900px) {
+    .settlement-step-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+.settlement-step-card {
+    background: var(--bg-surface-elevated);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-xl);
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.settlement-metric-tile {
+    padding: 1rem;
+    border-radius: var(--radius-md);
+    background: var(--bg-surface);
+    border: 1px solid var(--border-subtle);
+    margin-bottom: 0.75rem;
+}
+
+.metric-tile-label {
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    font-weight: 600;
+    color: var(--text-muted);
+}
+
+.metric-tile-val {
+    font-size: 1.4rem;
+    font-weight: 800;
+    font-family: monospace;
+    color: var(--text-heading);
+    margin-top: 0.25rem;
+}
+
+/* ========================================================
+   4. CREDIT SALE LEGAL BINDING & SIGNATURE MODAL
+   ======================================================== */
+.credit-modal-box {
+    max-width: 480px;
+    padding: 1.5rem !important;
+}
+
+.credit-summary-card {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.85rem 1.15rem;
+    background: var(--bg-surface);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-md);
+    margin-bottom: 1rem;
+}
+
+.credit-summary-shop {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+}
+
+.credit-shop-name {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: var(--text-heading);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.credit-summary-amount {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    flex-shrink: 0;
+}
+
+.credit-amount-val {
+    font-size: 1.15rem;
+    font-family: monospace;
+    font-weight: 900;
+    color: var(--accent-amber);
+}
+
+/* Segmented Auth Method Tabs */
+.auth-segmented-tabs {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+    background: var(--bg-surface);
+    padding: 4px;
+    border-radius: var(--radius-md);
+    border: 1px solid var(--border-subtle);
+    margin-bottom: 1rem;
+}
+
+.auth-tab-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 8px 12px;
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: var(--text-secondary);
+    background: transparent;
+    border: none;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.auth-tab-btn:hover {
+    color: var(--text-primary);
+}
+
+.auth-tab-btn.active {
+    background: var(--bg-surface-elevated);
+    color: var(--text-heading);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+    border: 1px solid var(--border-medium);
+}
+
+/* Signature Pad Wrapper */
+.signature-pad-wrapper {
+    position: relative;
+    width: 100%;
+    height: 190px;
+    background: radial-gradient(circle at 50% 50%, rgba(30, 41, 59, 0.45) 0%, rgba(15, 23, 42, 0.95) 100%), #0b1120;
+    border: 1.5px dashed rgba(255, 255, 255, 0.22);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    margin-bottom: 1.25rem;
+    box-shadow: inset 0 2px 10px rgba(0, 0, 0, 0.5);
+    touch-action: none;
+}
+
+[data-theme="light"] .signature-pad-wrapper,
+html:not(.dark) .signature-pad-wrapper {
+    background: #f8fafc;
+    border: 1.5px dashed #cbd5e1;
+    box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.05);
+}
+
+.signature-pad-header {
+    position: absolute;
+    top: 8px;
+    left: 12px;
+    right: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    z-index: 10;
+    pointer-events: none;
+}
+
+.sig-header-tag {
+    font-size: 0.7rem;
+    font-weight: 600;
+    font-family: monospace;
+    letter-spacing: 0.04em;
+    color: var(--text-muted);
+    background: rgba(15, 23, 42, 0.7);
+    padding: 2px 8px;
+    border-radius: 999px;
+    backdrop-filter: blur(6px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+[data-theme="light"] .sig-header-tag,
+html:not(.dark) .sig-header-tag {
+    background: rgba(255, 255, 255, 0.85);
+    color: #64748b;
+    border-color: rgba(0, 0, 0, 0.08);
+}
+
+.btn-clear-signature {
+    pointer-events: auto;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 3px 9px;
+    border-radius: 999px;
+    font-size: 0.72rem;
+    font-weight: 700;
+    background: rgba(244, 63, 94, 0.15);
+    border: 1px solid rgba(244, 63, 94, 0.35);
+    color: #f43f5e;
+    cursor: pointer;
+    backdrop-filter: blur(6px);
+    transition: all 0.2s ease;
+}
+
+.btn-clear-signature:hover {
+    background: rgba(244, 63, 94, 0.25);
+    transform: translateY(-1px);
+}
+
+.signature-canvas-element {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 5;
+    cursor: crosshair;
+}
+
+.signature-baseline-guide {
+    position: absolute;
+    bottom: 32px;
+    left: 20px;
+    right: 20px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    pointer-events: none;
+    z-index: 2;
+    opacity: 0.35;
+}
+
+.sig-x-mark {
+    font-size: 0.9rem;
+    font-weight: 900;
+    font-family: monospace;
+    color: var(--text-muted);
+}
+
+.sig-dotted-line {
+    flex: 1;
+    border-bottom: 1.5px dotted var(--text-muted);
+    height: 1px;
+}
+
+.signature-watermark {
+    position: absolute;
+    bottom: 10px;
+    left: 0;
+    right: 0;
+    text-align: center;
+    font-size: 0.68rem;
+    letter-spacing: 0.05em;
+    color: var(--text-muted);
+    opacity: 0.55;
+    pointer-events: none;
+    z-index: 2;
+}
+
+/* OTP Card Wrapper */
+.otp-card-wrapper {
+    background: var(--bg-surface);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-lg);
+    padding: 1.25rem;
+    margin-bottom: 1.25rem;
+}
+
+.otp-phone-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.otp-phone-label {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.otp-phone-badge {
+    font-size: 0.95rem;
+    font-family: monospace;
+    font-weight: 800;
+    color: var(--color-info);
+}
+
+.otp-large-input {
+    max-width: 240px;
+    margin: 0 auto;
+    font-size: 1.5rem !important;
+    font-family: monospace !important;
+    letter-spacing: 0.35em !important;
+    font-weight: 800 !important;
+    text-align: center !important;
+    padding: 8px 12px !important;
+}
+
+.credit-submit-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 12px !important;
+    font-size: 0.95rem !important;
+    letter-spacing: 0.02em;
+    box-shadow: 0 4px 16px rgba(245, 158, 11, 0.3);
+}
+

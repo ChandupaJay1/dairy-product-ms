@@ -268,6 +268,39 @@
                         </div>
                     @endif
 
+                    <!-- Quick Test Role Credentials Selector -->
+                    <div class="mb-6 p-3 rounded-2xl bg-zinc-100/90 dark:bg-zinc-900/60 border border-zinc-200/80 dark:border-white/5">
+                        <span class="block text-[10px] font-mono uppercase tracking-wider text-zinc-500 dark:text-zinc-400 font-bold mb-2">
+                            ⚡ Quick Role Login Demo (Click to Test)
+                        </span>
+                        <div class="grid grid-cols-2 gap-2 text-xs">
+                            <button type="button" 
+                                    onclick="document.getElementById('email').value='admin@pulse.lk'; document.getElementById('password').value='password';"
+                                    class="p-2 rounded-xl text-left bg-white dark:bg-zinc-800/60 border border-zinc-200 dark:border-zinc-700/60 hover:border-amber-400 dark:hover:border-amber-400 transition-all">
+                                <span class="font-bold text-amber-600 dark:text-amber-400">👑 Admin</span>
+                                <span class="block text-[10px] text-zinc-400 truncate">admin@pulse.lk</span>
+                            </button>
+                            <button type="button" 
+                                    onclick="document.getElementById('email').value='rep@pulse.lk'; document.getElementById('password').value='password';"
+                                    class="p-2 rounded-xl text-left bg-white dark:bg-zinc-800/60 border border-zinc-200 dark:border-zinc-700/60 hover:border-lime-400 dark:hover:border-lime-400 transition-all">
+                                <span class="font-bold text-lime-600 dark:text-lime-400">📱 Sales Rep</span>
+                                <span class="block text-[10px] text-zinc-400 truncate">rep@pulse.lk</span>
+                            </button>
+                            <button type="button" 
+                                    onclick="document.getElementById('email').value='driver@pulse.lk'; document.getElementById('password').value='password';"
+                                    class="p-2 rounded-xl text-left bg-white dark:bg-zinc-800/60 border border-zinc-200 dark:border-zinc-700/60 hover:border-cyan-400 dark:hover:border-cyan-400 transition-all">
+                                <span class="font-bold text-cyan-600 dark:text-cyan-400">🚚 Driver</span>
+                                <span class="block text-[10px] text-zinc-400 truncate">driver@pulse.lk</span>
+                            </button>
+                            <button type="button" 
+                                    onclick="document.getElementById('email').value='cashier@pulse.lk'; document.getElementById('password').value='password';"
+                                    class="p-2 rounded-xl text-left bg-white dark:bg-zinc-800/60 border border-zinc-200 dark:border-zinc-700/60 hover:border-yellow-400 dark:hover:border-yellow-400 transition-all">
+                                <span class="font-bold text-yellow-600 dark:text-yellow-400">🧾 Cashier</span>
+                                <span class="block text-[10px] text-zinc-400 truncate">cashier@pulse.lk</span>
+                            </button>
+                        </div>
+                    </div>
+
                     <!-- Login Form -->
                     <form method="POST" action="{{ route('login') }}" class="space-y-5" x-data="{ showPassword: false }">
                         @csrf

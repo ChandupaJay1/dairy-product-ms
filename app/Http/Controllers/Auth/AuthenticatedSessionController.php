@@ -28,7 +28,15 @@ class AuthenticatedSessionController extends Controller
 
         $request->session()->regenerate();
 
-        return redirect()->intended(route('dashboard', absolute: false));
+        $user = Auth::user();
+        $targetHash = match($user->role ?? 'admin') {
+            'driver' => '#driver',
+            'sales_rep' => '#sales_rep',
+            'cashier' => '#settlement',
+            default => '#admin'
+        };
+
+        return redirect()->intended(route('dashboard', absolute: false) . $targetHash);
     }
 
     /**
