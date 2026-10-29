@@ -1379,3 +1379,103 @@ input, select, textarea {
 .table tr:hover td {
     background: var(--bg-surface-hover);
 }
+
+/* ========================================================
+   12. 58mm / 80mm THERMAL RECEIPT & BLUETOOTH PRINTER STYLES
+   ======================================================== */
+.receipt-paper {
+    background: #FFFFFF;
+    color: #0F172A;
+    padding: 16px;
+    border-radius: var(--radius-sm);
+    box-shadow: 0 4px 14px rgba(0,0,0,0.25);
+    font-family: 'Courier New', Courier, monospace;
+    max-width: 360px;
+    margin: 0 auto;
+    border: 1px dashed #CBD5E1;
+}
+
+.receipt-header-center {
+    text-align: center;
+    border-bottom: 1px dashed #94A3B8;
+    padding-bottom: 8px;
+    margin-bottom: 8px;
+}
+
+.receipt-items-table {
+    width: 100%;
+    font-size: 0.78rem;
+    border-collapse: collapse;
+    margin: 8px 0;
+}
+
+.receipt-items-table th, 
+.receipt-items-table td {
+    padding: 4px 2px;
+}
+
+.receipt-seal-box {
+    margin-top: 10px;
+    padding: 6px;
+    border: 1px dashed #94A3B8;
+    text-align: center;
+    background: #F8FAFC;
+    border-radius: 4px;
+}
+
+/* ESC/POS Mobile Bluetooth Thermal 58mm & 80mm Print Media Engine */
+@media print {
+    @page {
+        size: 58mm auto;
+        margin: 0;
+    }
+
+    body * {
+        visibility: hidden !important;
+    }
+
+    body {
+        background: #FFFFFF !important;
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+
+    /* Print only the active printable receipt */
+    #printableReceipt,
+    #printableReceipt *,
+    #printableDebtReceipt,
+    #printableDebtReceipt * {
+        visibility: visible !important;
+    }
+
+    #printableReceipt,
+    #printableDebtReceipt {
+        position: absolute !important;
+        left: 0 !important;
+        top: 0 !important;
+        width: 58mm !important;
+        max-width: 58mm !important;
+        padding: 4mm 2mm !important;
+        margin: 0 !important;
+        border: none !important;
+        box-shadow: none !important;
+        font-family: 'Courier New', Courier, monospace !important;
+        font-size: 9.5pt !important;
+        color: #000000 !important;
+        background: #FFFFFF !important;
+    }
+
+    .modal-overlay,
+    .modal-header,
+    .modal-close-btn,
+    .btn,
+    .btn-whatsapp,
+    .desktop-sidebar,
+    .mobile-header,
+    .mobile-bottom-nav,
+    header,
+    footer {
+        display: none !important;
+    }
+}
+

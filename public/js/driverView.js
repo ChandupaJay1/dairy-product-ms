@@ -388,12 +388,33 @@ const DriverView = (() => {
         const landmark = document.getElementById('sosLandmarkInput').value || 'Near Hingurakgoda Track - Sector B';
         const temp = parseFloat(document.getElementById('sosTempInput').value) || 11.4;
 
+        // Capture real-time hardware GPS coordinates if available
+        let lat = 7.9403;
+        let lng = 81.0188;
+        if (navigator.geolocation) {
+            try {
+                const pos = await new Promise((resolve, reject) => {
+                    navigator.geolocation.getCurrentPosition(resolve, reject, {
+                        enableHighAccuracy: true,
+                        timeout: 3500,
+                        maximumAge: 10000
+                    });
+                });
+                if (pos && pos.coords) {
+                    lat = pos.coords.latitude;
+                    lng = pos.coords.longitude;
+                }
+            } catch (geoErr) {
+                console.warn('Live GPS fallback to Polonnaruwa regional coordinates:', geoErr.message);
+            }
+        }
+
         const payload = {
             dispatchId: currentDispatch.id,
             vehicleId: currentDispatch.vehicle_id,
             driverId: currentDispatch.driver_id,
-            latitude: 7.9403,
-            longitude: 81.0188,
+            latitude: lat,
+            longitude: lng,
             locationLandmark: landmark,
             breakdownReason: reason,
             chillerTemperatureCelsius: temp
