@@ -10,43 +10,52 @@
 
 const SettlementView = (() => {
     let previewData = null;
+    let allDispatchesList = [];
     let crateSummary = null;
     let settlementHistory = [];
     let recentReturns = [];
 
-    async function loadData() {
-        // Fast Cache-First Stale-While-Revalidate
-        const cachedSettlement = OfflineStorage.getCachedData(OfflineStorage.CACHE_SETTLEMENT_KEY);
-        if (cachedSettlement) {
-            previewData = cachedSettlement.previewData || previewData;
-            crateSummary = cachedSettlement.crateSummary || crateSummary;
-            settlementHistory = cachedSettlement.settlementHistory || settlementHistory;
-            recentReturns = cachedSettlement.recentReturns || recentReturns;
-            render();
-        } else {
-            SecurityClient.renderLoading(
-                'settlementViewContainer',
-                I18n.getLanguage() === 'si' ? 'දවසේ ගිණුම් සාරාංශය පූරණය වෙමින් පවතී' : 'Day-End Reconciliation Loading...',
-                I18n.getLanguage() === 'si' ? '🧾 විකුණුම් බිල්පත්, ලොරියේ ඉතිරි තොග සහ කූඩ ගිණුම් සසඳමින් පවතී...' : 'Auditing sales invoices, remaining cold-room returns, and crate ledgers...',
-                '🧾'
-            );
+    async function loadData(targetDispatchId = null) {
+        // Fast Cache-First Stale-While-Revalidate (only on initial load without targetId)
+        if (!targetDispatchId) {
+            const cachedSettlement = OfflineStorage.getCachedData(OfflineStorage.CACHE_SETTLEMENT_KEY);
+            if (cachedSettlement) {
+                previewData = cachedSettlement.previewData || previewData;
+                crateSummary = cachedSettlement.crateSummary || crateSummary;
+                settlementHistory = cachedSettlement.settlementHistory || settlementHistory;
+                recentReturns = cachedSettlement.recentReturns || recentReturns;
+                allDispatchesList = cachedSettlement.allDispatchesList || allDispatchesList;
+                render();
+            } else {
+                SecurityClient.renderLoading(
+                    'settlementViewContainer',
+                    I18n.getLanguage() === 'si' ? 'දවසේ ගිණුම් සාරාංශය පූරණය වෙමින් පවතී' : 'Day-End Reconciliation Loading...',
+                    I18n.getLanguage() === 'si' ? '🧾 විකුණුම් බිල්පත්, ලොරියේ ඉතිරි තොග සහ කූඩ ගිණුම් සසඳමින් පවතී...' : 'Auditing sales invoices, remaining cold-room returns, and crate ledgers...',
+                    '🧾'
+                );
+            }
         }
 
         try {
+            const previewUrl = targetDispatchId ? `/api/settlement/preview?dispatch_id=${targetDispatchId}` : '/api/settlement/preview';
             const [prevRes, crateRes, histRes, retRes] = await Promise.all([
-                SecurityClient.secureFetch('/api/settlement/preview'),
+                SecurityClient.secureFetch(previewUrl),
                 SecurityClient.secureFetch('/api/crates/summary'),
                 SecurityClient.secureFetch('/api/settlement/history'),
                 SecurityClient.secureFetch('/api/returns')
             ]);
 
-            if (prevRes && prevRes.success) previewData = prevRes.dispatch;
+            if (prevRes && prevRes.success) {
+                previewData = prevRes.dispatch;
+                allDispatchesList = prevRes.all_dispatches || [];
+            }
             if (crateRes && crateRes.success) crateSummary = crateRes;
-            if (histRes && histRes.success) settlementHistory = histRes.settlements;
-            if (retRes && retRes.success) recentReturns = retRes.returns;
+            if (histRes && histRes.success) settlementHistory = histRes.settlements || [];
+            if (retRes && retRes.success) recentReturns = retRes.returns || [];
 
             OfflineStorage.cacheOperationalData(OfflineStorage.CACHE_SETTLEMENT_KEY, {
                 previewData,
+                allDispatchesList,
                 crateSummary,
                 settlementHistory,
                 recentReturns
@@ -85,13 +94,27 @@ const SettlementView = (() => {
                     <div class="card-sheen-top"></div>
                     <div class="card-header">
                         <div>
-                            <h2 class="card-title">${I18n.t('title_day_settlement', '🧾 Day-End Cash & Stock Reconciliation')}</h2>
+                            <div style="display:flex; align-items:center; gap:0.75rem; flex-wrap:wrap; margin-bottom:4px;">
+                                <h2 class="card-title" style="margin-bottom:0;">${I18n.t('title_day_settlement', '🧾 Day-End Cash & Stock Reconciliation')}</h2>
+                                <span class="badge ${previewData.status === 'SETTLED' ? 'badge-success' : 'badge-warning'}">
+                                    ${previewData.status === 'SETTLED' ? '✓ SETTLED' : '🚚 ACTIVE MANIFEST'}
+                                </span>
+                            </div>
                             <p class="card-subtitle">
                                 ${I18n.t('settlement_depot', 'Polonnaruwa Main Depot')} &bull; Manifest <strong>#${SecurityClient.escapeHtml(previewData.manifest_number)}</strong> &bull; 
                                 Vehicle: <strong>${SecurityClient.escapeHtml(previewData.vehicle_number)}</strong> (${SecurityClient.escapeHtml(previewData.driver_name)})
                             </p>
                         </div>
-                        <div style="display:flex; gap:0.5rem; flex-wrap:wrap;">
+                        <div style="display:flex; gap:0.5rem; align-items:center; flex-wrap:wrap;">
+                            ${allDispatchesList.length > 1 ? `
+                                <select class="form-control" style="max-width:230px; font-size:0.8rem; padding:4px 8px; height:34px;" onchange="SettlementView.onDispatchSwitch(this.value)">
+                                    ${allDispatchesList.map(d => `
+                                        <option value="${d.id}" ${d.id === previewData.id ? 'selected' : ''}>
+                                            ${d.manifest_number} (${d.status}) - ${d.vehicle_number}
+                                        </option>
+                                    `).join('')}
+                                </select>
+                            ` : ''}
                             <button class="btn btn-sm btn-outline" onclick="SettlementView.openCrateModal()">
                                 ${I18n.t('tab_crates', '🧺 Crates & Pots (Crates)')}
                             </button>
@@ -241,8 +264,9 @@ const SettlementView = (() => {
                         <span style="font-size:0.78rem; color:var(--text-muted);">
                             🔒 Confirming this closes the daily ledger and releases the vehicle for tomorrow.
                         </span>
-                        <button type="button" class="btn btn-brand btn-lg" onclick="SettlementView.submitSettlement()">
-                            ✓ Confirm & Close Daily Settlement
+                        <button type="button" class="btn btn-brand btn-lg" onclick="SettlementView.submitSettlement()" ${previewData.status === 'SETTLED' ? 'disabled style="opacity:0.6; cursor:not-allowed;"' : ''}>
+                            ${previewData.status === 'SETTLED' ? '✓ Daily Settlement Already Closed' : '✓ Confirm & Close Daily Settlement'}
+                        </button>
                     </div>
                 </div>
 
@@ -424,7 +448,8 @@ const SettlementView = (() => {
 
         if (res && res.success) {
             SecurityClient.showToast(`✓ Day-End Settlement #${res.settlement.settlement_number} confirmed! Dispatch closed.`, 'success', 5000);
-            await loadData();
+            localStorage.removeItem(OfflineStorage.CACHE_SETTLEMENT_KEY);
+            await loadData(previewData.id);
             if (window.AdminDashboard && typeof window.AdminDashboard.loadAllAdminData === 'function') {
                 window.AdminDashboard.loadAllAdminData();
             }
@@ -462,13 +487,20 @@ const SettlementView = (() => {
         document.getElementById('crateTrackModal').style.display = 'flex';
     }
 
+    function onDispatchSwitch(dispatchId) {
+        if (!dispatchId) return;
+        localStorage.removeItem(OfflineStorage.CACHE_SETTLEMENT_KEY);
+        loadData(parseInt(dispatchId));
+    }
+
     return {
         loadData,
         render,
         recalculateVariances,
         submitSettlement,
         openReturnModal,
-        openCrateModal
+        openCrateModal,
+        onDispatchSwitch
     };
 })();
 

@@ -203,15 +203,34 @@ class OperationsController extends Controller
     public function getSettlementPreview(Request $request)
     {
         $dispatchId = $request->input('dispatch_id');
-        $dispatch = $dispatchId ? Dispatch::find($dispatchId) : Dispatch::where('status', 'IN_TRANSIT')->orderBy('id', 'desc')->first();
+        $dispatch = null;
+
+        if ($dispatchId) {
+            $dispatch = Dispatch::find($dispatchId);
+        }
 
         if (!$dispatch) {
+            // First look for active / in-transit dispatch
+            $dispatch = Dispatch::whereIn('status', ['IN_TRANSIT', 'PENDING'])->orderBy('id', 'desc')->first();
+        }
+
+        if (!$dispatch) {
+            // Fallback to most recent dispatch of any status
             $dispatch = Dispatch::orderBy('id', 'desc')->first();
         }
 
         if (!$dispatch) {
             return response()->json(['success' => false, 'error' => 'No dispatches found to settle.'], 404);
         }
+
+        // Fetch all dispatches for dropdown switcher
+        $allDispatches = DB::table('dispatches')
+            ->leftJoin('vehicles', 'dispatches.vehicle_id', '=', 'vehicles.id')
+            ->leftJoin('drivers', 'dispatches.driver_id', '=', 'drivers.id')
+            ->select('dispatches.id', 'dispatches.manifest_number', 'dispatches.dispatch_date', 'dispatches.status', 'vehicles.vehicle_number', 'drivers.name as driver_name')
+            ->orderBy('dispatches.id', 'desc')
+            ->limit(10)
+            ->get();
 
         // Sum orders for this dispatch
         $cashOrdersTotal = (float)Order::where('dispatch_id', $dispatch->id)->where('payment_type', 'CASH')->sum('total_amount');
@@ -235,10 +254,12 @@ class OperationsController extends Controller
 
         return response()->json([
             'success' => true,
+            'all_dispatches' => $allDispatches,
             'dispatch' => [
                 'id' => $dispatch->id,
                 'manifest_number' => $dispatch->manifest_number,
                 'dispatch_date' => $dispatch->dispatch_date,
+                'status' => $dispatch->status,
                 'vehicle_number' => $vehicle ? $vehicle->vehicle_number : 'NC-GA-4521',
                 'driver_name' => $driver ? $driver->name : 'Kamal Gunaratne',
                 'route_name' => $route ? $route->route_name : 'Hingurakgoda Express',
