@@ -1423,33 +1423,59 @@ input, select, textarea {
     border-radius: 4px;
 }
 
-/* ESC/POS Mobile Bluetooth Thermal 58mm & 80mm Print Media Engine */
+/* ========================================================
+   13. INTELLIGENT PRINT MEDIA ENGINE (Thermal & A4 Reports)
+   ======================================================== */
 @media print {
-    @page {
-        size: 58mm auto;
-        margin: 0;
-    }
-
-    body * {
-        visibility: hidden !important;
-    }
-
+    /* 1. Global Reset for Clean Output */
     body {
         background: #FFFFFF !important;
+        color: #0F172A !important;
         margin: 0 !important;
         padding: 0 !important;
     }
 
-    /* Print only the active printable receipt */
-    #printableReceipt,
-    #printableReceipt *,
-    #printableDebtReceipt,
-    #printableDebtReceipt * {
+    /* Hide standard app navigation and interactive elements */
+    .desktop-sidebar,
+    .mobile-header,
+    .mobile-bottom-nav,
+    .report-subnav,
+    .btn,
+    .btn-report-action,
+    .btn-whatsapp,
+    .modal-close-btn,
+    .card-sheen-top,
+    header,
+    footer,
+    .sidebar-telemetry-card,
+    .theme-toggle-btn,
+    .lang-select-box {
+        display: none !important;
+    }
+
+    /* ----------------------------------------------------
+       CASE A: 58mm Bluetooth Thermal Slip (when a receipt modal is open)
+       ---------------------------------------------------- */
+    body:has(#receiptModal[style*="display: flex"], #fieldDebtReceiptModal[style*="display: flex"], #receiptModal[style*="display: block"], #fieldDebtReceiptModal[style*="display: block"]) {
+        @page {
+            size: 58mm auto;
+            margin: 0;
+        }
+    }
+
+    body:has(#receiptModal[style*="display: flex"], #fieldDebtReceiptModal[style*="display: flex"], #receiptModal[style*="display: block"], #fieldDebtReceiptModal[style*="display: block"]) * {
+        visibility: hidden !important;
+    }
+
+    body:has(#receiptModal[style*="display: flex"], #fieldDebtReceiptModal[style*="display: flex"], #receiptModal[style*="display: block"], #fieldDebtReceiptModal[style*="display: block"]) #printableReceipt,
+    body:has(#receiptModal[style*="display: flex"], #fieldDebtReceiptModal[style*="display: flex"], #receiptModal[style*="display: block"], #fieldDebtReceiptModal[style*="display: block"]) #printableReceipt *,
+    body:has(#receiptModal[style*="display: flex"], #fieldDebtReceiptModal[style*="display: flex"], #receiptModal[style*="display: block"], #fieldDebtReceiptModal[style*="display: block"]) #printableDebtReceipt,
+    body:has(#receiptModal[style*="display: flex"], #fieldDebtReceiptModal[style*="display: flex"], #receiptModal[style*="display: block"], #fieldDebtReceiptModal[style*="display: block"]) #printableDebtReceipt * {
         visibility: visible !important;
     }
 
-    #printableReceipt,
-    #printableDebtReceipt {
+    body:has(#receiptModal[style*="display: flex"], #fieldDebtReceiptModal[style*="display: flex"], #receiptModal[style*="display: block"], #fieldDebtReceiptModal[style*="display: block"]) #printableReceipt,
+    body:has(#receiptModal[style*="display: flex"], #fieldDebtReceiptModal[style*="display: flex"], #receiptModal[style*="display: block"], #fieldDebtReceiptModal[style*="display: block"]) #printableDebtReceipt {
         position: absolute !important;
         left: 0 !important;
         top: 0 !important;
@@ -1465,17 +1491,87 @@ input, select, textarea {
         background: #FFFFFF !important;
     }
 
-    .modal-overlay,
-    .modal-header,
-    .modal-close-btn,
-    .btn,
-    .btn-whatsapp,
-    .desktop-sidebar,
-    .mobile-header,
-    .mobile-bottom-nav,
-    header,
-    footer {
-        display: none !important;
+    /* ----------------------------------------------------
+       CASE B: Standard A4 Reports & Statements (Landscape/Portrait)
+       ---------------------------------------------------- */
+    @page {
+        size: A4 portrait;
+        margin: 12mm 10mm;
+    }
+
+    .main-content-area,
+    .main-workspace,
+    .view-panel,
+    #view-reports,
+    .reports-shell,
+    .report-content-body,
+    #reportsViewContainer {
+        display: block !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        background: #FFFFFF !important;
+        box-shadow: none !important;
+        border: none !important;
+        color: #0F172A !important;
+    }
+
+    /* Clean Card Styling for Print */
+    .card,
+    .eyecare-card {
+        background: #FFFFFF !important;
+        border: 1px solid #CBD5E1 !important;
+        box-shadow: none !important;
+        color: #0F172A !important;
+        break-inside: avoid;
+        margin-bottom: 1rem !important;
+    }
+
+    /* Print Tables */
+    .table,
+    .eyecare-table {
+        width: 100% !important;
+        border-collapse: collapse !important;
+        font-size: 9pt !important;
+        color: #0F172A !important;
+    }
+
+    .table th,
+    .eyecare-table th {
+        background: #F1F5F9 !important;
+        color: #0F172A !important;
+        border: 1px solid #CBD5E1 !important;
+        font-weight: 700 !important;
+        padding: 6px 8px !important;
+        text-transform: uppercase !important;
+    }
+
+    .table td,
+    .eyecare-table td {
+        border: 1px solid #E2E8F0 !important;
+        color: #0F172A !important;
+        padding: 6px 8px !important;
+        background: #FFFFFF !important;
+    }
+
+    /* Statement Modal Specific Print Override */
+    #shopStatementModal[style*="display: flex"],
+    #shopStatementModal[style*="display: block"] {
+        position: static !important;
+        background: transparent !important;
+        display: block !important;
+        padding: 0 !important;
+    }
+
+    #printableShopStatement {
+        width: 100% !important;
+        max-width: 100% !important;
+        box-shadow: none !important;
+        border: none !important;
+        padding: 0 !important;
+        color: #0F172A !important;
     }
 }
+
 
