@@ -92,7 +92,7 @@ const ReportsView = (() => {
                         <p>${I18n.t('reports_subtitle', 'Polonnaruwa Sector • Operations Intelligence & Profitability')}</p>
                     </div>
                     <div>
-                        <button class="btn-report-action" onclick="window.print()">
+                        <button class="btn-report-action" onclick="ReportsView.exportReportPdf()">
                             ${I18n.t('btn_print_pdf', '🖨️ Export PDF')}
                         </button>
                     </div>
@@ -497,6 +497,140 @@ const ReportsView = (() => {
         loadShopStatement(shopId);
     }
 
+    function exportReportPdf() {
+        const activeContainer = document.querySelector('.report-content-body');
+        if (!activeContainer) return;
+
+        const tabTitles = {
+            'routes': 'Route Profitability & COGS Fleet Economics',
+            'flavors': '5-Flavor Portfolio Performance & Regional Demand Trends',
+            'statement': 'Retail Shop Monthly Running Statement Ledger',
+            'commissions': 'Sales Representatives & Driver Commission Pay-Sheet'
+        };
+
+        const title = tabTitles[activeSubTab] || 'PulseERP Financial Report';
+        const printWindow = window.open('', '_blank', 'width=900,height=850');
+        if (!printWindow) {
+            window.print();
+            return;
+        }
+
+        printWindow.document.write(`
+            <!DOCTYPE html>
+            <html>
+                <head>
+                    <meta charset="utf-8">
+                    <title>${title} - PulseERP Polonnaruwa</title>
+                    <style>
+                        @page { size: A4 portrait; margin: 12mm 10mm; }
+                        * { box-sizing: border-box; }
+                        body {
+                            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                            color: #0F172A;
+                            background: #FFFFFF;
+                            padding: 20px;
+                            margin: 0;
+                            font-size: 11px;
+                            line-height: 1.4;
+                        }
+                        .print-header {
+                            display: flex;
+                            justify-content: space-between;
+                            align-items: center;
+                            border-bottom: 2px solid #0F172A;
+                            padding-bottom: 10px;
+                            margin-bottom: 15px;
+                        }
+                        .print-title { font-size: 16px; font-weight: 800; color: #1E3A8A; margin: 0; }
+                        .print-sub { font-size: 10px; color: #64748B; margin-top: 2px; }
+                        .print-meta { text-align: right; font-size: 10px; color: #475569; }
+                        table {
+                            width: 100%;
+                            border-collapse: collapse;
+                            margin-top: 10px;
+                            font-size: 10.5px;
+                        }
+                        th {
+                            background-color: #F1F5F9;
+                            color: #1E293B;
+                            font-weight: 700;
+                            text-align: left;
+                            padding: 6px 8px;
+                            border: 1px solid #CBD5E1;
+                            text-transform: uppercase;
+                            font-size: 9.5px;
+                        }
+                        td {
+                            padding: 6px 8px;
+                            border: 1px solid #E2E8F0;
+                        }
+                        tr:nth-child(even) td { background-color: #F8FAFC; }
+                        .text-right { text-align: right; }
+                        .text-center { text-align: center; }
+                        .font-bold { font-weight: bold; }
+                        .font-mono { font-family: monospace; }
+                        .badge {
+                            display: inline-block;
+                            padding: 2px 6px;
+                            border-radius: 4px;
+                            font-size: 9px;
+                            font-weight: 700;
+                            border: 1px solid #94A3B8;
+                        }
+                        .card, .eyecare-card {
+                            border: 1px solid #E2E8F0;
+                            border-radius: 6px;
+                            padding: 10px;
+                            margin-bottom: 12px;
+                            background: #FFFFFF;
+                        }
+                        .grid { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 10px; }
+                        .grid > div { flex: 1; min-width: 140px; }
+                        .btn, button, select, input { display: none !important; }
+                        .print-footer {
+                            margin-top: 25px;
+                            padding-top: 10px;
+                            border-top: 1px dashed #CBD5E1;
+                            display: flex;
+                            justify-content: space-between;
+                            font-size: 9px;
+                            color: #64748B;
+                        }
+                    </style>
+                </head>
+                <body>
+                    <div class="print-header">
+                        <div>
+                            <div class="print-title">PULSE-ERP • POLONNARUWA DAIRY FLEET</div>
+                            <div class="print-sub">${title}</div>
+                        </div>
+                        <div class="print-meta">
+                            <div>Generated: <strong>${new Date().toLocaleString()}</strong></div>
+                            <div>Sector: <strong>Polonnaruwa Main Depot</strong></div>
+                            <div>Confidential Audit Report</div>
+                        </div>
+                    </div>
+
+                    ${activeContainer.innerHTML}
+
+                    <div class="print-footer">
+                        <div>Verified by PulseERP Intelligence Core Suite &bull; System Generated</div>
+                        <div>Page 1 of 1</div>
+                    </div>
+
+                    <script>
+                        window.onload = function() {
+                            setTimeout(() => {
+                                window.print();
+                            }, 250);
+                        };
+                    <\/script>
+                </body>
+            </html>
+        `);
+        printWindow.document.close();
+    }
+
     function openStatementModal() {
         if (!currentStatement) return;
 
@@ -547,6 +681,7 @@ const ReportsView = (() => {
         render,
         switchSubTab,
         onShopSelectChange,
+        exportReportPdf,
         openStatementModal
     };
 })();
