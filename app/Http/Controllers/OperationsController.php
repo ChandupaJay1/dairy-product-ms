@@ -427,6 +427,11 @@ class OperationsController extends Controller
         ]);
     }
 
+    public function getFlavorTrends(Request $request)
+    {
+        return $this->getFlavorAnalytics($request);
+    }
+
     public function getFlavorAnalytics(Request $request)
     {
         // 5 Flavors in Polonnaruwa Dairy portfolio
@@ -483,56 +488,84 @@ class OperationsController extends Controller
 
         $route = DB::table('routes')->where('id', $shop->route_id)->first();
 
-        // Orders (Invoices)
+        // 1. Orders (Invoices)
         $orders = Order::where('shop_id', $shop->id)->orderBy('created_at', 'asc')->get();
-        // Returns
+        // 2. Returns (Confirmed Credit Notes)
         $returns = StockReturn::where('shop_id', $shop->id)->orderBy('created_at', 'asc')->get();
+        // 3. Customer Payments (Field Debt & Cashier Settlements)
+        $payments = DB::table('payments')
+            ->where('shop_id', $shop->id)
+            ->where('status', 'CONFIRMED')
+            ->orderBy('created_at', 'asc')
+            ->get();
 
-        // Build chronological ledger
-        $ledger = [];
-        $runningBalance = 0;
+        // Build all entries and sort chronologically
+        $events = [];
 
         foreach ($orders as $order) {
-            $runningBalance += (float)$order->total_amount;
-            $ledger[] = [
-                'date' => date('Y-m-d', strtotime($order->created_at)),
+            $ts = strtotime($order->created_at ?? now());
+            $events[] = [
+                'timestamp' => $ts,
+                'date' => date('Y-m-d', $ts),
                 'type' => 'INVOICE',
                 'ref_no' => $order->invoice_number,
                 'description' => 'Delivery Invoice (' . $order->payment_type . ')',
                 'debit' => (float)$order->total_amount,
-                'credit' => 0.00,
-                'running_balance' => $runningBalance
+                'credit' => 0.00
             ];
 
-            // If cash was paid immediately, add payment credit line
+            // If cash was paid immediately, add offsetting cash payment entry
             if ($order->payment_type === 'CASH') {
-                $runningBalance -= (float)$order->total_amount;
-                $ledger[] = [
-                    'date' => date('Y-m-d', strtotime($order->created_at)),
+                $events[] = [
+                    'timestamp' => $ts + 1,
+                    'date' => date('Y-m-d', $ts),
                     'type' => 'PAYMENT',
                     'ref_no' => 'RCP-' . substr($order->invoice_number, 4),
-                    'description' => 'Cash Settlement Handover',
+                    'description' => 'Immediate Cash Settlement',
                     'debit' => 0.00,
-                    'credit' => (float)$order->total_amount,
-                    'running_balance' => $runningBalance
+                    'credit' => (float)$order->total_amount
                 ];
             }
         }
 
-        // Add returns credit notes
+        foreach ($payments as $pay) {
+            $payTs = strtotime($pay->confirmed_at ?? $pay->created_at ?? now());
+            $events[] = [
+                'timestamp' => $payTs,
+                'date' => date('Y-m-d', $payTs),
+                'type' => 'PAYMENT',
+                'ref_no' => $pay->receipt_number,
+                'description' => 'Debt Payment (' . ($pay->payment_method ?? 'CASH') . ') - Rep: ' . ($pay->sales_rep_name ?? 'Field Sales Rep'),
+                'debit' => 0.00,
+                'credit' => (float)$pay->payment_amount
+            ];
+        }
+
         foreach ($returns as $ret) {
-            if ($ret->settlement_action === 'CREDIT_NOTE') {
-                $runningBalance -= (float)$ret->total_value;
-                $ledger[] = [
-                    'date' => date('Y-m-d', strtotime($ret->created_at)),
+            if ($ret->settlement_action === 'CREDIT_NOTE' && $ret->status === 'CONFIRMED') {
+                $retTs = strtotime($ret->confirmed_at ?? $ret->created_at ?? now());
+                $events[] = [
+                    'timestamp' => $retTs,
+                    'date' => date('Y-m-d', $retTs),
                     'type' => 'CREDIT_NOTE',
                     'ref_no' => $ret->return_number,
                     'description' => 'Stock Return: ' . $ret->flavor_name . ' (' . $ret->quantity_cups . ' cups)',
                     'debit' => 0.00,
-                    'credit' => (float)$ret->total_value,
-                    'running_balance' => $runningBalance
+                    'credit' => (float)$ret->total_value
                 ];
             }
+        }
+
+        // Sort events chronologically
+        usort($events, fn($a, $b) => $a['timestamp'] <=> $b['timestamp']);
+
+        $ledger = [];
+        $runningBalance = 0;
+        foreach ($events as $event) {
+            $runningBalance += ($event['debit'] - $event['credit']);
+            $event['running_balance'] = max(0, $runningBalance);
+            unset($event['timestamp']);
+            $ledger[] = $event;
         }
 
         return response()->json([

@@ -37,13 +37,15 @@ class Order extends Model
                 invoice_number, dispatch_id, shop_id, sales_rep_id,
                 payment_type, total_amount, items_json,
                 digital_signature_hash, signature_svg_or_base64,
-                otp_verified, otp_reference_code, security_tamper_seal
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                otp_verified, otp_reference_code, security_tamper_seal,
+                status
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         ", [
             $data['invoiceNumber'], $data['dispatchId'], $data['shopId'], $data['salesRepId'] ?? 4,
             $data['paymentType'], $data['totalAmount'], json_encode($data['items']),
             $data['signatureHash'] ?? null, $data['signatureImage'] ?? null,
-            !empty($data['otpVerified']) ? 1 : 0, $data['otpReferenceCode'] ?? null, $data['securityTamperSeal']
+            !empty($data['otpVerified']) ? 1 : 0, $data['otpReferenceCode'] ?? null, $data['securityTamperSeal'],
+            $data['status'] ?? 'CONFIRMED'
         ]);
     }
 }

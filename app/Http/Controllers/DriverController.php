@@ -17,11 +17,11 @@ class DriverController extends Controller
                    COALESCE(sr.name, u.name, 'Field Sales Rep') AS sales_rep_name,
                    r.route_name, r.region_sector
             FROM dispatches d
-            JOIN vehicles v ON d.vehicle_id = v.id
-            JOIN drivers dr ON d.driver_id = dr.id
+            LEFT JOIN vehicles v ON d.vehicle_id = v.id
+            LEFT JOIN drivers dr ON d.driver_id = dr.id
             LEFT JOIN users u ON d.sales_rep_id = u.id
             LEFT JOIN sales_representatives sr ON (d.sales_rep_id = sr.id OR d.sales_rep_id = sr.user_id)
-            JOIN routes r ON d.route_id = r.id
+            LEFT JOIN routes r ON d.route_id = r.id
             ORDER BY d.id DESC
         ");
         return response()->json(['success' => true, 'dispatches' => $dispatches]);
@@ -36,11 +36,11 @@ class DriverController extends Controller
                    COALESCE(sr.name, u.name, 'Field Sales Rep') AS sales_rep_name,
                    r.route_name, r.region_sector
             FROM dispatches d
-            JOIN vehicles v ON d.vehicle_id = v.id
-            JOIN drivers dr ON d.driver_id = dr.id
+            LEFT JOIN vehicles v ON d.vehicle_id = v.id
+            LEFT JOIN drivers dr ON d.driver_id = dr.id
             LEFT JOIN users u ON d.sales_rep_id = u.id
             LEFT JOIN sales_representatives sr ON (d.sales_rep_id = sr.id OR d.sales_rep_id = sr.user_id)
-            JOIN routes r ON d.route_id = r.id
+            LEFT JOIN routes r ON d.route_id = r.id
             WHERE d.id = ?
         ", [$id]);
 

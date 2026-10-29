@@ -196,18 +196,36 @@ class SalesOrderController extends Controller
             return response()->json(['success' => false, 'error' => 'Dispatch manifest not found.'], 404);
         }
 
+        $shop = Shop::findRecord($shopId);
+        if (!$shop) {
+            return response()->json(['success' => false, 'error' => 'Retail shop not found.'], 404);
+        }
+
         $totalCups = array_reduce($items, fn($sum, $i) => $sum + (int)($i['quantity'] ?? 0), 0);
         if (!Dispatch::hasSufficientStock($dispatch, $totalCups)) {
             return response()->json(['success' => false, 'error' => 'Insufficient stock remaining on vehicle!'], 400);
         }
 
-        // Credit check
+        // Credit check & risk tiering
+        $isHighRiskCredit = false;
         if ($paymentType === 'CREDIT') {
             $creditCheck = $this->creditService->evaluateCreditEligibility($shopId, $totalAmount);
             if (!$creditCheck['allowed']) {
                 return response()->json(['success' => false, 'error' => $creditCheck['reason']], 403);
             }
+
+            $creditLimit = (float)($shop['credit_limit'] ?? 0);
+            $currBalance = (float)($shop['outstanding_balance'] ?? 0);
+            $overdueDays = (int)($shop['overdue_days'] ?? 0);
+            $tier = $shop['credit_tier'] ?? 'Tier B';
+
+            // High risk / exposure credit sales trigger Front-Office Maker-Checker review
+            if ($overdueDays > 0 || ($currBalance + $totalAmount) > ($creditLimit * 0.75) || $tier === 'Tier C' || $totalAmount >= 15000) {
+                $isHighRiskCredit = true;
+            }
         }
+
+        $orderStatus = $isHighRiskCredit ? 'PENDING_APPROVAL' : 'CONFIRMED';
 
         $signatureHash = $this->cryptoService->hashDigitalSignature($input['signatureImage'] ?? null);
         $invoiceNo = 'INV-' . date('Ymd') . '-' . rand(1000, 9999);
@@ -224,11 +242,13 @@ class SalesOrderController extends Controller
             'timestamp' => time()
         ]);
 
+        Database::beginTransaction();
         try {
             $orderId = Order::createRecord([
                 'invoiceNumber' => $invoiceNo,
                 'dispatchId' => $dispatchId,
                 'shopId' => $shopId,
+                'salesRepId' => $input['salesRepId'] ?? 4,
                 'paymentType' => $paymentType,
                 'totalAmount' => $totalAmount,
                 'items' => $items,
@@ -236,7 +256,8 @@ class SalesOrderController extends Controller
                 'signatureImage' => $input['signatureImage'] ?? null,
                 'otpVerified' => $input['otpVerified'] ?? 0,
                 'otpReferenceCode' => $input['otpReferenceCode'] ?? null,
-                'securityTamperSeal' => $tamperSeal
+                'securityTamperSeal' => $tamperSeal,
+                'status' => $orderStatus
             ]);
 
             $stockResult = Dispatch::decrementStock($dispatchId, $totalCups);
@@ -245,28 +266,44 @@ class SalesOrderController extends Controller
                 Shop::addCreditDebt($shopId, $totalAmount);
             }
 
+            Database::commit();
+
+            $auditAction = ($paymentType === 'CREDIT')
+                ? ($isHighRiskCredit ? 'CREDIT_SALE_SUBMITTED_FOR_APPROVAL' : 'CREDIT_SALE_ISSUED_MVC')
+                : 'CASH_SALE_ISSUED_MVC';
+
             $this->cryptoService->logAuditEvent(
-                $paymentType === 'CREDIT' ? 'CREDIT_SALE_ISSUED_MVC' : 'CASH_SALE_ISSUED_MVC',
+                $auditAction,
                 'Field Sales Rep',
                 'sales_rep',
                 "Invoice {$invoiceNo}",
-                ['orderId' => $orderId, 'totalAmount' => $totalAmount, 'tamperSeal' => $tamperSeal]
+                [
+                    'orderId' => $orderId,
+                    'totalAmount' => $totalAmount,
+                    'tamperSeal' => $tamperSeal,
+                    'status' => $orderStatus
+                ]
             );
 
             return response()->json([
                 'success' => true,
-                'message' => "Order processed successfully. Invoice {$invoiceNo} issued.",
+                'is_pending' => $isHighRiskCredit,
+                'message' => $isHighRiskCredit
+                    ? "⏳ Credit Order {$invoiceNo} (Rs. " . number_format($totalAmount, 2) . ") Front Office Maker-Checker අනුමැතිය සඳහා යොමු කරන ලදී."
+                    : "Order processed successfully. Invoice {$invoiceNo} issued.",
                 'order' => [
                     'id' => $orderId,
                     'invoiceNumber' => $invoiceNo,
                     'totalAmount' => $totalAmount,
                     'paymentType' => $paymentType,
+                    'status' => $orderStatus,
                     'remainingTruckStock' => $stockResult['remainingStock'],
                     'securityTamperSeal' => $tamperSeal,
                     'signatureHash' => $signatureHash
                 ]
             ]);
         } catch (\Exception $e) {
+            Database::rollBack();
             return response()->json(['success' => false, 'error' => $e->getMessage()], 500);
         }
     }

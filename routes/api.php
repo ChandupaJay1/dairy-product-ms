@@ -124,7 +124,8 @@ Route::get('/settlement/history', [OperationsController::class, 'getSettlementHi
 
 // 11. Advanced Financial Analytics & Reports
 Route::get('/reports/route-profitability', [OperationsController::class, 'getRouteProfitability']);
-Route::get('/reports/flavor-trends', [OperationsController::class, 'getFlavorTrends']);
+Route::get('/reports/flavor-analytics', [OperationsController::class, 'getFlavorAnalytics']);
+Route::get('/reports/flavor-trends', [OperationsController::class, 'getFlavorAnalytics']);
 Route::get('/reports/shop-statement/{shopId}', [OperationsController::class, 'getShopStatement']);
 Route::get('/reports/rep-commissions', [OperationsController::class, 'getRepCommissions']);
 
