@@ -28,9 +28,11 @@ const AdminDashboard = (() => {
     let vehicleSearchQuery = '';
     let driverSearchQuery = '';
     let repSearchQuery = '';
+    let routeSearchQuery = '';
     let editingVehicleId = null;
     let editingDriverId = null;
     let editingSalesRepId = null;
+    let editingRouteId = null;
 
     async function loadAllAdminData() {
         // Fast Cache-First Stale-While-Revalidate
@@ -1940,6 +1942,11 @@ const AdminDashboard = (() => {
                         <span>${I18n.t('tab_reps', 'Sales Representatives')}</span>
                         <span class="approval-tab-pill">${salesRepsList.length}</span>
                     </button>
+                    <button type="button" class="btn approval-tab-btn ${activeStaffTab === 'routes' ? 'active' : ''}" onclick="AdminDashboard.switchStaffTab('routes')">
+                        <span>🗺️</span>
+                        <span>${I18n.t('tab_routes', 'Delivery Routes')}</span>
+                        <span class="approval-tab-pill">${routesList.length}</span>
+                    </button>
                 </div>
 
                 <div style="padding: 1rem;">
@@ -2061,6 +2068,43 @@ const AdminDashboard = (() => {
                     </table>
                 </div>
             `;
+        } else if (activeStaffTab === 'routes') {
+            const filtered = !routeSearchQuery ? routesList : routesList.filter(r => 
+                (r.route_name && r.route_name.toLowerCase().includes(routeSearchQuery)) ||
+                (r.region_sector && r.region_sector.toLowerCase().includes(routeSearchQuery)) ||
+                (r.primary_destination && r.primary_destination.toLowerCase().includes(routeSearchQuery)) ||
+                (r.status && r.status.toLowerCase().includes(routeSearchQuery))
+            );
+
+            return `
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 0.75rem; flex-wrap:wrap; gap:8px;">
+                    <input type="text" id="routeSearchInput" class="form-control" placeholder="${I18n.t('search_routes_placeholder', 'Search route, sector, destination...')}" value="${routeSearchQuery}" oninput="AdminDashboard.filterRoutes(this.value)" style="max-width:260px; font-size:0.8rem; padding:5px 10px;">
+                    <div class="card-header-toolbar">
+                        <button class="btn btn-xs btn-primary font-bold" onclick="AdminDashboard.openRegisterRouteModal()">
+                            ${I18n.t('btn_register_route', '🗺️ + Add Route')}
+                        </button>
+                    </div>
+                </div>
+                <div class="table-responsive">
+                    <table class="table eyecare-table text-sm">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>${I18n.t('th_route_name', 'Route Corridor')}</th>
+                                <th>${I18n.t('th_route_sector', 'Region Sector')}</th>
+                                <th>${I18n.t('th_destination', 'Primary Destination')}</th>
+                                <th>${I18n.t('th_distance_km', 'Distance (KM)')}</th>
+                                <th>${I18n.t('th_shop_count', 'Active Shops')}</th>
+                                <th>${I18n.t('th_status', 'Status')}</th>
+                                <th>${I18n.t('th_actions', 'Actions')}</th>
+                            </tr>
+                        </thead>
+                        <tbody id="fleetRoutesTableBody">
+                            ${renderRouteRows(filtered)}
+                        </tbody>
+                    </table>
+                </div>
+            `;
         }
     }
 
@@ -2112,6 +2156,19 @@ const AdminDashboard = (() => {
             (r.assigned_route_sector && r.assigned_route_sector.toLowerCase().includes(repSearchQuery))
         );
         tbody.innerHTML = renderRepRows(filtered);
+    }
+
+    function filterRoutes(query) {
+        routeSearchQuery = (query || '').toLowerCase().trim();
+        const tbody = document.getElementById('fleetRoutesTableBody');
+        if (!tbody) return;
+        const filtered = !routeSearchQuery ? routesList : routesList.filter(r => 
+            (r.route_name && r.route_name.toLowerCase().includes(routeSearchQuery)) ||
+            (r.region_sector && r.region_sector.toLowerCase().includes(routeSearchQuery)) ||
+            (r.primary_destination && r.primary_destination.toLowerCase().includes(routeSearchQuery)) ||
+            (r.status && r.status.toLowerCase().includes(routeSearchQuery))
+        );
+        tbody.innerHTML = renderRouteRows(filtered);
     }
 
     function filterDispatches(query) {
@@ -2239,6 +2296,38 @@ const AdminDashboard = (() => {
                         </button>
                         <button class="btn btn-xs btn-outline-danger" onclick="AdminDashboard.deleteSalesRep(${r.id}, '${SecurityClient.escapeHtml(r.name)}')">
                             🗑️ Delete
+                        </button>
+                    </div>
+                </td>
+            </tr>
+        `).join('');
+    }
+
+    function renderRouteRows(list) {
+        if (!list || list.length === 0) {
+            return `<tr><td colspan="8" style="text-align:center; padding:1.5rem; color:var(--text-muted);">No delivery routes match your search.</td></tr>`;
+        }
+        return list.map(r => `
+            <tr>
+                <td><span class="badge badge-outline">#${r.id}</span></td>
+                <td>
+                    <strong class="text-primary" style="font-size:0.92rem;">${SecurityClient.escapeHtml(r.route_name)}</strong>
+                    <div class="text-xs text-muted">Vehicle: ${r.vehicle_number ? SecurityClient.escapeHtml(r.vehicle_number) : 'Unassigned'}</div>
+                </td>
+                <td><strong>${SecurityClient.escapeHtml(r.region_sector)}</strong></td>
+                <td>${SecurityClient.escapeHtml(r.primary_destination || 'N/A')}</td>
+                <td><span class="font-mono font-bold">${parseFloat(r.estimated_distance_km || 0).toFixed(1)}</span> km</td>
+                <td><span class="badge badge-primary">${r.shop_count || 0} shops</span></td>
+                <td>
+                    <span class="badge ${r.status === 'ACTIVE' ? 'badge-success' : 'badge-outline'}">${SecurityClient.escapeHtml(r.status || 'ACTIVE')}</span>
+                </td>
+                <td>
+                    <div class="table-actions" style="display:flex; gap:6px;">
+                        <button class="btn btn-xs btn-outline-primary font-bold" onclick="AdminDashboard.openEditRouteModal(${r.id})" title="Edit Route">
+                            ✏️ Edit
+                        </button>
+                        <button class="btn btn-xs btn-outline-danger font-bold" onclick="AdminDashboard.deleteRoute(${r.id}, '${SecurityClient.escapeHtml(r.route_name)}')" title="Delete Route">
+                            🗑️
                         </button>
                     </div>
                 </td>
@@ -2718,6 +2807,128 @@ const AdminDashboard = (() => {
         }
     }
 
+    // ========================================================
+    // 4. ROUTE MODAL ACTIONS
+    // ========================================================
+    function openRegisterRouteModal() {
+        editingRouteId = null;
+        const title = document.getElementById('registerRouteModalTitle');
+        if (title) title.innerHTML = '🗺️ Register New Delivery Route';
+        const nameEl = document.getElementById('newRouteName');
+        if (nameEl) nameEl.value = '';
+        const regEl = document.getElementById('newRouteRegion');
+        if (regEl) regEl.value = '';
+        const distEl = document.getElementById('newRouteDistance');
+        if (distEl) distEl.value = '35.0';
+        const destEl = document.getElementById('newRouteDestination');
+        if (destEl) destEl.value = '';
+        const statEl = document.getElementById('newRouteStatus');
+        if (statEl) statEl.value = 'ACTIVE';
+
+        const vehicleSelect = document.getElementById('newRouteVehicle');
+        if (vehicleSelect) {
+            vehicleSelect.innerHTML = '<option value="">-- No Vehicle Assigned --</option>' +
+                vehiclesList.map(v => `<option value="${v.id}">${v.vehicle_number} (${v.vehicle_type})</option>`).join('');
+        }
+
+        const modal = document.getElementById('registerRouteModal');
+        if (modal) modal.style.display = 'flex';
+    }
+
+    function openEditRouteModal(id) {
+        const route = routesList.find(r => r.id == id);
+        if (!route) return;
+
+        editingRouteId = id;
+        const title = document.getElementById('registerRouteModalTitle');
+        if (title) title.innerHTML = `✏️ Edit Route: ${SecurityClient.escapeHtml(route.route_name)}`;
+        const nameEl = document.getElementById('newRouteName');
+        if (nameEl) nameEl.value = route.route_name;
+        const regEl = document.getElementById('newRouteRegion');
+        if (regEl) regEl.value = route.region_sector;
+        const distEl = document.getElementById('newRouteDistance');
+        if (distEl) distEl.value = route.estimated_distance_km;
+        const destEl = document.getElementById('newRouteDestination');
+        if (destEl) destEl.value = route.primary_destination || '';
+        const statEl = document.getElementById('newRouteStatus');
+        if (statEl) statEl.value = route.status || 'ACTIVE';
+
+        const vehicleSelect = document.getElementById('newRouteVehicle');
+        if (vehicleSelect) {
+            vehicleSelect.innerHTML = '<option value="">-- No Vehicle Assigned --</option>' +
+                vehiclesList.map(v => `<option value="${v.id}" ${v.id == route.assigned_vehicle_id ? 'selected' : ''}>${v.vehicle_number} (${v.vehicle_type})</option>`).join('');
+        }
+
+        const modal = document.getElementById('registerRouteModal');
+        if (modal) modal.style.display = 'flex';
+    }
+
+    function closeRegisterRouteModal() {
+        const modal = document.getElementById('registerRouteModal');
+        if (modal) modal.style.display = 'none';
+        editingRouteId = null;
+    }
+
+    async function submitRegisterRoute() {
+        const name = (document.getElementById('newRouteName')?.value || '').trim();
+        const region = (document.getElementById('newRouteRegion')?.value || '').trim();
+        const distance = parseFloat(document.getElementById('newRouteDistance')?.value || '25.0') || 25.0;
+        const destination = (document.getElementById('newRouteDestination')?.value || '').trim();
+        const vehicleId = document.getElementById('newRouteVehicle')?.value || null;
+        const status = document.getElementById('newRouteStatus')?.value || 'ACTIVE';
+
+        if (!name || !region) {
+            SecurityClient.showToast('⚠️ Route Name and Region Sector are required.', 'warning', 3500);
+            return;
+        }
+
+        const isEdit = Boolean(editingRouteId);
+        const endpoint = isEdit ? `/api/admin/routes/${editingRouteId}` : '/api/admin/routes';
+        const method = isEdit ? 'PUT' : 'POST';
+
+        try {
+            const res = await SecurityClient.secureFetch(endpoint, {
+                method,
+                body: JSON.stringify({
+                    route_name: name,
+                    region_sector: region,
+                    primary_destination: destination,
+                    estimated_distance_km: distance,
+                    assigned_vehicle_id: vehicleId ? parseInt(vehicleId) : null,
+                    status
+                })
+            });
+
+            if (res && res.success) {
+                SecurityClient.showToast(isEdit ? `✅ Route '${name}' updated!` : `✅ Route '${name}' registered successfully!`, 'success', 4000);
+                closeRegisterRouteModal();
+                loadAllAdminData();
+            } else {
+                SecurityClient.showToast(res ? res.error : 'Failed to save route.', 'danger', 4000);
+            }
+        } catch (err) {
+            SecurityClient.showToast('Error saving route corridor.', 'danger', 4000);
+        }
+    }
+
+    async function deleteRoute(id, routeName) {
+        if (!confirm(`Are you sure you want to delete delivery route "${routeName}"?`)) return;
+
+        try {
+            const res = await SecurityClient.secureFetch(`/api/admin/routes/${id}`, {
+                method: 'DELETE'
+            });
+            if (res && res.success) {
+                SecurityClient.showToast(`Route "${routeName}" deleted successfully.`, 'success', 3500);
+                loadAllAdminData();
+            } else {
+                SecurityClient.showToast(res ? res.error : 'Failed to delete route.', 'danger', 5000);
+            }
+        } catch (err) {
+            SecurityClient.showToast('Error deleting route.', 'danger', 4000);
+        }
+    }
+
     return {
         loadAllAdminData,
         refreshData,
@@ -2759,6 +2970,7 @@ const AdminDashboard = (() => {
         filterVehicles,
         filterDrivers,
         filterReps,
+        filterRoutes,
         filterDispatches,
         filterRotation,
         filterShopRisk,
@@ -2776,7 +2988,12 @@ const AdminDashboard = (() => {
         openEditSalesRepModal,
         closeRegisterSalesRepModal,
         submitRegisterSalesRep,
-        deleteSalesRep
+        deleteSalesRep,
+        openRegisterRouteModal,
+        openEditRouteModal,
+        closeRegisterRouteModal,
+        submitRegisterRoute,
+        deleteRoute
     };
 })();
 

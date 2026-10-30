@@ -813,12 +813,18 @@ html:not(.dark) .map-legend {
     }
 }
 
-/* Fleet & Staff Hub: 3 Balanced Columns */
+/* Fleet & Staff Hub: 4 Balanced Symmetrical Columns */
 #fleetStaffManagementCard .approval-nav-tabs {
-    grid-template-columns: repeat(3, 1fr) !important;
+    grid-template-columns: repeat(2, 1fr) !important;
 }
 
-@media (max-width: 768px) {
+@media (min-width: 900px) {
+    #fleetStaffManagementCard .approval-nav-tabs {
+        grid-template-columns: repeat(4, 1fr) !important;
+    }
+}
+
+@media (max-width: 640px) {
     #fleetStaffManagementCard .approval-nav-tabs {
         grid-template-columns: 1fr !important;
     }

@@ -1123,6 +1123,64 @@
     </div>
 </div>
 
+<!-- ========================================================
+     MODAL 17: Register Delivery Route (Sector & Region)
+     ======================================================== -->
+<div class="modal-overlay" id="registerRouteModal">
+    <div class="modal-content-box" style="max-width: 520px;">
+        <div class="modal-header">
+            <h3 id="registerRouteModalTitle">🗺️ Register New Delivery Route</h3>
+            <button class="modal-close-btn" onclick="AdminDashboard.closeRegisterRouteModal()">&times;</button>
+        </div>
+        <div class="modal-body">
+            <p class="text-sm text-muted mb-3">
+                Define a new regional distribution corridor and sector for dairy vehicle routing and retail shops.
+            </p>
+
+            <div class="form-group">
+                <label class="font-bold">1. Route Name / Corridor Code: <span class="text-danger">*</span></label>
+                <input type="text" id="newRouteName" class="form-control font-bold" placeholder="E.g. Route 05 - Giritale & Elahera Belt" style="font-size:1rem;">
+            </div>
+
+            <div class="grid grid-2 gap-2" style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
+                <div class="form-group">
+                    <label class="font-bold">2. Region / Sector: <span class="text-danger">*</span></label>
+                    <input type="text" id="newRouteRegion" class="form-control font-bold" placeholder="Giritale & Elahera">
+                </div>
+                <div class="form-group">
+                    <label class="font-bold">3. Estimated Distance (KM):</label>
+                    <input type="number" id="newRouteDistance" class="form-control font-mono font-bold" value="35.0" step="0.5" min="1">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="font-bold">4. Primary Destination / Terminal Junction:</label>
+                <input type="text" id="newRouteDestination" class="form-control" placeholder="E.g. Giritale Junction Market">
+            </div>
+
+            <div class="grid grid-2 gap-2" style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
+                <div class="form-group">
+                    <label class="font-bold">5. Assigned Vehicle (Optional):</label>
+                    <select id="newRouteVehicle" class="form-control">
+                        <option value="">-- No Vehicle Assigned --</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="font-bold">6. Status:</label>
+                    <select id="newRouteStatus" class="form-control">
+                        <option value="ACTIVE">ACTIVE</option>
+                        <option value="INACTIVE">INACTIVE</option>
+                    </select>
+                </div>
+            </div>
+
+            <button type="button" class="btn btn-primary btn-block font-bold mt-3" onclick="AdminDashboard.submitRegisterRoute()" style="min-height:50px; font-size:1.1rem;">
+                💾 Save Route Corridor
+            </button>
+        </div>
+    </div>
+</div>
+
 
 
 

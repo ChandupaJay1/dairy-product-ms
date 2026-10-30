@@ -44,6 +44,10 @@ Route::post('/admin/drivers', [AdminController::class, 'createDriver']);
 Route::put('/admin/drivers/{id}', [AdminController::class, 'updateDriver']);
 Route::delete('/admin/drivers/{id}', [AdminController::class, 'deleteDriver']);
 
+Route::post('/admin/routes', [AdminController::class, 'createRoute']);
+Route::put('/admin/routes/{id}', [AdminController::class, 'updateRoute']);
+Route::delete('/admin/routes/{id}', [AdminController::class, 'deleteRoute']);
+
 Route::get('/fleet/reps', [AdminController::class, 'getSalesReps']);
 Route::post('/fleet/reps/create', [AdminController::class, 'createSalesRep']);
 Route::post('/fleet/reps/{id}/update', [AdminController::class, 'updateSalesRep']);
@@ -56,6 +60,10 @@ Route::post('/fleet/vehicles/{id}/delete', [AdminController::class, 'deleteVehic
 Route::post('/fleet/drivers/create', [AdminController::class, 'createDriver']);
 Route::post('/fleet/drivers/{id}/update', [AdminController::class, 'updateDriver']);
 Route::post('/fleet/drivers/{id}/delete', [AdminController::class, 'deleteDriver']);
+
+Route::post('/fleet/routes/create', [AdminController::class, 'createRoute']);
+Route::post('/fleet/routes/{id}/update', [AdminController::class, 'updateRoute']);
+Route::post('/fleet/routes/{id}/delete', [AdminController::class, 'deleteRoute']);
 
 // 4. Driver & Fleet Manifests
 Route::get('/dispatches/active', [DriverController::class, 'getActiveDispatches']);

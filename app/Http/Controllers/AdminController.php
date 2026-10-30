@@ -403,5 +403,84 @@ class AdminController extends Controller
             'message' => "Credit terms for '{$shop['name']}' updated to {$creditTier} (Limit: Rs. " . number_format($creditLimit, 2) . ")."
         ]);
     }
+
+    // ========================================================
+    // 5. ROUTE REGISTRATION & MANAGEMENT
+    // ========================================================
+    public function createRoute(Request $request): JsonResponse
+    {
+        $routeName = trim((string)$request->input('route_name', ''));
+        $regionSector = trim((string)$request->input('region_sector', ''));
+        $primaryDest = trim((string)$request->input('primary_destination', ''));
+        $distanceKm = (float)$request->input('estimated_distance_km', 25.0);
+        $vehicleId = $request->input('assigned_vehicle_id') ? (int)$request->input('assigned_vehicle_id') : null;
+        $status = trim((string)$request->input('status', 'ACTIVE'));
+
+        if (empty($routeName) || empty($regionSector)) {
+            return response()->json(['success' => false, 'error' => 'Route Name and Region Sector are required.'], 422);
+        }
+
+        $id = Database::execute("
+            INSERT INTO routes (route_name, region_sector, primary_destination, estimated_distance_km, assigned_vehicle_id, status)
+            VALUES (?, ?, ?, ?, ?, ?)
+        ", [$routeName, $regionSector, $primaryDest, $distanceKm, $vehicleId, $status]);
+
+        $this->cryptoService->logAuditEvent('ROUTE_REGISTERED', 'Admin Supervisor', 'admin', "Route {$routeName}", [
+            'id' => $id, 'route_name' => $routeName, 'region_sector' => $regionSector
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => "Route '{$routeName}' registered successfully.",
+            'routeId' => $id
+        ]);
+    }
+
+    public function updateRoute(Request $request, int $id): JsonResponse
+    {
+        $route = Database::queryOne("SELECT * FROM routes WHERE id = ?", [$id]);
+        if (!$route) {
+            return response()->json(['success' => false, 'error' => 'Route not found.'], 404);
+        }
+
+        $routeName = trim((string)$request->input('route_name', $route['route_name']));
+        $regionSector = trim((string)$request->input('region_sector', $route['region_sector']));
+        $primaryDest = trim((string)$request->input('primary_destination', $route['primary_destination']));
+        $distanceKm = (float)$request->input('estimated_distance_km', $route['estimated_distance_km']);
+        $vehicleId = $request->has('assigned_vehicle_id') && $request->input('assigned_vehicle_id') !== '' ? (int)$request->input('assigned_vehicle_id') : null;
+        $status = trim((string)$request->input('status', $route['status']));
+
+        Database::execute("
+            UPDATE routes
+            SET route_name = ?, region_sector = ?, primary_destination = ?, estimated_distance_km = ?, assigned_vehicle_id = ?, status = ?
+            WHERE id = ?
+        ", [$routeName, $regionSector, $primaryDest, $distanceKm, $vehicleId, $status, $id]);
+
+        $this->cryptoService->logAuditEvent('ROUTE_UPDATED', 'Admin Supervisor', 'admin', "Route #{$id}", $request->all());
+
+        return response()->json(['success' => true, 'message' => "Route '{$routeName}' updated successfully."]);
+    }
+
+    public function deleteRoute(int $id): JsonResponse
+    {
+        $route = Database::queryOne("SELECT * FROM routes WHERE id = ?", [$id]);
+        if (!$route) {
+            return response()->json(['success' => false, 'error' => 'Route not found.'], 404);
+        }
+
+        $row = Database::queryOne("SELECT COUNT(*) AS cnt FROM shops WHERE route_id = ?", [$id]);
+        $shopCount = $row ? (int)$row['cnt'] : 0;
+        if ($shopCount > 0) {
+            return response()->json([
+                'success' => false,
+                'error' => "Cannot delete Route '{$route['route_name']}' because {$shopCount} shop(s) are assigned to it. Reassign or delete the shops first, or set this route to INACTIVE."
+            ], 400);
+        }
+
+        Database::execute("DELETE FROM routes WHERE id = ?", [$id]);
+        $this->cryptoService->logAuditEvent('ROUTE_DELETED', 'Admin Supervisor', 'admin', "Route {$route['route_name']}", []);
+
+        return response()->json(['success' => true, 'message' => "Route '{$route['route_name']}' deleted successfully."]);
+    }
 }
 
