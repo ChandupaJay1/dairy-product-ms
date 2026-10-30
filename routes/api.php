@@ -132,6 +132,7 @@ Route::get('/reports/rep-commissions', [OperationsController::class, 'getRepComm
 // 12. Front Office Maker-Checker Approvals Protocol
 Route::get('/approvals/pending', [ApprovalController::class, 'getPendingApprovals']);
 Route::post('/approvals/payments/{id}/action', [ApprovalController::class, 'actionPayment']);
+Route::post('/approvals/returns/bulk-action', [ApprovalController::class, 'actionReturnBulk']);
 Route::post('/approvals/returns/{id}/action', [ApprovalController::class, 'actionReturn']);
 Route::post('/approvals/shops/{id}/action', [ApprovalController::class, 'actionShop']);
 Route::post('/approvals/orders/{id}/action', [ApprovalController::class, 'actionOrder']);

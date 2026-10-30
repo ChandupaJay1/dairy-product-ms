@@ -657,7 +657,14 @@ const AdminDashboard = (() => {
             if (payments.length === 0) {
                 return `<div class="approval-empty-state">${I18n.t('approval_empty_payments', '✅ No pending payments to verify. All Sales Rep cash collections have been verified.')}</div>`;
             }
+            const totalCash = payments.reduce((sum, p) => sum + parseFloat(p.payment_amount || 0), 0);
             return `
+                <div class="approval-summary-banner">
+                    <div class="approval-summary-stats">
+                        <span>💳 <strong>${payments.length}</strong> Pending Handover(s)</span>
+                        <span>💵 Total Cash: <strong class="text-success">${SecurityClient.formatCurrency(totalCash)}</strong></span>
+                    </div>
+                </div>
                 <div class="table-responsive">
                     <table class="table eyecare-table">
                         <thead>
@@ -673,7 +680,7 @@ const AdminDashboard = (() => {
                         </thead>
                         <tbody>
                             ${payments.map(p => `
-                                <tr>
+                                <tr id="payment-row-${p.id}">
                                     <td><strong>${SecurityClient.escapeHtml(p.receipt_number)}</strong><div class="text-xs text-muted">${new Date(p.created_at).toLocaleTimeString()}</div></td>
                                     <td>
                                         <div><strong>${SecurityClient.escapeHtml(p.shop_name || 'Shop #' + p.shop_id)}</strong></div>
@@ -685,10 +692,10 @@ const AdminDashboard = (() => {
                                     <td><span class="text-xs text-muted">${SecurityClient.escapeHtml(p.notes || 'Cash handed over')}</span></td>
                                     <td style="text-align: right;">
                                         <div class="approval-actions-cell" style="justify-content: flex-end;">
-                                            <button type="button" class="btn-approve" onclick="AdminDashboard.approvePayment(${p.id})">
+                                            <button type="button" class="btn-approve" onclick="AdminDashboard.approvePayment(${p.id}, this)">
                                                 ${I18n.t('btn_confirm_received', '✅ Cash Received (Confirm)')}
                                             </button>
-                                            <button type="button" class="btn-reject" onclick="AdminDashboard.rejectPayment(${p.id})">
+                                            <button type="button" class="btn-reject" onclick="AdminDashboard.rejectPayment(${p.id}, this)">
                                                 ${I18n.t('btn_reject', '❌ Reject')}
                                             </button>
                                         </div>
@@ -706,7 +713,21 @@ const AdminDashboard = (() => {
             if (returns.length === 0) {
                 return `<div class="approval-empty-state">${I18n.t('approval_empty_returns', '✅ No pending return notes to inspect. All return records verified.')}</div>`;
             }
+            const totalCups = returns.reduce((sum, r) => sum + parseInt(r.quantity_cups || 0), 0);
+            const totalVal = returns.reduce((sum, r) => sum + parseFloat(r.total_value || 0), 0);
             return `
+                <div class="approval-summary-banner">
+                    <div class="approval-summary-stats">
+                        <span>📋 <strong>${returns.length}</strong> Pending Return Note(s)</span>
+                        <span>🥛 <strong>${totalCups}</strong> Cups Returned</span>
+                        <span>💰 Total Value: <strong class="text-warning">${SecurityClient.formatCurrency(totalVal)}</strong></span>
+                    </div>
+                    <div>
+                        <button type="button" class="btn-batch-verify" onclick="AdminDashboard.approveAllReturns(this)">
+                            ✅ ${I18n.t('btn_verify_all_returns', 'Verify All Returns (Batch Credit)')}
+                        </button>
+                    </div>
+                </div>
                 <div class="table-responsive">
                     <table class="table eyecare-table">
                         <thead>
@@ -722,7 +743,7 @@ const AdminDashboard = (() => {
                         </thead>
                         <tbody>
                             ${returns.map(r => `
-                                <tr>
+                                <tr id="return-row-${r.id}">
                                     <td><strong>${SecurityClient.escapeHtml(r.return_number)}</strong></td>
                                     <td>
                                         <div><strong>${SecurityClient.escapeHtml(r.shop_name || 'Shop #' + r.shop_id)}</strong></div>
@@ -737,10 +758,10 @@ const AdminDashboard = (() => {
                                     </td>
                                     <td style="text-align: right;">
                                         <div class="approval-actions-cell" style="justify-content: flex-end;">
-                                            <button type="button" class="btn-approve" onclick="AdminDashboard.approveReturn(${r.id})">
+                                            <button type="button" class="btn-approve" onclick="AdminDashboard.approveReturn(${r.id}, this)">
                                                 ${I18n.t('btn_verify_credit', '✅ Verify & Credit')}
                                             </button>
-                                            <button type="button" class="btn-reject" onclick="AdminDashboard.rejectReturn(${r.id})">
+                                            <button type="button" class="btn-reject" onclick="AdminDashboard.rejectReturn(${r.id}, this)">
                                                 ${I18n.t('btn_reject', '❌ Reject')}
                                             </button>
                                         </div>
@@ -759,6 +780,11 @@ const AdminDashboard = (() => {
                 return `<div class="approval-empty-state">${I18n.t('approval_empty_shops', '✅ No pending new shop registrations. All shops active.')}</div>`;
             }
             return `
+                <div class="approval-summary-banner">
+                    <div class="approval-summary-stats">
+                        <span>🏪 <strong>${shops.length}</strong> Pending Shop Registration(s)</span>
+                    </div>
+                </div>
                 <div class="table-responsive">
                     <table class="table eyecare-table">
                         <thead>
@@ -773,7 +799,7 @@ const AdminDashboard = (() => {
                         </thead>
                         <tbody>
                             ${shops.map(s => `
-                                <tr>
+                                <tr id="shop-row-${s.id}">
                                     <td>
                                         <div><strong>${SecurityClient.escapeHtml(s.name)}</strong></div>
                                         <div class="text-xs text-muted">${SecurityClient.escapeHtml(s.owner_name)}</div>
@@ -787,10 +813,10 @@ const AdminDashboard = (() => {
                                     </td>
                                     <td style="text-align: right;">
                                         <div class="approval-actions-cell" style="justify-content: flex-end;">
-                                            <button type="button" class="btn-approve" onclick="AdminDashboard.approveShop(${s.id})">
+                                            <button type="button" class="btn-approve" onclick="AdminDashboard.approveShop(${s.id}, this)">
                                                 ${I18n.t('btn_approve_activate', '✅ Approve & Activate')}
                                             </button>
-                                            <button type="button" class="btn-reject" onclick="AdminDashboard.rejectShop(${s.id})">
+                                            <button type="button" class="btn-reject" onclick="AdminDashboard.rejectShop(${s.id}, this)">
                                                 ${I18n.t('btn_reject', '❌ Reject')}
                                             </button>
                                         </div>
@@ -808,7 +834,14 @@ const AdminDashboard = (() => {
             if (orders.length === 0) {
                 return `<div class="approval-empty-state">${I18n.t('approval_empty_orders', '✅ No pending credit invoices requiring special approval.')}</div>`;
             }
+            const totalInvoiceVal = orders.reduce((sum, o) => sum + parseFloat(o.total_amount || 0), 0);
             return `
+                <div class="approval-summary-banner">
+                    <div class="approval-summary-stats">
+                        <span>📝 <strong>${orders.length}</strong> Pending Credit Order(s)</span>
+                        <span>💰 Total Invoiced: <strong class="text-warning">${SecurityClient.formatCurrency(totalInvoiceVal)}</strong></span>
+                    </div>
+                </div>
                 <div class="table-responsive">
                     <table class="table eyecare-table">
                         <thead>
@@ -823,7 +856,7 @@ const AdminDashboard = (() => {
                         </thead>
                         <tbody>
                             ${orders.map(o => `
-                                <tr>
+                                <tr id="order-row-${o.id}">
                                     <td><strong>${SecurityClient.escapeHtml(o.invoice_number)}</strong></td>
                                     <td><strong>${SecurityClient.escapeHtml(o.shop_name || 'Shop #' + o.shop_id)}</strong></td>
                                     <td><span class="badge badge-warning">${SecurityClient.escapeHtml(o.payment_type)}</span></td>
@@ -831,10 +864,10 @@ const AdminDashboard = (() => {
                                     <td>${SecurityClient.formatCurrency(o.outstanding_balance || 0)}</td>
                                     <td style="text-align: right;">
                                         <div class="approval-actions-cell" style="justify-content: flex-end;">
-                                            <button type="button" class="btn-approve" onclick="AdminDashboard.approveOrder(${o.id})">
+                                            <button type="button" class="btn-approve" onclick="AdminDashboard.approveOrder(${o.id}, this)">
                                                 ${I18n.t('btn_confirm_order', '✅ Confirm Order')}
                                             </button>
-                                            <button type="button" class="btn-reject" onclick="AdminDashboard.rejectOrder(${o.id})">
+                                            <button type="button" class="btn-reject" onclick="AdminDashboard.rejectOrder(${o.id}, this)">
                                                 ${I18n.t('btn_reject', '❌ Reject')}
                                             </button>
                                         </div>
@@ -850,153 +883,487 @@ const AdminDashboard = (() => {
         return '';
     }
 
-    async function approvePayment(id) {
-        const msg = I18n.getLanguage() === 'si'
-            ? 'මෙම මුදල Front Office එකට භෞතිකව ලැබුණු බව තහවුරු කර වෙළඳසැලේ ණය ශේෂයෙන් අඩු කිරීමට කැමතිද?'
-            : (I18n.getLanguage() === 'ta'
-                ? 'இந்த பணம் முன் அலுவலகத்தில் பெறப்பட்டது என்பதை உறுதிசெய்து கடன் நிலுவையை குறைக்க விரும்புகிறீர்களா?'
-                : 'Confirm that this cash has been physically received by the Front Office to clear the shop credit balance?');
-        if (!confirm(msg)) return;
-        const res = await SecurityClient.secureFetch(`/api/approvals/payments/${id}/action`, {
-            method: 'POST',
-            body: JSON.stringify({ action: 'APPROVE', admin_name: 'Front Office Admin' })
-        });
-        if (res && res.success) {
-            SecurityClient.showToast(res.message, 'success', 5000);
-            loadAllAdminData();
-        } else {
-            SecurityClient.showToast(res ? res.error : 'Failed to approve payment.', 'error');
+    function updateApprovalBadgeCounts() {
+        const payments = pendingApprovals.pending_payments || [];
+        const returns = pendingApprovals.pending_returns || [];
+        const shops = pendingApprovals.pending_shops || [];
+        const orders = pendingApprovals.pending_orders || [];
+        const total = payments.length + returns.length + shops.length + orders.length;
+        pendingApprovals.total_pending = total;
+
+        const overallBadge = document.querySelector('.approval-badge-count');
+        if (overallBadge) {
+            if (total === 0) {
+                overallBadge.className = 'approval-badge-count approval-badge-zero';
+                overallBadge.textContent = I18n.t('status_all_verified', '✅ All Verified');
+            } else {
+                overallBadge.className = 'approval-badge-count';
+                overallBadge.textContent = `${I18n.t('status_action_required', '⚠️ Action Required')}: ${total}`;
+            }
+        }
+
+        const tabBtns = document.querySelectorAll('.approval-tab-btn');
+        if (tabBtns.length >= 4) {
+            const pPill = tabBtns[0].querySelector('.approval-tab-pill');
+            if (pPill) {
+                pPill.textContent = payments.length;
+                pPill.className = `approval-tab-pill ${payments.length > 0 ? 'pill-alert' : ''}`;
+            }
+            const rPill = tabBtns[1].querySelector('.approval-tab-pill');
+            if (rPill) {
+                rPill.textContent = returns.length;
+                rPill.className = `approval-tab-pill ${returns.length > 0 ? 'pill-alert' : ''}`;
+            }
+            const sPill = tabBtns[2].querySelector('.approval-tab-pill');
+            if (sPill) {
+                sPill.textContent = shops.length;
+                sPill.className = `approval-tab-pill ${shops.length > 0 ? 'pill-alert' : ''}`;
+            }
+            const oPill = tabBtns[3].querySelector('.approval-tab-pill');
+            if (oPill) {
+                oPill.textContent = orders.length;
+                oPill.className = `approval-tab-pill ${orders.length > 0 ? 'pill-alert' : ''}`;
+            }
         }
     }
 
-    async function rejectPayment(id) {
+    function refreshApprovalBox() {
+        const box = document.querySelector('.approval-content-box');
+        if (box) {
+            box.innerHTML = renderActiveApprovalTabContent();
+        }
+    }
+
+    async function approvePayment(id, btnElement) {
+        if (btnElement) {
+            btnElement.disabled = true;
+            btnElement.innerHTML = '⏳ Verifying...';
+        }
+        try {
+            const res = await SecurityClient.secureFetch(`/api/approvals/payments/${id}/action`, {
+                method: 'POST',
+                body: JSON.stringify({ action: 'APPROVE', admin_name: 'Front Office Admin' })
+            });
+            if (res && res.success) {
+                SecurityClient.showToast(res.message, 'success', 5000);
+                const row = document.getElementById(`payment-row-${id}`);
+                if (row) {
+                    row.style.transition = 'all 0.3s ease';
+                    row.style.opacity = '0';
+                    row.style.transform = 'translateX(20px)';
+                    setTimeout(() => {
+                        row.remove();
+                        if (pendingApprovals.pending_payments) {
+                            pendingApprovals.pending_payments = pendingApprovals.pending_payments.filter(p => p.id !== id);
+                        }
+                        updateApprovalBadgeCounts();
+                        if (!pendingApprovals.pending_payments || pendingApprovals.pending_payments.length === 0) {
+                            refreshApprovalBox();
+                        }
+                    }, 300);
+                } else {
+                    loadAllAdminData();
+                }
+            } else {
+                SecurityClient.showToast(res ? res.error : 'Failed to approve payment.', 'error');
+                if (btnElement) {
+                    btnElement.disabled = false;
+                    btnElement.innerHTML = I18n.t('btn_confirm_received', '✅ Cash Received (Confirm)');
+                }
+            }
+        } catch (err) {
+            SecurityClient.showToast('Network error while approving payment.', 'error');
+            if (btnElement) {
+                btnElement.disabled = false;
+                btnElement.innerHTML = I18n.t('btn_confirm_received', '✅ Cash Received (Confirm)');
+            }
+        }
+    }
+
+    async function rejectPayment(id, btnElement) {
         const promptMsg = I18n.getLanguage() === 'si'
-            ? 'ගෙවීම ප්‍රතික්ෂේප කිරීමට හේතුව ඇතුළත් කරන්න (උදා: මුදල් නොලැබීම / ගණන් නොගැලපීම):'
-            : (I18n.getLanguage() === 'ta'
-                ? 'நிராகரிப்பதற்கான காரணத்தை உள்ளிடவும்:'
-                : 'Enter reason for rejecting this payment (e.g., cash discrepancy / not received):');
-        const reason = prompt(promptMsg);
+            ? 'ගෙවීම ප්‍රතික්ෂේප කිරීමට හේතුව ඇතුළත් කරන්න:'
+            : 'Enter reason for rejecting this payment:';
+        const reason = prompt(promptMsg, 'Cash/Cheque was not physically handed over or mismatched');
         if (reason === null) return;
-        const res = await SecurityClient.secureFetch(`/api/approvals/payments/${id}/action`, {
-            method: 'POST',
-            body: JSON.stringify({ action: 'REJECT', admin_name: 'Front Office Admin', reason })
-        });
-        if (res && res.success) {
-            SecurityClient.showToast(res.message, 'info', 5000);
-            loadAllAdminData();
-        } else {
-            SecurityClient.showToast(res ? res.error : 'Failed to reject payment.', 'error');
+
+        if (btnElement) {
+            btnElement.disabled = true;
+            btnElement.innerHTML = '⏳ Rejecting...';
+        }
+        try {
+            const res = await SecurityClient.secureFetch(`/api/approvals/payments/${id}/action`, {
+                method: 'POST',
+                body: JSON.stringify({ action: 'REJECT', admin_name: 'Front Office Admin', reason })
+            });
+            if (res && res.success) {
+                SecurityClient.showToast(res.message, 'info', 5000);
+                const row = document.getElementById(`payment-row-${id}`);
+                if (row) {
+                    row.style.transition = 'all 0.3s ease';
+                    row.style.opacity = '0';
+                    row.style.transform = 'translateX(-20px)';
+                    setTimeout(() => {
+                        row.remove();
+                        if (pendingApprovals.pending_payments) {
+                            pendingApprovals.pending_payments = pendingApprovals.pending_payments.filter(p => p.id !== id);
+                        }
+                        updateApprovalBadgeCounts();
+                        if (!pendingApprovals.pending_payments || pendingApprovals.pending_payments.length === 0) {
+                            refreshApprovalBox();
+                        }
+                    }, 300);
+                } else {
+                    loadAllAdminData();
+                }
+            } else {
+                SecurityClient.showToast(res ? res.error : 'Failed to reject payment.', 'error');
+                if (btnElement) {
+                    btnElement.disabled = false;
+                    btnElement.innerHTML = I18n.t('btn_reject', '❌ Reject');
+                }
+            }
+        } catch (err) {
+            SecurityClient.showToast('Network error while rejecting payment.', 'error');
+            if (btnElement) {
+                btnElement.disabled = false;
+                btnElement.innerHTML = I18n.t('btn_reject', '❌ Reject');
+            }
         }
     }
 
-    async function approveReturn(id) {
+    async function approveReturn(id, btnElement) {
+        if (btnElement) {
+            btnElement.disabled = true;
+            btnElement.innerHTML = '⏳ Verifying...';
+        }
+        try {
+            const res = await SecurityClient.secureFetch(`/api/approvals/returns/${id}/action`, {
+                method: 'POST',
+                body: JSON.stringify({ action: 'APPROVE', admin_name: 'Front Office Admin' })
+            });
+            if (res && res.success) {
+                SecurityClient.showToast(res.message, 'success', 5000);
+                const row = document.getElementById(`return-row-${id}`);
+                if (row) {
+                    row.style.transition = 'all 0.3s ease';
+                    row.style.opacity = '0';
+                    row.style.transform = 'translateX(20px)';
+                    setTimeout(() => {
+                        row.remove();
+                        if (pendingApprovals.pending_returns) {
+                            pendingApprovals.pending_returns = pendingApprovals.pending_returns.filter(r => r.id !== id);
+                        }
+                        updateApprovalBadgeCounts();
+                        if (!pendingApprovals.pending_returns || pendingApprovals.pending_returns.length === 0) {
+                            refreshApprovalBox();
+                        }
+                    }, 300);
+                } else {
+                    loadAllAdminData();
+                }
+            } else {
+                SecurityClient.showToast(res ? res.error : 'Failed to approve return.', 'error');
+                if (btnElement) {
+                    btnElement.disabled = false;
+                    btnElement.innerHTML = I18n.t('btn_verify_credit', '✅ Verify & Credit');
+                }
+            }
+        } catch (err) {
+            SecurityClient.showToast('Network error while verifying return.', 'error');
+            if (btnElement) {
+                btnElement.disabled = false;
+                btnElement.innerHTML = I18n.t('btn_verify_credit', '✅ Verify & Credit');
+            }
+        }
+    }
+
+    async function approveAllReturns(btnElement) {
+        const returns = pendingApprovals.pending_returns || [];
+        if (returns.length === 0) return;
+
+        const count = returns.length;
         const msg = I18n.getLanguage() === 'si'
-            ? 'මෙම Return තොගය (Damages/Expiries) Warehouse එකට ලැබී ඇති බව පරීක්ෂා කළාද? තහවුරු කළ විට Credit note එක ක්‍රියාත්මක වේ.'
-            : (I18n.getLanguage() === 'ta'
-                ? 'இந்த திரும்பிய பொருட்கள் கிடங்கிற்கு வந்துள்ளன என்பதை உறுதிப்படுத்தினீர்களா?'
-                : 'Confirm physical receipt of this return stock at the warehouse to issue the credit note?');
+            ? `Return සටහන් ${count} ම Warehouse එකට භෞතිකව ලැබී ඇති බව පරීක්ෂා කළාද? සියල්ලම එකවර Confirm කර Credit notes ක්‍රියාත්මක කරන්නද?`
+            : `Confirm physical receipt of all ${count} returns at the warehouse to issue credit notes now?`;
         if (!confirm(msg)) return;
-        const res = await SecurityClient.secureFetch(`/api/approvals/returns/${id}/action`, {
-            method: 'POST',
-            body: JSON.stringify({ action: 'APPROVE', admin_name: 'Front Office Admin' })
-        });
-        if (res && res.success) {
-            SecurityClient.showToast(res.message, 'success', 5000);
-            loadAllAdminData();
-        } else {
-            SecurityClient.showToast(res ? res.error : 'Failed to approve return.', 'error');
+
+        if (btnElement) {
+            btnElement.disabled = true;
+            btnElement.innerHTML = '⏳ Verifying All...';
+        }
+        try {
+            const res = await SecurityClient.secureFetch('/api/approvals/returns/bulk-action', {
+                method: 'POST',
+                body: JSON.stringify({ action: 'APPROVE', admin_name: 'Front Office Admin' })
+            });
+            if (res && res.success) {
+                SecurityClient.showToast(res.message, 'success', 6000);
+                pendingApprovals.pending_returns = [];
+                updateApprovalBadgeCounts();
+                refreshApprovalBox();
+                loadAllAdminData();
+            } else {
+                SecurityClient.showToast(res ? res.error : 'Failed to verify returns.', 'error');
+                if (btnElement) {
+                    btnElement.disabled = false;
+                    btnElement.innerHTML = `✅ ${I18n.t('btn_verify_all_returns', 'Verify All Returns (Batch Credit)')}`;
+                }
+            }
+        } catch (err) {
+            SecurityClient.showToast('Network error during batch verification.', 'error');
+            if (btnElement) {
+                btnElement.disabled = false;
+                btnElement.innerHTML = `✅ ${I18n.t('btn_verify_all_returns', 'Verify All Returns (Batch Credit)')}`;
+            }
         }
     }
 
-    async function rejectReturn(id) {
+    async function rejectReturn(id, btnElement) {
         const promptMsg = I18n.getLanguage() === 'si'
             ? 'Return Note එක ප්‍රතික්ෂේප කිරීමට හේතුව:'
-            : (I18n.getLanguage() === 'ta'
-                ? 'Return Note நிராகரிப்பதற்கான காரணம்:'
-                : 'Enter reason for rejecting this return note:');
-        const reason = prompt(promptMsg);
+            : 'Enter reason for rejecting this return note:';
+        const reason = prompt(promptMsg, 'Physical damaged stock not returned or batch invalid');
         if (reason === null) return;
-        const res = await SecurityClient.secureFetch(`/api/approvals/returns/${id}/action`, {
-            method: 'POST',
-            body: JSON.stringify({ action: 'REJECT', admin_name: 'Front Office Admin', reason })
-        });
-        if (res && res.success) {
-            SecurityClient.showToast(res.message, 'info', 5000);
-            loadAllAdminData();
-        } else {
-            SecurityClient.showToast(res ? res.error : 'Failed to reject return.', 'error');
+
+        if (btnElement) {
+            btnElement.disabled = true;
+            btnElement.innerHTML = '⏳ Rejecting...';
+        }
+        try {
+            const res = await SecurityClient.secureFetch(`/api/approvals/returns/${id}/action`, {
+                method: 'POST',
+                body: JSON.stringify({ action: 'REJECT', admin_name: 'Front Office Admin', reason })
+            });
+            if (res && res.success) {
+                SecurityClient.showToast(res.message, 'info', 5000);
+                const row = document.getElementById(`return-row-${id}`);
+                if (row) {
+                    row.style.transition = 'all 0.3s ease';
+                    row.style.opacity = '0';
+                    row.style.transform = 'translateX(-20px)';
+                    setTimeout(() => {
+                        row.remove();
+                        if (pendingApprovals.pending_returns) {
+                            pendingApprovals.pending_returns = pendingApprovals.pending_returns.filter(r => r.id !== id);
+                        }
+                        updateApprovalBadgeCounts();
+                        if (!pendingApprovals.pending_returns || pendingApprovals.pending_returns.length === 0) {
+                            refreshApprovalBox();
+                        }
+                    }, 300);
+                } else {
+                    loadAllAdminData();
+                }
+            } else {
+                SecurityClient.showToast(res ? res.error : 'Failed to reject return.', 'error');
+                if (btnElement) {
+                    btnElement.disabled = false;
+                    btnElement.innerHTML = I18n.t('btn_reject', '❌ Reject');
+                }
+            }
+        } catch (err) {
+            SecurityClient.showToast('Network error while rejecting return.', 'error');
+            if (btnElement) {
+                btnElement.disabled = false;
+                btnElement.innerHTML = I18n.t('btn_reject', '❌ Reject');
+            }
         }
     }
 
-    async function approveShop(id) {
-        const msg = I18n.getLanguage() === 'si'
-            ? 'මෙම නව වෙළඳසැල අනුමත කර Active කිරීමට කැමතිද?'
-            : (I18n.getLanguage() === 'ta'
-                ? 'இந்த புதிய கடையை அங்கீகரித்து செயல்படுத்த விரும்புகிறீர்களா?'
-                : 'Approve and activate this new retail shop?');
-        if (!confirm(msg)) return;
-        const res = await SecurityClient.secureFetch(`/api/approvals/shops/${id}/action`, {
-            method: 'POST',
-            body: JSON.stringify({ action: 'APPROVE', admin_name: 'Front Office Admin' })
-        });
-        if (res && res.success) {
-            SecurityClient.showToast(res.message, 'success', 5000);
-            loadAllAdminData();
-        } else {
-            SecurityClient.showToast(res ? res.error : 'Failed to approve shop.', 'error');
+    async function approveShop(id, btnElement) {
+        if (btnElement) {
+            btnElement.disabled = true;
+            btnElement.innerHTML = '⏳ Approving...';
+        }
+        try {
+            const res = await SecurityClient.secureFetch(`/api/approvals/shops/${id}/action`, {
+                method: 'POST',
+                body: JSON.stringify({ action: 'APPROVE', admin_name: 'Front Office Admin' })
+            });
+            if (res && res.success) {
+                SecurityClient.showToast(res.message, 'success', 5000);
+                const row = document.getElementById(`shop-row-${id}`);
+                if (row) {
+                    row.style.transition = 'all 0.3s ease';
+                    row.style.opacity = '0';
+                    row.style.transform = 'translateX(20px)';
+                    setTimeout(() => {
+                        row.remove();
+                        if (pendingApprovals.pending_shops) {
+                            pendingApprovals.pending_shops = pendingApprovals.pending_shops.filter(s => s.id !== id);
+                        }
+                        updateApprovalBadgeCounts();
+                        if (!pendingApprovals.pending_shops || pendingApprovals.pending_shops.length === 0) {
+                            refreshApprovalBox();
+                        }
+                    }, 300);
+                } else {
+                    loadAllAdminData();
+                }
+            } else {
+                SecurityClient.showToast(res ? res.error : 'Failed to approve shop.', 'error');
+                if (btnElement) {
+                    btnElement.disabled = false;
+                    btnElement.innerHTML = I18n.t('btn_approve_activate', '✅ Approve & Activate');
+                }
+            }
+        } catch (err) {
+            SecurityClient.showToast('Network error while approving shop.', 'error');
+            if (btnElement) {
+                btnElement.disabled = false;
+                btnElement.innerHTML = I18n.t('btn_approve_activate', '✅ Approve & Activate');
+            }
         }
     }
 
-    async function rejectShop(id) {
+    async function rejectShop(id, btnElement) {
         const promptMsg = I18n.getLanguage() === 'si'
             ? 'වෙළඳසැල ප්‍රතික්ෂේප කිරීමට හේතුව:'
-            : (I18n.getLanguage() === 'ta'
-                ? 'கடையை நிராகரிப்பதற்கான காரணம்:'
-                : 'Enter reason for rejecting this shop:');
-        const reason = prompt(promptMsg);
+            : 'Enter reason for rejecting this shop:';
+        const reason = prompt(promptMsg, 'Shop registration details could not be verified');
         if (reason === null) return;
-        const res = await SecurityClient.secureFetch(`/api/approvals/shops/${id}/action`, {
-            method: 'POST',
-            body: JSON.stringify({ action: 'REJECT', admin_name: 'Front Office Admin', reason })
-        });
-        if (res && res.success) {
-            SecurityClient.showToast(res.message, 'info', 5000);
-            loadAllAdminData();
-        } else {
-            SecurityClient.showToast(res ? res.error : 'Failed to reject shop.', 'error');
+
+        if (btnElement) {
+            btnElement.disabled = true;
+            btnElement.innerHTML = '⏳ Rejecting...';
+        }
+        try {
+            const res = await SecurityClient.secureFetch(`/api/approvals/shops/${id}/action`, {
+                method: 'POST',
+                body: JSON.stringify({ action: 'REJECT', admin_name: 'Front Office Admin', reason })
+            });
+            if (res && res.success) {
+                SecurityClient.showToast(res.message, 'info', 5000);
+                const row = document.getElementById(`shop-row-${id}`);
+                if (row) {
+                    row.style.transition = 'all 0.3s ease';
+                    row.style.opacity = '0';
+                    row.style.transform = 'translateX(-20px)';
+                    setTimeout(() => {
+                        row.remove();
+                        if (pendingApprovals.pending_shops) {
+                            pendingApprovals.pending_shops = pendingApprovals.pending_shops.filter(s => s.id !== id);
+                        }
+                        updateApprovalBadgeCounts();
+                        if (!pendingApprovals.pending_shops || pendingApprovals.pending_shops.length === 0) {
+                            refreshApprovalBox();
+                        }
+                    }, 300);
+                } else {
+                    loadAllAdminData();
+                }
+            } else {
+                SecurityClient.showToast(res ? res.error : 'Failed to reject shop.', 'error');
+                if (btnElement) {
+                    btnElement.disabled = false;
+                    btnElement.innerHTML = I18n.t('btn_reject', '❌ Reject');
+                }
+            }
+        } catch (err) {
+            SecurityClient.showToast('Network error while rejecting shop.', 'error');
+            if (btnElement) {
+                btnElement.disabled = false;
+                btnElement.innerHTML = I18n.t('btn_reject', '❌ Reject');
+            }
         }
     }
 
-    async function approveOrder(id) {
-        const res = await SecurityClient.secureFetch(`/api/approvals/orders/${id}/action`, {
-            method: 'POST',
-            body: JSON.stringify({ action: 'APPROVE', admin_name: 'Front Office Admin' })
-        });
-        if (res && res.success) {
-            SecurityClient.showToast(res.message, 'success', 5000);
-            loadAllAdminData();
-        } else {
-            SecurityClient.showToast(res ? res.error : 'Failed to approve order.', 'error');
+    async function approveOrder(id, btnElement) {
+        if (btnElement) {
+            btnElement.disabled = true;
+            btnElement.innerHTML = '⏳ Confirming...';
+        }
+        try {
+            const res = await SecurityClient.secureFetch(`/api/approvals/orders/${id}/action`, {
+                method: 'POST',
+                body: JSON.stringify({ action: 'APPROVE', admin_name: 'Front Office Admin' })
+            });
+            if (res && res.success) {
+                SecurityClient.showToast(res.message, 'success', 5000);
+                const row = document.getElementById(`order-row-${id}`);
+                if (row) {
+                    row.style.transition = 'all 0.3s ease';
+                    row.style.opacity = '0';
+                    row.style.transform = 'translateX(20px)';
+                    setTimeout(() => {
+                        row.remove();
+                        if (pendingApprovals.pending_orders) {
+                            pendingApprovals.pending_orders = pendingApprovals.pending_orders.filter(o => o.id !== id);
+                        }
+                        updateApprovalBadgeCounts();
+                        if (!pendingApprovals.pending_orders || pendingApprovals.pending_orders.length === 0) {
+                            refreshApprovalBox();
+                        }
+                    }, 300);
+                } else {
+                    loadAllAdminData();
+                }
+            } else {
+                SecurityClient.showToast(res ? res.error : 'Failed to approve order.', 'error');
+                if (btnElement) {
+                    btnElement.disabled = false;
+                    btnElement.innerHTML = I18n.t('btn_confirm_order', '✅ Confirm Order');
+                }
+            }
+        } catch (err) {
+            SecurityClient.showToast('Network error while approving order.', 'error');
+            if (btnElement) {
+                btnElement.disabled = false;
+                btnElement.innerHTML = I18n.t('btn_confirm_order', '✅ Confirm Order');
+            }
         }
     }
 
-    async function rejectOrder(id) {
+    async function rejectOrder(id, btnElement) {
         const promptMsg = I18n.getLanguage() === 'si'
             ? 'Order එක ප්‍රතික්ෂේප කර තොග නැවත truck එකට හරවන්නද? හේතුව:'
-            : (I18n.getLanguage() === 'ta'
-                ? 'ஆர்டரை நிராகரித்து சரக்குகளை லொறிக்கு திருப்பி அனுப்பவா? காரணம்:'
-                : 'Reject order and return stock to truck manifest? Enter reason:');
-        const reason = prompt(promptMsg);
+            : 'Reject order and return stock to truck manifest? Enter reason:';
+        const reason = prompt(promptMsg, 'Credit clearance rejected by Front Office Admin');
         if (reason === null) return;
-        const res = await SecurityClient.secureFetch(`/api/approvals/orders/${id}/action`, {
-            method: 'POST',
-            body: JSON.stringify({ action: 'REJECT', admin_name: 'Front Office Admin', reason })
-        });
-        if (res && res.success) {
-            SecurityClient.showToast(res.message, 'info', 5000);
-            loadAllAdminData();
-        } else {
-            SecurityClient.showToast(res ? res.error : 'Failed to reject order.', 'error');
+
+        if (btnElement) {
+            btnElement.disabled = true;
+            btnElement.innerHTML = '⏳ Rejecting...';
+        }
+        try {
+            const res = await SecurityClient.secureFetch(`/api/approvals/orders/${id}/action`, {
+                method: 'POST',
+                body: JSON.stringify({ action: 'REJECT', admin_name: 'Front Office Admin', reason })
+            });
+            if (res && res.success) {
+                SecurityClient.showToast(res.message, 'info', 5000);
+                const row = document.getElementById(`order-row-${id}`);
+                if (row) {
+                    row.style.transition = 'all 0.3s ease';
+                    row.style.opacity = '0';
+                    row.style.transform = 'translateX(-20px)';
+                    setTimeout(() => {
+                        row.remove();
+                        if (pendingApprovals.pending_orders) {
+                            pendingApprovals.pending_orders = pendingApprovals.pending_orders.filter(o => o.id !== id);
+                        }
+                        updateApprovalBadgeCounts();
+                        if (!pendingApprovals.pending_orders || pendingApprovals.pending_orders.length === 0) {
+                            refreshApprovalBox();
+                        }
+                    }, 300);
+                } else {
+                    loadAllAdminData();
+                }
+            } else {
+                SecurityClient.showToast(res ? res.error : 'Failed to reject order.', 'error');
+                if (btnElement) {
+                    btnElement.disabled = false;
+                    btnElement.innerHTML = I18n.t('btn_reject', '❌ Reject');
+                }
+            }
+        } catch (err) {
+            SecurityClient.showToast('Network error while rejecting order.', 'error');
+            if (btnElement) {
+                btnElement.disabled = false;
+                btnElement.innerHTML = I18n.t('btn_reject', '❌ Reject');
+            }
         }
     }
 
@@ -2381,6 +2748,7 @@ const AdminDashboard = (() => {
         approvePayment,
         rejectPayment,
         approveReturn,
+        approveAllReturns,
         rejectReturn,
         approveShop,
         rejectShop,

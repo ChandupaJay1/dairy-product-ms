@@ -117,6 +117,7 @@ class ApprovalController extends Controller
             return response()->json(['success' => false, 'error' => "Payment already processed ({$payment->status})."], 400);
         }
 
+        DB::beginTransaction();
         try {
             if ($action === 'APPROVE') {
                 // Apply debt reduction to the shop
@@ -142,6 +143,8 @@ class ApprovalController extends Controller
                     ]
                 );
 
+                DB::commit();
+
                 return response()->json([
                     'success' => true,
                     'message' => "✅ රු. " . number_format($payment->payment_amount, 2) . " ක ගෙවීම Front Office මඟින් තහවුරු කරන ලදී. වෙළඳසැලේ නව ශේෂය: රු. " . number_format($creditResult['newBalance'], 2),
@@ -163,12 +166,15 @@ class ApprovalController extends Controller
                     ['paymentId' => $id, 'amount' => $payment->payment_amount, 'reason' => $reason]
                 );
 
+                DB::commit();
+
                 return response()->json([
                     'success' => true,
                     'message' => "❌ ගෙවීම ප්‍රතික්ෂේප කරන ලදී (Rejected). වෙළඳසැලේ ශේෂය වෙනස් නොවේ."
                 ]);
             }
         } catch (\Throwable $e) {
+            DB::rollBack();
             return response()->json(['success' => false, 'error' => $e->getMessage()], 500);
         }
     }
@@ -191,14 +197,18 @@ class ApprovalController extends Controller
             return response()->json(['success' => false, 'error' => "Stock return already processed ({$return->status})."], 400);
         }
 
+        DB::beginTransaction();
         try {
             $shop = Shop::find($return->shop_id);
 
             if ($action === 'APPROVE') {
+                $deduct = 0;
                 // If CREDIT_NOTE, adjust the shop debt
                 if ($return->settlement_action === 'CREDIT_NOTE' && $shop && $shop->outstanding_balance > 0) {
                     $deduct = min((float)$shop->outstanding_balance, (float)$return->total_value);
-                    $shop->decrement('outstanding_balance', $deduct);
+                    if ($deduct > 0) {
+                        $shop->decrement('outstanding_balance', $deduct);
+                    }
                 }
 
                 // If dispatch exists, update damaged cups
@@ -225,13 +235,16 @@ class ApprovalController extends Controller
                         'shop' => $shop ? $shop->name : 'N/A',
                         'flavor' => $return->flavor_name,
                         'qty' => $return->quantity_cups,
-                        'value' => $return->total_value
+                        'value' => $return->total_value,
+                        'creditDeducted' => $deduct
                     ]
                 );
 
+                DB::commit();
+
                 return response()->json([
                     'success' => true,
-                    'message' => "✅ Return Note #{$return->return_number} සාර්ථකව තහවුරු කරන ලදී (Physical stock verified).",
+                    'message' => "✅ Return Note #{$return->return_number} සාර්ථකව තහවුරු කරන ලදී (Physical stock verified)." . ($deduct > 0 ? " රු. " . number_format($deduct, 2) . " ක Credit Note එකක් වෙළඳසැලට හිමිවිය." : ""),
                     'newShopBalance' => $shop ? $shop->fresh()->outstanding_balance : 0
                 ]);
             } else {
@@ -250,12 +263,97 @@ class ApprovalController extends Controller
                     ['returnId' => $id, 'reason' => $reason]
                 );
 
+                DB::commit();
+
                 return response()->json([
                     'success' => true,
-                    'message' => "❌ Return Note එක ප්‍රතික්ෂේප කරන ලදී. වෙළඳසැලට Credit adjustment එකක් සිදු නොවේ."
+                    'message' => "❌ Return Note #{$return->return_number} ප්‍රතික්ෂේප කරන ලදී. වෙළඳසැලට Credit adjustment එකක් සිදු නොවේ."
                 ]);
             }
         } catch (\Throwable $e) {
+            DB::rollBack();
+            return response()->json(['success' => false, 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Batch confirm or reject multiple Stock Returns
+     */
+    public function actionReturnBulk(Request $request): JsonResponse
+    {
+        $action = strtoupper($request->input('action', 'APPROVE'));
+        $adminName = $request->input('admin_name', 'Front Office Admin');
+        $ids = $request->input('ids', []);
+
+        if (empty($ids)) {
+            $ids = StockReturn::where('status', 'PENDING')->pluck('id')->toArray();
+        }
+
+        if (empty($ids)) {
+            return response()->json(['success' => false, 'error' => 'තහවුරු කිරීමට Pending Return සටහන් කිසිවක් හමු නොවීය.'], 400);
+        }
+
+        DB::beginTransaction();
+        try {
+            $count = 0;
+            $totalCredit = 0;
+
+            foreach ($ids as $id) {
+                $return = StockReturn::find($id);
+                if (!$return || $return->status !== 'PENDING') continue;
+
+                $shop = Shop::find($return->shop_id);
+
+                if ($action === 'APPROVE') {
+                    if ($return->settlement_action === 'CREDIT_NOTE' && $shop && $shop->outstanding_balance > 0) {
+                        $deduct = min((float)$shop->outstanding_balance, (float)$return->total_value);
+                        if ($deduct > 0) {
+                            $shop->decrement('outstanding_balance', $deduct);
+                            $totalCredit += $deduct;
+                        }
+                    }
+
+                    if ($return->dispatch_id) {
+                        $dispatch = Dispatch::find($return->dispatch_id);
+                        if ($dispatch) {
+                            $dispatch->increment('damaged_cups', (int)$return->quantity_cups);
+                        }
+                    }
+
+                    $return->update([
+                        'status' => 'CONFIRMED',
+                        'confirmed_by' => $adminName,
+                        'confirmed_at' => now()
+                    ]);
+                    $count++;
+                } else {
+                    $return->update([
+                        'status' => 'REJECTED',
+                        'confirmed_by' => $adminName,
+                        'rejection_reason' => 'Batch rejected during Front Office physical verification.',
+                        'confirmed_at' => now()
+                    ]);
+                    $count++;
+                }
+            }
+
+            $this->cryptoService->logAuditEvent(
+                'STOCK_RETURNS_BULK_ACTION',
+                $adminName,
+                'admin',
+                "Bulk returns: {$action}",
+                ['processedCount' => $count, 'totalCreditIssued' => $totalCredit]
+            );
+
+            DB::commit();
+
+            return response()->json([
+                'success' => true,
+                'message' => "✅ Return සටහන් {$count} ක් සාර්ථකව {$action} කරන ලදී!" . ($totalCredit > 0 ? " නිකුත් කළ මුළු Credit Note වටිනාකම: රු. " . number_format($totalCredit, 2) : ""),
+                'processedCount' => $count
+            ]);
+        } catch (\Throwable $e) {
+            DB::rollBack();
             return response()->json(['success' => false, 'error' => $e->getMessage()], 500);
         }
     }
@@ -276,6 +374,7 @@ class ApprovalController extends Controller
             return response()->json(['success' => false, 'error' => 'Shop record not found.'], 404);
         }
 
+        DB::beginTransaction();
         try {
             if ($action === 'APPROVE') {
                 $updates = [
@@ -302,6 +401,8 @@ class ApprovalController extends Controller
                     ['shopId' => $shop->id, 'creditTier' => $shop->credit_tier, 'creditLimit' => $shop->credit_limit]
                 );
 
+                DB::commit();
+
                 return response()->json([
                     'success' => true,
                     'message' => "✅ '{$shop->name}' වෙළඳසැල සාර්ථකව අනුමත කරන ලදී (Approved). දැන් මෙම කඩයට ඇණවුම් නිකුත් කළ හැක.",
@@ -324,12 +425,15 @@ class ApprovalController extends Controller
                     ['shopId' => $shop->id, 'reason' => $reason]
                 );
 
+                DB::commit();
+
                 return response()->json([
                     'success' => true,
                     'message' => "❌ වෙළඳසැල් ලියාපදිංචිය ප්‍රතික්ෂේප කරන ලදී (Rejected)."
                 ]);
             }
         } catch (\Throwable $e) {
+            DB::rollBack();
             return response()->json(['success' => false, 'error' => $e->getMessage()], 500);
         }
     }
@@ -348,6 +452,7 @@ class ApprovalController extends Controller
             return response()->json(['success' => false, 'error' => 'Order not found.'], 404);
         }
 
+        DB::beginTransaction();
         try {
             if ($action === 'APPROVE') {
                 $order->update([
@@ -363,6 +468,8 @@ class ApprovalController extends Controller
                     "Invoice {$order->invoice_number}",
                     ['orderId' => $id, 'amount' => $order->total_amount]
                 );
+
+                DB::commit();
 
                 return response()->json([
                     'success' => true,
@@ -403,12 +510,15 @@ class ApprovalController extends Controller
                     ['orderId' => $id, 'amount' => $order->total_amount, 'reason' => $reason]
                 );
 
+                DB::commit();
+
                 return response()->json([
                     'success' => true,
                     'message' => "❌ Invoice {$order->invoice_number} ප්‍රතික්ෂේප කර තොග හා ණය ආපසු හරවන ලදී (Order reversed)."
                 ]);
             }
         } catch (\Throwable $e) {
+            DB::rollBack();
             return response()->json(['success' => false, 'error' => $e->getMessage()], 500);
         }
     }
