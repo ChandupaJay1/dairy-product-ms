@@ -92,7 +92,8 @@ const AdminDashboard = (() => {
                 shopsList,
                 sosAlerts,
                 auditLogs,
-                salesRepsList
+                salesRepsList,
+                pendingApprovals
             });
         } catch (err) {
             console.warn('Admin background data refresh error:', err);
@@ -2032,7 +2033,7 @@ const AdminDashboard = (() => {
                     </table>
                 </div>
             `;
-        } else {
+        } else if (activeStaffTab === 'reps') {
             const filtered = !repSearchQuery ? salesRepsList : salesRepsList.filter(r => 
                 (r.name && r.name.toLowerCase().includes(repSearchQuery)) ||
                 (r.employee_code && r.employee_code.toLowerCase().includes(repSearchQuery)) ||

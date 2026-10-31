@@ -28,7 +28,7 @@ class SosRescueController extends Controller
             FROM sos_alerts s
             JOIN vehicles v ON s.vehicle_id = v.id
             JOIN drivers dr ON s.driver_id = dr.id
-            JOIN dispatches d ON s.dispatch_id = d.id
+            LEFT JOIN dispatches d ON s.dispatch_id = d.id
             LEFT JOIN vehicles rv ON s.rescue_vehicle_id = rv.id
             LEFT JOIN drivers rdr ON s.rescue_driver_id = rdr.id
             WHERE s.status IN ('PENDING_RESCUE', 'RESCUE_DISPATCHED')
