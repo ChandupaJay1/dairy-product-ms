@@ -607,11 +607,11 @@
 
                         <div>
                             <label class="block text-xs font-bold uppercase tracking-wider text-zinc-700 dark:text-zinc-300 mb-1.5">
-                                Reorder Threshold
+                                SKU Number
                             </label>
-                            <input type="number" 
-                                   placeholder="e.g. 15 units"
-                                   class="w-full px-4 py-2.5 bg-white/90 dark:bg-zinc-900/80 border border-zinc-300 dark:border-zinc-800 text-zinc-900 dark:text-zinc-100 placeholder-zinc-400 text-sm rounded-xl focus:border-lime-500 focus:ring-4 focus:ring-lime-400/20 focus:outline-none transition-all shadow-sm" />
+                            <input type="text" 
+                                   placeholder="e.g. DRY-MLK-01"
+                                   class="w-full px-4 py-2.5 bg-white/90 dark:bg-zinc-900/80 border border-zinc-300 dark:border-zinc-800 text-zinc-900 dark:text-zinc-100 placeholder-zinc-400 text-sm rounded-xl focus:border-lime-500 focus:ring-4 focus:ring-lime-400/20 focus:outline-none transition-all shadow-sm font-mono" />
                         </div>
                     </div>
 
