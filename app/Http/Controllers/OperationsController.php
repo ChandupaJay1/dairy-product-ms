@@ -408,37 +408,37 @@ class OperationsController extends Controller
 
             // Fetch dispatches and orders for this route
             $dispatchIds = Dispatch::where('route_id', $route->id)->pluck('id');
-            $totalSales = (float)Order::whereIn('dispatch_id', $dispatchIds)->sum('total_amount');
-            
-            // If demo or active day has low sales early in morning, project full shift
-            if ($totalSales < 50000) {
-                $benchmarkCups = match ($route->id) {
-                    1 => 1250,
-                    2 => 1400,
-                    3 => 1100,
-                    default => 950
-                };
-                $totalSales = $totalSales + ($benchmarkCups * 85.00);
-            }
+            $hasDispatches = $dispatchIds->count() > 0;
+            $totalSales = (float)Order::whereIn('dispatch_id', $dispatchIds)->where('status', '!=', 'REJECTED')->sum('total_amount');
 
+            // Apply fuel & crew expenses only if dispatches have actually run on this route
+            $actualFuelExpense = $hasDispatches ? $fuelExpense : 0.00;
+            $actualCrewAllowance = $hasDispatches ? $crewAllowance : 0.00;
             $cogs = round($totalSales * 0.58, 2); // 58% direct production cost
-            $totalExpenses = $cogs + $fuelExpense + $crewAllowance;
+            $totalExpenses = $cogs + $actualFuelExpense + $actualCrewAllowance;
             $grossProfit = round($totalSales - $totalExpenses, 2);
-            $profitMargin = $totalSales > 0 ? round(($grossProfit / $totalSales) * 100, 1) : 0;
+            $profitMargin = $totalSales > 0 ? round(($grossProfit / $totalSales) * 100, 1) : 0.0;
+
+            $status = 'STANDBY';
+            if ($totalSales > 0) {
+                $status = $profitMargin >= 30 ? 'HIGH_PROFIT' : ($profitMargin >= 20 ? 'OPTIMAL' : 'MONITOR');
+            } elseif ($hasDispatches) {
+                $status = 'IN_TRANSIT';
+            }
 
             $profitability[] = [
                 'route_id' => $route->id,
                 'route_name' => $route->route_name,
                 'region_sector' => $route->region_sector,
                 'distance_km' => $distanceKm,
-                'diesel_litres' => $litresUsed,
-                'fuel_expense' => $fuelExpense,
-                'crew_allowance' => $crewAllowance,
+                'diesel_litres' => $hasDispatches ? $litresUsed : 0.0,
+                'fuel_expense' => $actualFuelExpense,
+                'crew_allowance' => $actualCrewAllowance,
                 'cogs_production' => $cogs,
                 'total_revenue' => $totalSales,
                 'gross_profit' => $grossProfit,
                 'profit_margin_percent' => $profitMargin,
-                'efficiency_status' => $profitMargin >= 30 ? 'HIGH_PROFIT' : ($profitMargin >= 20 ? 'OPTIMAL' : 'MONITOR')
+                'efficiency_status' => $status
             ];
         }
 
@@ -457,21 +457,27 @@ class OperationsController extends Controller
     {
         // 5 Flavors in Polonnaruwa Dairy portfolio
         $products = DB::table('products')->get();
+        $allOrders = Order::where('status', '!=', 'REJECTED')->get();
+
+        $salesBySku = [];
         $totalSystemCups = 0;
 
-        $flavorData = [];
-        $sampleVolumes = [
-            'YOG-VAN-80' => 5400,
-            'YOG-STR-80' => 3100,
-            'YOG-CHO-80' => 2100,
-            'YOG-MAN-80' => 1600,
-            'YOG-TRC-180' => 850
-        ];
+        foreach ($allOrders as $order) {
+            $items = json_decode($order->items_json, true) ?: [];
+            foreach ($items as $item) {
+                $sku = $item['sku'] ?? $item['sku_code'] ?? '';
+                $qty = (int)($item['quantity'] ?? $item['qty'] ?? 0);
+                if ($sku && $qty > 0) {
+                    $salesBySku[$sku] = ($salesBySku[$sku] ?? 0) + $qty;
+                    $totalSystemCups += $qty;
+                }
+            }
+        }
 
+        $flavorData = [];
         foreach ($products as $p) {
-            $vol = $sampleVolumes[$p->sku_code] ?? 1000;
-            $revenue = $vol * (float)$p->unit_price;
-            $totalSystemCups += $vol;
+            $vol = (int)($salesBySku[$p->sku_code] ?? 0);
+            $revenue = round($vol * (float)$p->unit_price, 2);
 
             $flavorData[] = [
                 'id' => $p->id,
@@ -481,16 +487,20 @@ class OperationsController extends Controller
                 'cups_sold_month' => $vol,
                 'monthly_revenue' => $revenue,
                 'shelf_life_days' => 21,
-                'ranking' => ''
+                'share_percent' => $totalSystemCups > 0 ? round(($vol / $totalSystemCups) * 100, 1) : 0.0,
+                'ranking' => $vol > 0 ? '' : '📦 NO SALES YET'
             ];
         }
 
         // Calculate share and velocity
         usort($flavorData, fn($a, $b) => $b['cups_sold_month'] <=> $a['cups_sold_month']);
 
-        foreach ($flavorData as $index => &$item) {
-            $item['share_percent'] = round(($item['cups_sold_month'] / max(1, $totalSystemCups)) * 100, 1);
-            $item['ranking'] = ($index === 0) ? '🔥 BESTSELLER #1' : (($index <= 2) ? '⚡ FAST-MOVING' : '📦 STEADY DEMAND');
+        if ($totalSystemCups > 0) {
+            foreach ($flavorData as $index => &$item) {
+                if ($item['cups_sold_month'] > 0) {
+                    $item['ranking'] = ($index === 0) ? '🔥 BESTSELLER #1' : (($index <= 2) ? '⚡ FAST-MOVING' : '📦 STEADY DEMAND');
+                }
+            }
         }
 
         return response()->json([
@@ -619,20 +629,17 @@ class OperationsController extends Controller
         foreach ($drivers as $d) {
             $dispatches = Dispatch::where('driver_id', $d->id)->get();
             $soldCups = (int)$dispatches->sum('sold_cups');
-            if ($soldCups === 0) {
-                $soldCups = match($d->id) {
-                    1 => 1850,
-                    2 => 1420,
-                    3 => 1950,
-                    default => 1650
-                };
-            }
 
             $volumeCommission = round($soldCups * $commissionRatePerCup, 2);
-            $achievementPercent = round(($soldCups / $targetCups) * 100, 1);
+            $achievementPercent = $targetCups > 0 ? round(($soldCups / $targetCups) * 100, 1) : 0.0;
             $targetBonus = ($achievementPercent >= 100) ? 2500.00 : 0.00;
             $cashCollectionBonus = round($soldCups * 0.40, 2); // Rs. 0.40 per cup for on-time cash
             $totalIncentive = $volumeCommission + $targetBonus + $cashCollectionBonus;
+
+            $status = 'STANDBY';
+            if ($soldCups > 0) {
+                $status = ($achievementPercent >= 100) ? '🏆 TARGET ACHIEVED' : 'ON TRACK';
+            }
 
             $repStats[] = [
                 'driver_id' => $d->id,
@@ -645,7 +652,7 @@ class OperationsController extends Controller
                 'target_bonus' => $targetBonus,
                 'cash_collection_bonus' => $cashCollectionBonus,
                 'total_incentive' => $totalIncentive,
-                'status' => ($achievementPercent >= 100) ? '🏆 TARGET ACHIEVED' : 'ON TRACK'
+                'status' => $status
             ];
         }
 

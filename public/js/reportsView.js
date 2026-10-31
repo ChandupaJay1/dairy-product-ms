@@ -48,8 +48,13 @@ const ReportsView = (() => {
             if (repsRes && repsRes.success) repData = repsRes.reps;
             if (shopsRes && shopsRes.success) shopsList = shopsRes.shops;
 
-            if (shopsList.length > 0 && !currentStatement) {
-                await loadShopStatement(shopsList[0].id);
+            // Always fetch live shop statement (refreshing cached balance)
+            if (shopsList.length > 0) {
+                const targetShopId = (currentStatement && currentStatement.shop) ? currentStatement.shop.id : shopsList[0].id;
+                const stmtRes = await SecurityClient.secureFetch(`/api/reports/shop-statement/${targetShopId}`);
+                if (stmtRes && stmtRes.success) {
+                    currentStatement = stmtRes;
+                }
             }
 
             OfflineStorage.cacheOperationalData(OfflineStorage.CACHE_REPORTS_KEY, {
@@ -66,10 +71,25 @@ const ReportsView = (() => {
         render();
     }
 
+    async function forceRefresh() {
+        // Clear cached reports so fresh fetch is guaranteed
+        OfflineStorage.cacheOperationalData(OfflineStorage.CACHE_REPORTS_KEY, null);
+        currentStatement = null;
+        await loadData();
+        SecurityClient.showToast(I18n.getLanguage() === 'si' ? '✅ වාර්තා දත්ත නැවුම් කරන ලදී (Live Data Synced)' : '✅ Reports refreshed with live database data.', 'success');
+    }
+
     async function loadShopStatement(shopId) {
         const res = await SecurityClient.secureFetch(`/api/reports/shop-statement/${shopId}`);
         if (res && res.success) {
             currentStatement = res;
+            OfflineStorage.cacheOperationalData(OfflineStorage.CACHE_REPORTS_KEY, {
+                routeData,
+                flavorData,
+                repData,
+                shopsList,
+                currentStatement
+            });
         }
         render();
     }
@@ -91,7 +111,10 @@ const ReportsView = (() => {
                         <h2>${I18n.t('reports_title', '📊 Financial Analytics & Reports')}</h2>
                         <p>${I18n.t('reports_subtitle', 'Polonnaruwa Sector • Operations Intelligence & Profitability')}</p>
                     </div>
-                    <div>
+                    <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
+                        <button class="btn-report-action" onclick="ReportsView.forceRefresh()" title="Clear cache & reload live data">
+                            🔄 ${I18n.t('btn_refresh_data', 'Refresh Data')}
+                        </button>
                         <button class="btn-report-action" onclick="ReportsView.exportReportPdf()">
                             ${I18n.t('btn_print_pdf', '🖨️ Export PDF')}
                         </button>
@@ -227,6 +250,7 @@ const ReportsView = (() => {
 
     // 2. FLAVOR POPULARITY TAB
     function renderFlavorAnalytics() {
+        const totalCups = flavorData.reduce((sum, f) => sum + (f.cups_sold_month || 0), 0);
         return `
             <div>
                 <div style="margin-bottom: 1rem;">
@@ -237,6 +261,11 @@ const ReportsView = (() => {
                 <!-- Visual Distribution Bars -->
                 <div class="report-table-box" style="margin-bottom: 1.25rem;">
                     <h4 class="report-table-title">Regional Market Share by Flavor</h4>
+                    ${totalCups === 0 ? `
+                        <div style="font-size: 0.78rem; color: var(--text-muted); margin-bottom: 12px; padding: 8px 12px; background: rgba(56, 189, 248, 0.08); border-radius: 6px; border-left: 3px solid var(--color-info, #38bdf8);">
+                            📦 <strong>${I18n.getLanguage() === 'si' ? 'තවමත් විකුණුම් වාර්තා වී නොමැත' : 'No sales transactions recorded yet'}</strong>: ${I18n.getLanguage() === 'si' ? 'නව Morning Dispatch එකක් පිටත් කර Sales Reps ඇනවුම් සටහන් කළ පසු Flavor Velocity දත්ත ස්වයංක්‍රීයව ගණනය වේ.' : 'Once a Morning Load Dispatch is sent and field sales are recorded, market share and velocity rankings will update live.'}
+                        </div>
+                    ` : ''}
                     <div style="display: flex; flex-direction: column; gap: 0.75rem;">
                         ${flavorData.map(f => `
                             <div>
@@ -678,6 +707,7 @@ const ReportsView = (() => {
 
     return {
         loadData,
+        forceRefresh,
         render,
         switchSubTab,
         onShopSelectChange,
