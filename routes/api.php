@@ -144,3 +144,4 @@ Route::post('/approvals/returns/bulk-action', [ApprovalController::class, 'actio
 Route::post('/approvals/returns/{id}/action', [ApprovalController::class, 'actionReturn']);
 Route::post('/approvals/shops/{id}/action', [ApprovalController::class, 'actionShop']);
 Route::post('/approvals/orders/{id}/action', [ApprovalController::class, 'actionOrder']);
+Route::post('/approvals/settlements/{id}/action', [ApprovalController::class, 'actionSettlement']);

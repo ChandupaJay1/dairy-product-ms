@@ -9,6 +9,7 @@ use App\Models\Shop;
 use App\Models\Dispatch;
 use App\Models\Order;
 use App\Models\StockReturn;
+use App\Models\DailySettlement;
 use App\Models\AuditLog;
 use App\Services\CryptoSealService;
 use App\Services\SmartCreditService;
@@ -84,7 +85,22 @@ class ApprovalController extends Controller
                 ->orderBy('orders.id', 'desc')
                 ->get();
 
-            $totalPending = count($pendingPayments) + count($pendingReturns) + count($pendingShops) + count($pendingOrders);
+            // 5. Pending Day-End Settlements (Reconciliations waiting for Front Office Admin sign-off)
+            $pendingSettlements = DB::table('daily_settlements')
+                ->leftJoin('dispatches', 'daily_settlements.dispatch_id', '=', 'dispatches.id')
+                ->leftJoin('vehicles', 'dispatches.vehicle_id', '=', 'vehicles.id')
+                ->leftJoin('routes', 'dispatches.route_id', '=', 'routes.id')
+                ->select(
+                    'daily_settlements.*',
+                    'dispatches.manifest_number',
+                    'vehicles.vehicle_number',
+                    'routes.route_name'
+                )
+                ->whereIn('daily_settlements.status', ['BALANCED', 'VARIANCE_FLAGGED'])
+                ->orderBy('daily_settlements.id', 'desc')
+                ->get();
+
+            $totalPending = count($pendingPayments) + count($pendingReturns) + count($pendingShops) + count($pendingOrders) + count($pendingSettlements);
 
             return response()->json([
                 'success' => true,
@@ -92,7 +108,8 @@ class ApprovalController extends Controller
                 'pending_payments' => $pendingPayments,
                 'pending_returns' => $pendingReturns,
                 'pending_shops' => $pendingShops,
-                'pending_orders' => $pendingOrders
+                'pending_orders' => $pendingOrders,
+                'pending_settlements' => $pendingSettlements
             ]);
         } catch (\Throwable $e) {
             return response()->json(['success' => false, 'error' => $e->getMessage()], 500);
@@ -515,6 +532,86 @@ class ApprovalController extends Controller
                 return response()->json([
                     'success' => true,
                     'message' => "❌ Invoice {$order->invoice_number} ප්‍රතික්ෂේප කර තොග හා ණය ආපසු හරවන ලදී (Order reversed)."
+                ]);
+            }
+        } catch (\Throwable $e) {
+            DB::rollBack();
+            return response()->json(['success' => false, 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Approve or Reject/Recount a Day-End Settlement (Maker-Checker Protocol)
+     */
+    public function actionSettlement(Request $request, int $id): JsonResponse
+    {
+        $action = strtoupper($request->input('action', 'APPROVE'));
+        $adminName = $request->input('admin_name', 'Front Office Admin');
+        $notes = $request->input('reason', '');
+
+        $settlement = DailySettlement::find($id);
+        if (!$settlement) {
+            return response()->json(['success' => false, 'error' => 'Settlement record not found.'], 404);
+        }
+
+        if ($settlement->status === 'APPROVED') {
+            return response()->json(['success' => false, 'error' => 'Settlement already approved and ledger locked.'], 400);
+        }
+
+        DB::beginTransaction();
+        try {
+            if ($action === 'APPROVE') {
+                $settlement->update([
+                    'status' => 'APPROVED',
+                    'variance_notes' => ($settlement->variance_notes ? $settlement->variance_notes . " | " : "") . "Audited & Officially Approved by {$adminName} at " . now()->toDateTimeString()
+                ]);
+
+                // Finalize dispatch to SETTLED
+                $dispatch = Dispatch::find($settlement->dispatch_id);
+                if ($dispatch) {
+                    $dispatch->update(['status' => 'SETTLED']);
+                    DB::table('vehicles')->where('id', $dispatch->vehicle_id)->where('status', '!=', 'BREAKDOWN')->update(['status' => 'AVAILABLE']);
+                    DB::table('drivers')->where('id', $dispatch->driver_id)->update(['status' => 'ACTIVE']);
+                }
+
+                $this->cryptoService->logAuditEvent(
+                    'DAY_END_SETTLEMENT_APPROVED_BY_ADMIN',
+                    $adminName,
+                    'admin',
+                    "Settlement #{$settlement->settlement_number}",
+                    [
+                        'settlementId' => $id,
+                        'cashVariance' => $settlement->cash_variance,
+                        'stockVariance' => $settlement->stock_variance,
+                        'status' => 'APPROVED'
+                    ]
+                );
+
+                DB::commit();
+
+                return response()->json([
+                    'success' => true,
+                    'message' => "✅ Day Settlement #{$settlement->settlement_number} Front Office Admin විසින් විගණනය කර අනුමත කරන ලදී (Daily Ledger locked)."
+                ]);
+            } else {
+                $settlement->update([
+                    'status' => 'VARIANCE_FLAGGED',
+                    'variance_notes' => ($settlement->variance_notes ? $settlement->variance_notes . " | " : "") . "Flagged / Recount required by {$adminName}: {$notes}"
+                ]);
+
+                $this->cryptoService->logAuditEvent(
+                    'DAY_END_SETTLEMENT_FLAGGED_BY_ADMIN',
+                    $adminName,
+                    'admin',
+                    "Settlement #{$settlement->settlement_number}",
+                    ['settlementId' => $id, 'reason' => $notes]
+                );
+
+                DB::commit();
+
+                return response()->json([
+                    'success' => true,
+                    'message' => "⚠️ Day Settlement #{$settlement->settlement_number} නැවත ගණනය සඳහා යොමු කරන ලදී (Flagged for recount)."
                 ]);
             }
         } catch (\Throwable $e) {

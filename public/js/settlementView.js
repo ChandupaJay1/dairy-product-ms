@@ -85,6 +85,8 @@ const SettlementView = (() => {
         const expectedStock = previewData.expected_remaining_cups;
         const invoicedCash = previewData.total_invoiced_cash;
         const invoicedCredit = previewData.total_invoiced_credit;
+        const fieldDebtCash = previewData.field_debt_cash_collected || 0;
+        const expectedCash = previewData.expected_cash_total !== undefined ? previewData.expected_cash_total : (invoicedCash + fieldDebtCash);
         const expectedCrates = previewData.expected_crates_return;
 
         container.innerHTML = `
@@ -163,12 +165,15 @@ const SettlementView = (() => {
                                 <h4 style="font-weight:800; font-size:1rem; color:var(--color-cash);">${I18n.t('settlement_cash_step', '💵 1. Cash Reconciliation')}</h4>
                                 <span style="font-size:0.75rem; color:var(--text-muted);">Physical cash handed over</span>
                             </div>
-                            <span class="status-pill online">Invoiced Cash</span>
+                            <span class="status-pill online">Expected Cash</span>
                         </div>
 
                         <div style="margin-bottom:1rem;">
-                            <span style="font-size:0.75rem; color:var(--text-muted);">${I18n.t('settlement_cash_sales', 'Total Cash Sales Today:')}</span>
-                            <div style="font-size:1.6rem; font-weight:900; font-family:monospace; color:var(--color-cash);">${SecurityClient.formatCurrency(invoicedCash)}</div>
+                            <span style="font-size:0.75rem; color:var(--text-muted);">${I18n.t('settlement_cash_sales', 'Total Expected Cash Handover:')}</span>
+                            <div style="font-size:1.6rem; font-weight:900; font-family:monospace; color:var(--color-cash);">${SecurityClient.formatCurrency(expectedCash)}</div>
+                            <div class="text-xs text-muted" style="margin-top:2px;">
+                                Cash Invoices: <strong>${SecurityClient.formatCurrency(invoicedCash)}</strong> &bull; Debt Cash: <strong class="text-success">${SecurityClient.formatCurrency(fieldDebtCash)}</strong>
+                            </div>
                             <div style="font-size:0.75rem; color:var(--text-muted); margin-top:2px;">
                                 Credit Sales (Pay Later): <strong style="color:var(--accent-amber);">${SecurityClient.formatCurrency(invoicedCredit)}</strong>
                             </div>
@@ -177,7 +182,7 @@ const SettlementView = (() => {
                         <div class="form-group">
                             <label class="form-label">${I18n.t('settlement_cash_received_lbl', 'Physical Cash Handed Over (Rs.):')}</label>
                             <input type="number" id="settlePhysicalCash" class="form-control text-center font-bold" style="font-size:1.25rem; font-family:monospace;"
-                                value="${invoicedCash}" step="50" oninput="SettlementView.recalculateVariances()">
+                                value="${expectedCash}" step="50" oninput="SettlementView.recalculateVariances()">
                         </div>
 
                         <div style="padding:0.75rem 1rem; border-radius:var(--radius-md); background:var(--bg-surface-elevated); border:1px solid var(--border-subtle); display:flex; justify-content:space-between; align-items:center;">
@@ -362,8 +367,10 @@ const SettlementView = (() => {
         const isTa = I18n.getLanguage() === 'ta';
 
         const physicalCash = parseFloat(document.getElementById('settlePhysicalCash')?.value || '0');
-        const invoicedCash = previewData.total_invoiced_cash;
-        const cashVariance = physicalCash - invoicedCash;
+        const expectedCash = previewData.expected_cash_total !== undefined 
+            ? previewData.expected_cash_total 
+            : (previewData.total_invoiced_cash + (previewData.field_debt_cash_collected || 0));
+        const cashVariance = physicalCash - expectedCash;
 
         const cashDisplay = document.getElementById('cashVarianceDisplay');
         if (cashDisplay) {

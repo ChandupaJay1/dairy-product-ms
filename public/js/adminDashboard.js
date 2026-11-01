@@ -608,6 +608,7 @@ const AdminDashboard = (() => {
         const returns = pendingApprovals.pending_returns || [];
         const shops = pendingApprovals.pending_shops || [];
         const orders = pendingApprovals.pending_orders || [];
+        const settlements = pendingApprovals.pending_settlements || [];
 
         return `
             <div class="approval-center-card">
@@ -648,6 +649,11 @@ const AdminDashboard = (() => {
                         <span>📝</span>
                         <span>${I18n.t('tab_pending_orders', 'Credit Invoices')}</span>
                         <span class="approval-tab-pill ${orders.length > 0 ? 'pill-alert' : ''}">${orders.length}</span>
+                    </button>
+                    <button type="button" class="btn approval-tab-btn ${activeApprovalTab === 'settlements' ? 'active' : ''}" onclick="AdminDashboard.switchApprovalTab('settlements')">
+                        <span>🧾</span>
+                        <span>${I18n.t('tab_pending_settlements', 'Day Settlements')}</span>
+                        <span class="approval-tab-pill ${settlements.length > 0 ? 'pill-alert' : ''}">${settlements.length}</span>
                     </button>
                 </div>
 
@@ -887,6 +893,80 @@ const AdminDashboard = (() => {
             `;
         }
 
+        if (activeApprovalTab === 'settlements') {
+            const settlements = pendingApprovals.pending_settlements || [];
+            if (settlements.length === 0) {
+                return `<div class="approval-empty-state">${I18n.t('approval_empty_settlements', '✅ No pending day settlements to audit. All vehicle daily dispatches have been reconciled & closed.')}</div>`;
+            }
+            return `
+                <div class="approval-summary-banner">
+                    <div class="approval-summary-stats">
+                        <span>🧾 <strong>${settlements.length}</strong> Day-End Settlement(s) Waiting For Sign-off</span>
+                    </div>
+                </div>
+                <div class="table-responsive">
+                    <table class="table eyecare-table">
+                        <thead>
+                            <tr>
+                                <th>Settlement # & Date</th>
+                                <th>Vehicle & Driver</th>
+                                <th>Expected Cash</th>
+                                <th>Physical Cash</th>
+                                <th>Cash Variance</th>
+                                <th>Stock (Expected vs Checked)</th>
+                                <th>Status & Notes</th>
+                                <th style="text-align: right;">Admin Audit Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${settlements.map(s => {
+                                const isBalanced = Math.abs(parseFloat(s.cash_variance || 0)) < 0.01 && parseInt(s.stock_variance || 0) === 0;
+                                return `
+                                    <tr id="settlement-row-${s.id}">
+                                        <td>
+                                            <strong>${SecurityClient.escapeHtml(s.settlement_number)}</strong>
+                                            <div class="text-xs text-muted">Manifest #${SecurityClient.escapeHtml(s.manifest_number || s.dispatch_id)} &bull; ${s.settlement_date}</div>
+                                        </td>
+                                        <td>
+                                            <div><strong>${SecurityClient.escapeHtml(s.driver_name)}</strong></div>
+                                            <div class="text-xs text-muted font-mono">${SecurityClient.escapeHtml(s.vehicle_number || '')} &bull; ${SecurityClient.escapeHtml(s.route_name || '')}</div>
+                                        </td>
+                                        <td><strong class="font-mono">${SecurityClient.formatCurrency(s.total_invoiced_cash)}</strong></td>
+                                        <td><strong class="font-mono text-cyan">${SecurityClient.formatCurrency(s.physical_cash_handed)}</strong></td>
+                                        <td>
+                                            <span class="badge ${parseFloat(s.cash_variance) < 0 ? 'badge-danger' : (parseFloat(s.cash_variance) > 0 ? 'badge-info' : 'badge-success')} font-mono">
+                                                ${parseFloat(s.cash_variance) >= 0 ? '+' : ''}${SecurityClient.formatCurrency(s.cash_variance)}
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <div class="text-xs">Exp: <strong>${s.expected_stock_cups}</strong> &bull; Act: <strong>${s.actual_stock_checked_in}</strong></div>
+                                            <span class="badge ${parseInt(s.stock_variance) !== 0 ? 'badge-warning' : 'badge-success'} font-mono mt-1">
+                                                ${parseInt(s.stock_variance) > 0 ? '+' : ''}${s.stock_variance} cups
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <span class="badge ${isBalanced ? 'badge-success' : 'badge-danger'}">${s.status}</span>
+                                            <div class="text-xs text-muted mt-1" style="max-width:200px;">${SecurityClient.escapeHtml(s.variance_notes || '--')}</div>
+                                        </td>
+                                        <td style="text-align: right;">
+                                            <div class="approval-actions-cell" style="justify-content: flex-end;">
+                                                <button type="button" class="btn-approve" onclick="AdminDashboard.approveSettlement(${s.id}, this)">
+                                                    ✅ Approve & Lock
+                                                </button>
+                                                <button type="button" class="btn-reject" onclick="AdminDashboard.rejectSettlement(${s.id}, this)">
+                                                    ⚠️ Recount
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                `;
+                            }).join('')}
+                        </tbody>
+                    </table>
+                </div>
+            `;
+        }
+
         return '';
     }
 
@@ -895,7 +975,8 @@ const AdminDashboard = (() => {
         const returns = pendingApprovals.pending_returns || [];
         const shops = pendingApprovals.pending_shops || [];
         const orders = pendingApprovals.pending_orders || [];
-        const total = payments.length + returns.length + shops.length + orders.length;
+        const settlements = pendingApprovals.pending_settlements || [];
+        const total = payments.length + returns.length + shops.length + orders.length + settlements.length;
         pendingApprovals.total_pending = total;
 
         const overallBadge = document.querySelector('.approval-badge-count');
@@ -910,7 +991,7 @@ const AdminDashboard = (() => {
         }
 
         const tabBtns = document.querySelectorAll('.approval-tab-btn');
-        if (tabBtns.length >= 4) {
+        if (tabBtns.length >= 5) {
             const pPill = tabBtns[0].querySelector('.approval-tab-pill');
             if (pPill) {
                 pPill.textContent = payments.length;
@@ -930,6 +1011,11 @@ const AdminDashboard = (() => {
             if (oPill) {
                 oPill.textContent = orders.length;
                 oPill.className = `approval-tab-pill ${orders.length > 0 ? 'pill-alert' : ''}`;
+            }
+            const setPill = tabBtns[4].querySelector('.approval-tab-pill');
+            if (setPill) {
+                setPill.textContent = settlements.length;
+                setPill.className = `approval-tab-pill ${settlements.length > 0 ? 'pill-alert' : ''}`;
             }
         }
     }
@@ -1370,6 +1456,84 @@ const AdminDashboard = (() => {
             if (btnElement) {
                 btnElement.disabled = false;
                 btnElement.innerHTML = I18n.t('btn_reject', '❌ Reject');
+            }
+        }
+    }
+
+    async function approveSettlement(id, btnElement) {
+        if (btnElement) {
+            btnElement.disabled = true;
+            btnElement.innerHTML = '⏳ Auditing...';
+        }
+        try {
+            const res = await SecurityClient.secureFetch(`/api/approvals/settlements/${id}/action`, {
+                method: 'POST',
+                body: JSON.stringify({ action: 'APPROVE', admin_name: 'Front Office Admin' })
+            });
+            if (res && res.success) {
+                SecurityClient.showToast(res.message, 'success', 5000);
+                const row = document.getElementById(`settlement-row-${id}`);
+                if (row) {
+                    row.style.transition = 'all 0.3s ease';
+                    row.style.opacity = '0';
+                    row.style.transform = 'translateX(20px)';
+                    setTimeout(() => {
+                        row.remove();
+                        if (pendingApprovals.pending_settlements) {
+                            pendingApprovals.pending_settlements = pendingApprovals.pending_settlements.filter(s => s.id !== id);
+                        }
+                        updateApprovalBadgeCounts();
+                        if (!pendingApprovals.pending_settlements || pendingApprovals.pending_settlements.length === 0) {
+                            refreshApprovalBox();
+                        }
+                    }, 300);
+                } else {
+                    loadAllAdminData();
+                }
+            } else {
+                SecurityClient.showToast(res ? res.error : 'Failed to approve settlement.', 'error');
+                if (btnElement) {
+                    btnElement.disabled = false;
+                    btnElement.innerHTML = '✅ Approve & Lock';
+                }
+            }
+        } catch(e) {
+            SecurityClient.showToast('Network error while approving settlement.', 'error');
+            if (btnElement) {
+                btnElement.disabled = false;
+                btnElement.innerHTML = '✅ Approve & Lock';
+            }
+        }
+    }
+
+    async function rejectSettlement(id, btnElement) {
+        const reason = prompt('කරුණාකර නැවත ගණනය කිරීමට හේතුව ඇතුළත් කරන්න (Reason for recount/rejection):', 'Cash shortage or physical stock discrepancy detected.');
+        if (!reason) return;
+
+        if (btnElement) {
+            btnElement.disabled = true;
+            btnElement.innerHTML = '⏳ Flagging...';
+        }
+        try {
+            const res = await SecurityClient.secureFetch(`/api/approvals/settlements/${id}/action`, {
+                method: 'POST',
+                body: JSON.stringify({ action: 'REJECT', reason, admin_name: 'Front Office Admin' })
+            });
+            if (res && res.success) {
+                SecurityClient.showToast(res.message, 'warning', 5000);
+                loadAllAdminData();
+            } else {
+                SecurityClient.showToast(res ? res.error : 'Failed to flag settlement.', 'error');
+                if (btnElement) {
+                    btnElement.disabled = false;
+                    btnElement.innerHTML = '⚠️ Recount';
+                }
+            }
+        } catch(e) {
+            SecurityClient.showToast('Network error while flagging settlement.', 'error');
+            if (btnElement) {
+                btnElement.disabled = false;
+                btnElement.innerHTML = '⚠️ Recount';
             }
         }
     }
@@ -3149,6 +3313,8 @@ const AdminDashboard = (() => {
         rejectShop,
         approveOrder,
         rejectOrder,
+        approveSettlement,
+        rejectSettlement,
         // Fleet & Staff Management & Search Exports
         switchStaffTab,
         filterVehicles,

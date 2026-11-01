@@ -236,6 +236,19 @@ class OperationsController extends Controller
         $cashOrdersTotal = (float)Order::where('dispatch_id', $dispatch->id)->where('payment_type', 'CASH')->sum('total_amount');
         $creditOrdersTotal = (float)Order::where('dispatch_id', $dispatch->id)->where('payment_type', 'CREDIT')->sum('total_amount');
 
+        // Sum field debt collections (cash collected from shops during this route run)
+        $fieldDebtCashTotal = (float)DB::table('payments')
+            ->where(function($q) use ($dispatch) {
+                $q->where('dispatch_id', $dispatch->id)
+                  ->orWhere(function($sub) use ($dispatch) {
+                      $sub->whereNull('dispatch_id')->whereDate('created_at', $dispatch->dispatch_date);
+                  });
+            })
+            ->where('status', '!=', 'REJECTED')
+            ->sum('payment_amount');
+
+        $totalExpectedCash = round($cashOrdersTotal + $fieldDebtCashTotal, 2);
+
         // Sum stock returns for this dispatch
         $returnsCount = (int)StockReturn::where('dispatch_id', $dispatch->id)->sum('quantity_cups');
 
@@ -270,6 +283,8 @@ class OperationsController extends Controller
                 'expected_remaining_cups' => $expectedRemainingStock,
                 'total_invoiced_cash' => $cashOrdersTotal,
                 'total_invoiced_credit' => $creditOrdersTotal,
+                'field_debt_cash_collected' => $fieldDebtCashTotal,
+                'expected_cash_total' => $totalExpectedCash,
                 'grand_total_sales' => $cashOrdersTotal + $creditOrdersTotal,
                 'crates_loaded' => $truckInitialCrates,
                 'crates_issued' => $cratesIssued,
@@ -298,6 +313,18 @@ class OperationsController extends Controller
 
         $cashOrdersTotal = (float)Order::where('dispatch_id', $dispatch->id)->where('payment_type', 'CASH')->sum('total_amount');
         $creditOrdersTotal = (float)Order::where('dispatch_id', $dispatch->id)->where('payment_type', 'CREDIT')->sum('total_amount');
+        
+        $fieldDebtCashTotal = (float)DB::table('payments')
+            ->where(function($q) use ($dispatch) {
+                $q->where('dispatch_id', $dispatch->id)
+                  ->orWhere(function($sub) use ($dispatch) {
+                      $sub->whereNull('dispatch_id')->whereDate('created_at', $dispatch->dispatch_date);
+                  });
+            })
+            ->where('status', '!=', 'REJECTED')
+            ->sum('payment_amount');
+
+        $totalExpectedCash = round($cashOrdersTotal + $fieldDebtCashTotal, 2);
         $returnsCount = (int)StockReturn::where('dispatch_id', $dispatch->id)->sum('quantity_cups');
 
         $driver = DB::table('drivers')->where('id', $dispatch->driver_id)->first();
@@ -305,7 +332,7 @@ class OperationsController extends Controller
         $cratesLoaded = (int)ceil($dispatch->total_loaded_cups / 30);
 
         // Compute Variances
-        $cashVariance = round($validated['physical_cash_handed'] - $cashOrdersTotal, 2);
+        $cashVariance = round($validated['physical_cash_handed'] - $totalExpectedCash, 2);
         $stockVariance = $validated['actual_stock_checked_in'] - $expectedStock;
         $cratesVariance = $validated['crates_returned_total'] - $cratesLoaded;
 
@@ -321,7 +348,7 @@ class OperationsController extends Controller
             'cashier_name' => $validated['cashier_name'],
             'driver_name' => $driver ? $driver->name : 'Kamal Gunaratne',
             'sales_rep_name' => 'Field Sales Rep',
-            'total_invoiced_cash' => $cashOrdersTotal,
+            'total_invoiced_cash' => $totalExpectedCash,
             'total_invoiced_credit' => $creditOrdersTotal,
             'physical_cash_handed' => $validated['physical_cash_handed'],
             'cash_variance' => $cashVariance,
@@ -337,7 +364,7 @@ class OperationsController extends Controller
             'crates_variance' => $cratesVariance,
             'curd_pots_returned' => $validated['curd_pots_returned'] ?? 0,
             'status' => $status,
-            'variance_notes' => $validated['variance_notes'] ?? ($hasVariance ? 'Discrepancy noted during evening reconciliation.' : 'All cash, stock, and crates balanced 100%.'),
+            'variance_notes' => $validated['variance_notes'] ?? ($hasVariance ? 'Discrepancy noted during evening reconciliation. Awaiting Front Office Admin audit.' : 'All cash, stock, and crates balanced 100%. Submitted for Front Office Admin sign-off.'),
             'created_at' => now()
         ]);
 
