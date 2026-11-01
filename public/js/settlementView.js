@@ -94,35 +94,91 @@ const SettlementView = (() => {
                 <!-- Header Banner Card -->
                 <div class="card">
                     <div class="card-sheen-top"></div>
-                    <div class="card-header">
+                    <div class="card-header" style="flex-wrap:wrap; gap:12px;">
                         <div>
                             <div style="display:flex; align-items:center; gap:0.75rem; flex-wrap:wrap; margin-bottom:4px;">
                                 <h2 class="card-title" style="margin-bottom:0;">${I18n.t('title_day_settlement', '🧾 Day-End Cash & Stock Reconciliation')}</h2>
-                                <span class="badge ${previewData.status === 'SETTLED' ? 'badge-success' : 'badge-warning'}">
+                                <span class="badge ${previewData.status === 'SETTLED' ? 'badge-success' : 'badge-warning'}" style="font-size:0.78rem; padding:4px 10px;">
                                     ${previewData.status === 'SETTLED' ? '✓ SETTLED' : '🚚 ACTIVE MANIFEST'}
                                 </span>
                             </div>
-                            <p class="card-subtitle">
-                                ${I18n.t('settlement_depot', 'Polonnaruwa Main Depot')} &bull; Manifest <strong>#${SecurityClient.escapeHtml(previewData.manifest_number)}</strong> &bull; 
-                                Vehicle: <strong>${SecurityClient.escapeHtml(previewData.vehicle_number)}</strong> (${SecurityClient.escapeHtml(previewData.driver_name)})
+                            <p class="card-subtitle" style="margin-top:2px;">
+                                ${I18n.t('settlement_depot', 'Polonnaruwa Main Depot')} &bull; Financial Ledger & Cold-Chain Balance
                             </p>
                         </div>
-                        <div style="display:flex; gap:0.5rem; align-items:center; flex-wrap:wrap;">
-                            ${allDispatchesList.length > 1 ? `
-                                <select class="form-control" style="max-width:230px; font-size:0.8rem; padding:4px 8px; height:34px;" onchange="SettlementView.onDispatchSwitch(this.value)">
-                                    ${allDispatchesList.map(d => `
-                                        <option value="${d.id}" ${d.id === previewData.id ? 'selected' : ''}>
-                                            ${d.manifest_number} (${d.status}) - ${d.vehicle_number}
-                                        </option>
-                                    `).join('')}
-                                </select>
-                            ` : ''}
+                        <div style="display:flex; gap:0.6rem; align-items:center; flex-wrap:wrap;">
                             <button class="btn btn-sm btn-outline" onclick="SettlementView.openCrateModal()">
                                 ${I18n.t('tab_crates', '🧺 Crates & Pots (Crates)')}
                             </button>
                             <button class="btn btn-sm btn-outline" onclick="SettlementView.openReturnModal()">
                                 ${I18n.t('tab_returns', '🥛 Damaged / Returns')}
                             </button>
+                        </div>
+                    </div>
+
+                    <!-- Prominent Vehicle & Driver Identification Bar -->
+                    <div style="margin: 0.5rem 0 1rem; padding: 0.85rem 1.15rem; border-radius: var(--radius-md); background: var(--bg-surface-elevated); border: 1.5px solid rgba(6, 182, 212, 0.35); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+                        <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <span style="font-size: 1.5rem; line-height: 1;">🚚</span>
+                                <div>
+                                    <div style="font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); font-weight: 700;">
+                                        වාහනය (Vehicle Number):
+                                    </div>
+                                    <div style="font-size: 1.25rem; font-weight: 900; font-family: monospace; color: var(--color-cyan); line-height: 1.2;">
+                                        ${SecurityClient.escapeHtml(previewData.vehicle_number || 'NC-GA-4521')}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div style="height: 28px; width: 1px; background: var(--border-subtle); display: none; @media(min-width:640px){display:block;}"></div>
+
+                            <div>
+                                <div style="font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); font-weight: 700;">
+                                    රියදුරු (Driver):
+                                </div>
+                                <div style="font-size: 0.95rem; font-weight: 700; color: var(--text-heading);">
+                                    👤 ${SecurityClient.escapeHtml(previewData.driver_name || '--')}
+                                </div>
+                            </div>
+
+                            <div style="height: 28px; width: 1px; background: var(--border-subtle); display: none; @media(min-width:768px){display:block;}"></div>
+
+                            <div>
+                                <div style="font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); font-weight: 700;">
+                                    මාර්ගය (Route Corridor):
+                                </div>
+                                <div style="font-size: 0.88rem; font-weight: 600; color: var(--text-secondary);">
+                                    📍 ${SecurityClient.escapeHtml(previewData.route_name || previewData.region_sector || 'Polonnaruwa Sector')}
+                                </div>
+                            </div>
+
+                            <div style="height: 28px; width: 1px; background: var(--border-subtle); display: none; @media(min-width:900px){display:block;}"></div>
+
+                            <div>
+                                <div style="font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); font-weight: 700;">
+                                    Manifest Code:
+                                </div>
+                                <div style="font-size: 0.88rem; font-weight: 800; font-family: monospace; color: var(--accent-amber);">
+                                    #${SecurityClient.escapeHtml(previewData.manifest_number)}
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Vehicle Switcher Dropdown (Allows Cashier to switch between returning trucks) -->
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <label for="settleDispatchSelect" style="font-size: 0.75rem; font-weight: 700; color: var(--text-muted); white-space: nowrap;">
+                                🔄 වෙනත් ලොරියක්:
+                            </label>
+                            <select id="settleDispatchSelect" class="form-control" style="font-weight: 700; font-size: 0.85rem; height: 38px; min-width: 220px; border-color: rgba(6, 182, 212, 0.4);" onchange="SettlementView.onDispatchSwitch(this.value)">
+                                ${allDispatchesList.length > 0 ? allDispatchesList.map(d => `
+                                    <option value="${d.id}" ${d.id === previewData.id ? 'selected' : ''}>
+                                        🚚 ${d.vehicle_number} (${d.driver_name}) - ${d.manifest_number}
+                                    </option>
+                                `).join('') : `
+                                    <option value="${previewData.id}">${previewData.vehicle_number} (${previewData.driver_name})</option>
+                                `}
+                            </select>
                         </div>
                     </div>
 
