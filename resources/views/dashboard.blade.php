@@ -109,6 +109,7 @@
                                     <button class="sidebar-nav-btn role-nav-btn active" data-view="admin" id="sideBtnAdmin">
                                         <span class="sidebar-nav-icon">🖥️</span>
                                         <span class="sidebar-nav-text" data-i18n="nav_admin">Office Admin</span>
+                                        <span class="badge badge-danger ml-auto" id="adminNavSosBadge" style="display:none; margin-left:auto; font-size:0.7rem; padding:2px 7px; border-radius:10px; background:#ef4444; color:#fff; font-weight:800;">1</span>
                                     </button>
                                 </li>
                                 <li>
@@ -257,7 +258,7 @@
 
                         <ul class="sidebar-subnav-list" id="distributionDrawerSubnav" role="navigation">
                             @if(Auth::user()->isAdmin())
-                                <li><button class="sidebar-nav-btn role-nav-btn active" data-view="admin"><span class="sidebar-nav-icon">🖥️</span><span data-i18n="nav_admin">Office Admin</span></button></li>
+                                <li><button class="sidebar-nav-btn role-nav-btn active" data-view="admin"><span class="sidebar-nav-icon">🖥️</span><span data-i18n="nav_admin">Office Admin</span><span class="badge badge-danger ml-auto" id="drawerNavSosBadge" style="display:none; margin-left:auto; font-size:0.7rem; padding:2px 7px; border-radius:10px; background:#ef4444; color:#fff; font-weight:800;">1</span></button></li>
                                 <li><button class="sidebar-nav-btn role-nav-btn" data-view="sales_rep"><span class="sidebar-nav-icon">📱</span><span data-i18n="nav_rep">Sales Rep</span></button></li>
                                 <li><button class="sidebar-nav-btn role-nav-btn" data-view="driver"><span class="sidebar-nav-icon">🚚</span><span data-i18n="nav_driver">Driver Mobile</span></button></li>
                                 <li><button class="sidebar-nav-btn role-nav-btn" data-view="settlement"><span class="sidebar-nav-icon">🧾</span><span data-i18n="nav_settlement">Day Settlement</span></button></li>
@@ -316,6 +317,11 @@
 
                 <!-- Header Actions -->
                 <div class="header-actions-group">
+                    <!-- Global SOS Emergency Pulsing Pill (Auto-displays when an SOS is active) -->
+                    <button id="globalSosHeaderBadge" type="button" class="btn btn-xs btn-sos animate-pulse" style="display:none; align-items:center; gap:6px; cursor:pointer; font-weight:800; border-radius:20px; padding:6px 14px; background:linear-gradient(135deg, #ef4444, #dc2626); color:#fff; border:1px solid #fca5a5; box-shadow:0 0 14px rgba(239, 68, 68, 0.6); font-size:0.8rem;" onclick="App.switchView('admin'); setTimeout(() => AdminDashboard.scrollToSection('adminSosSection'), 250);" title="View Critical SOS Breakdown Incident">
+                        🚨 <span id="globalSosCountText">1 Active SOS</span>
+                    </button>
+
                     <!-- User Role Pill -->
                     <div class="status-pill online" style="display:none; @media(min-width:640px){display:inline-flex;}">
                         @if(Auth::user()->isAdmin())

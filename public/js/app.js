@@ -121,6 +121,9 @@ const App = (() => {
             }
         });
 
+        // Start 24/7 Global Fleet SOS Telemetry Monitor (Alerts Admin & Front Office across all tabs)
+        startGlobalSosMonitor();
+
         // Initialize view based on hash or role-based default
         let initialView = window.location.hash.replace('#', '');
         if (!initialView || !isViewPermittedForUser(initialView)) {
@@ -300,8 +303,99 @@ const App = (() => {
         }
     }
 
+    let globalSosTimer = null;
+    let alertedSosTickets = new Set();
+
+    /**
+     * Continuous 24/7 Fleet SOS Telemetry Heartbeat
+     * Polls active SOS breakdown tickets every 4 seconds.
+     * Guaranteed to alert Admin & Command center immediately regardless of active view tab.
+     */
+    function startGlobalSosMonitor() {
+        if (globalSosTimer) clearInterval(globalSosTimer);
+
+        async function checkActiveSos() {
+            try {
+                const res = await SecurityClient.secureFetch('/api/sos/active');
+                if (res && res.success) {
+                    const activeAlerts = res.alerts || [];
+
+                    // Update Top Header Badge and Nav Badges
+                    const headerBadge = document.getElementById('globalSosHeaderBadge');
+                    const headerCountText = document.getElementById('globalSosCountText');
+                    const navBadge = document.getElementById('adminNavSosBadge');
+                    const drawerNavBadge = document.getElementById('drawerNavSosBadge');
+
+                    if (activeAlerts.length > 0) {
+                        const countText = `${activeAlerts.length} Active SOS`;
+                        if (headerBadge) {
+                            headerBadge.style.display = 'inline-flex';
+                            if (headerCountText) headerCountText.textContent = countText;
+                        }
+                        if (navBadge) {
+                            navBadge.style.display = 'inline-block';
+                            navBadge.textContent = activeAlerts.length;
+                        }
+                        if (drawerNavBadge) {
+                            drawerNavBadge.style.display = 'inline-block';
+                            drawerNavBadge.textContent = activeAlerts.length;
+                        }
+
+                        // Check for any unalerted SOS
+                        activeAlerts.forEach(alert => {
+                            if (!alertedSosTickets.has(alert.sos_ticket_number)) {
+                                alertedSosTickets.add(alert.sos_ticket_number);
+                                triggerSosAlarm(alert);
+                                if (currentRole === 'admin' && window.AdminDashboard && typeof window.AdminDashboard.loadAllAdminData === 'function') {
+                                    window.AdminDashboard.loadAllAdminData();
+                                }
+                            }
+                        });
+                    } else {
+                        if (headerBadge) headerBadge.style.display = 'none';
+                        if (navBadge) navBadge.style.display = 'none';
+                        if (drawerNavBadge) drawerNavBadge.style.display = 'none';
+
+                        // If previous alerts were resolved
+                        if (alertedSosTickets.size > 0) {
+                            alertedSosTickets.clear();
+                            if (currentRole === 'admin' && window.AdminDashboard && typeof window.AdminDashboard.loadAllAdminData === 'function') {
+                                window.AdminDashboard.loadAllAdminData();
+                            }
+                        }
+                    }
+                }
+            } catch (err) {
+                // Ignore transient network errors
+            }
+        }
+
+        setTimeout(checkActiveSos, 800);
+        globalSosTimer = setInterval(checkActiveSos, 4000);
+    }
+
     function triggerSosAlarm(sosAlert) {
-        SecurityClient.showToast(`🚨 HIGH PRIORITY: SOS Incident on ${sosAlert.vehicle_number} (${sosAlert.location_landmark})!`, 'emergency', 7000);
+        if (!sosAlert) return;
+        const vehicle = sosAlert.vehicle_number || ('Vehicle #' + sosAlert.vehicle_id);
+        const driver = sosAlert.driver_name ? `${sosAlert.driver_name} (${sosAlert.driver_phone || ''})` : 'Driver';
+        const landmark = sosAlert.location_landmark || 'Polonnaruwa Region';
+        const reason = sosAlert.breakdown_reason || 'Refrigeration / Mechanical Breakdown';
+        const risk = (sosAlert.remaining_stock_at_incident !== undefined && sosAlert.remaining_stock_at_incident !== null) ? sosAlert.remaining_stock_at_incident : 0;
+
+        const isSi = window.I18n && window.I18n.getLanguage() === 'si';
+        const isTa = window.I18n && window.I18n.getLanguage() === 'ta';
+
+        let msg = '';
+        if (isSi) {
+            msg = `🚨 හදිසි ආපදා ඇඟවීමක් (${sosAlert.sos_ticket_number}): ${vehicle} රථය ආපදාවකට ලක්ව ඇත! රියදුරු: ${driver} | ස්ථානය: ${landmark} | හේතුව: ${reason} | අනතුරේ ඇති තොගය: ${risk} cups. වහාම Rescue රථයක් පිටත් කරන්න!`;
+        } else if (isTa) {
+            msg = `🚨 அவசர SOS எச்சரிக்கை (${sosAlert.sos_ticket_number}): ${vehicle} பழுதடைந்துள்ளது! சாரதி: ${driver} | இடம்: ${landmark} | இருப்பு: ${risk} cups.`;
+        } else {
+            msg = `🚨 CRITICAL SOS ALERT (${sosAlert.sos_ticket_number}): Vehicle ${vehicle} broken down at ${landmark}! Driver: ${driver} | Reason: ${reason} | Risk: ${risk} cups. Immediate rescue needed!`;
+        }
+
+        SecurityClient.showToast(msg, 'emergency', 12000);
+        playSirenAudio();
     }
 
     function installPwa() {

@@ -20,14 +20,16 @@ class SosRescueController extends Controller
     {
         $alerts = Database::query("
             SELECT s.*, 
-                   v.vehicle_number, v.vehicle_type,
-                   dr.name AS driver_name, dr.phone AS driver_phone,
+                   COALESCE(v.vehicle_number, CONCAT('Vehicle #', s.vehicle_id)) AS vehicle_number, 
+                   COALESCE(v.vehicle_type, 'Refrigerated Van') AS vehicle_type,
+                   COALESCE(dr.name, CONCAT('Driver #', s.driver_id)) AS driver_name, 
+                   dr.phone AS driver_phone,
                    rv.vehicle_number AS rescue_vehicle_number,
                    rdr.name AS rescue_driver_name,
                    d.manifest_number
             FROM sos_alerts s
-            JOIN vehicles v ON s.vehicle_id = v.id
-            JOIN drivers dr ON s.driver_id = dr.id
+            LEFT JOIN vehicles v ON s.vehicle_id = v.id
+            LEFT JOIN drivers dr ON s.driver_id = dr.id
             LEFT JOIN dispatches d ON s.dispatch_id = d.id
             LEFT JOIN vehicles rv ON s.rescue_vehicle_id = rv.id
             LEFT JOIN drivers rdr ON s.rescue_driver_id = rdr.id

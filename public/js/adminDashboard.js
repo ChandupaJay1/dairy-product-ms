@@ -135,14 +135,18 @@ const AdminDashboard = (() => {
                         );
                         loadAllAdminData();
                     } else if (JSON.stringify(newAlerts) !== JSON.stringify(sosAlerts)) {
+                        const isNewIncident = newAlerts.length > prevCount;
                         sosAlerts = newAlerts;
                         render();
+                        if (isNewIncident && newAlerts.length > 0 && window.App && typeof window.App.triggerSosAlarm === 'function') {
+                            window.App.triggerSosAlarm(newAlerts[0]);
+                        }
                     }
                 }
             } catch (e) {
                 // Ignore transient network errors
             }
-        }, 8000);
+        }, 4000);
     }
 
     function render() {
@@ -508,7 +512,7 @@ const AdminDashboard = (() => {
         if (sosAlerts.length === 0) return '';
 
         return sosAlerts.map(alert => `
-            <div class="admin-sos-emergency-banner animate-pulse-glow">
+            <div class="admin-sos-emergency-banner animate-pulse-glow" id="adminSosSection">
                 <div class="sos-banner-left">
                     <span class="sos-big-icon">🚨</span>
                     <div>
