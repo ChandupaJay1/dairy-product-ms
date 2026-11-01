@@ -275,82 +275,94 @@ const SettlementView = (() => {
                     </div>
                 </div>
 
-                <!-- Section: Field Assets & Recent Settlement History -->
-                <div class="grid grid-2 gap-3 mt-4" style="display:grid; grid-template-columns: 1fr 1fr; gap:16px;">
-                    <!-- Left: Recent Returns & Expiry Adjustments -->
+                <!-- Section: Field Assets & Recent Settlement History (Full-Width Stacked for Maximum Clarity) -->
+                <div style="display:flex; flex-direction:column; gap:1.5rem; margin-top:1.5rem;">
+                    <!-- 1. Recent Returns & Expiry Adjustments (Full Width) -->
                     <div class="card card-subtle p-3">
-                        <div class="flex-between mb-2">
-                            <h4 class="font-bold">${I18n.t('recent_returns_heading', '🥛 Recent Expiry & Damaged Returns')}</h4>
-                            <span class="badge badge-outline">${recentReturns.length} Records</span>
+                        <div class="card-sheen-top"></div>
+                        <div class="flex-between mb-3" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
+                            <div>
+                                <h4 class="font-bold" style="font-size:1.05rem; margin:0;">${I18n.t('recent_returns_heading', '🥛 Recent Expiry & Damaged Returns')}</h4>
+                                <span class="text-xs text-muted">Customer returns, expiry write-offs & replacement credit notes</span>
+                            </div>
+                            <span class="badge badge-outline" style="font-size:0.8rem; padding:4px 10px;">${recentReturns.length} Records</span>
                         </div>
-                        <div class="table-responsive max-h-250">
-                            <table class="table text-xs">
+                        <div class="table-responsive">
+                            <table class="table eyecare-table" style="width:100%;">
                                 <thead>
                                     <tr>
-                                        <th>${I18n.t('th_return_num', 'Return #')}</th>
-                                        <th>${I18n.t('th_shop', 'Shop')}</th>
-                                        <th>${I18n.t('th_flavor_batch', 'Flavor & Batch')}</th>
-                                        <th>${I18n.t('th_qty', 'Qty')}</th>
-                                        <th>${I18n.t('th_action', 'Action')}</th>
+                                        <th style="padding:10px 14px;">${I18n.t('th_return_num', 'Return #')}</th>
+                                        <th style="padding:10px 14px;">${I18n.t('th_shop', 'Shop')}</th>
+                                        <th style="padding:10px 14px;">${I18n.t('th_flavor_batch', 'Flavor & Batch')}</th>
+                                        <th style="padding:10px 14px; text-align:center;">${I18n.t('th_qty', 'Qty (Cups)')}</th>
+                                        <th style="padding:10px 14px;">${I18n.t('th_action', 'Action')}</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    ${recentReturns.slice(0, 5).map(r => `
+                                    ${recentReturns.length > 0 ? recentReturns.slice(0, 10).map(r => `
                                         <tr>
-                                            <td><strong>${SecurityClient.escapeHtml(r.return_number)}</strong></td>
-                                            <td>${SecurityClient.escapeHtml(r.shop_name || 'Retail Shop')}</td>
-                                            <td>
-                                                <div>${SecurityClient.escapeHtml(r.flavor_name)}</div>
-                                                <div class="text-muted text-xs font-mono">${SecurityClient.escapeHtml(r.batch_number)}</div>
+                                            <td style="padding:10px 14px;"><strong class="font-mono text-cyan">${SecurityClient.escapeHtml(r.return_number)}</strong></td>
+                                            <td style="padding:10px 14px; font-weight:600;">${SecurityClient.escapeHtml(r.shop_name || 'Retail Shop')}</td>
+                                            <td style="padding:10px 14px;">
+                                                <div style="font-weight:700;">${SecurityClient.escapeHtml(r.flavor_name)}</div>
+                                                <div class="text-muted text-xs font-mono">${SecurityClient.escapeHtml(r.batch_number || '--')}</div>
                                             </td>
-                                            <td class="font-bold">${r.quantity_cups}</td>
-                                            <td>
-                                                <span class="badge ${r.settlement_action === 'CREDIT_NOTE' ? 'badge-warning' : 'badge-primary'}">
+                                            <td style="padding:10px 14px; text-align:center;"><strong class="text-warning font-mono" style="font-size:0.95rem;">${r.quantity_cups}</strong></td>
+                                            <td style="padding:10px 14px;">
+                                                <span class="badge ${r.settlement_action === 'CREDIT_NOTE' ? 'badge-warning' : 'badge-primary'}" style="font-size:0.75rem; padding:4px 8px;">
                                                     ${SecurityClient.escapeHtml(r.settlement_action)}
                                                 </span>
                                             </td>
                                         </tr>
-                                    `).join('')}
+                                    `).join('') : `
+                                        <tr><td colspan="5" style="text-align:center; padding:1.5rem; color:var(--text-muted);">No recent returns recorded.</td></tr>
+                                    `}
                                 </tbody>
                             </table>
                         </div>
                     </div>
 
-                    <!-- Right: Past Settlement Slips -->
+                    <!-- 2. Past Settlement Audit History Ledger (Full Width) -->
                     <div class="card card-subtle p-3">
-                        <div class="flex-between mb-2">
-                            <h4 class="font-bold">${I18n.t('recent_settlements_heading', '🧾 Past Settlement Ledger')}</h4>
-                            <span class="badge badge-success">${I18n.t('audit_verified', 'Audit Verified')}</span>
+                        <div class="card-sheen-top"></div>
+                        <div class="flex-between mb-3" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
+                            <div>
+                                <h4 class="font-bold" style="font-size:1.05rem; margin:0;">${I18n.t('recent_settlements_heading', '🧾 Past Daily Settlements Ledger')}</h4>
+                                <span class="text-xs text-muted">Archived daily reconciliation records & cashier handovers</span>
+                            </div>
+                            <span class="badge badge-success" style="font-size:0.8rem; padding:4px 10px;">${I18n.t('audit_verified', 'Audit Verified')}</span>
                         </div>
-                        <div class="table-responsive max-h-250">
-                            <table class="table text-xs">
+                        <div class="table-responsive">
+                            <table class="table eyecare-table" style="width:100%;">
                                 <thead>
                                     <tr>
-                                        <th>${I18n.t('th_settlement_num', 'Settlement #')}</th>
-                                        <th>${I18n.t('th_date', 'Date')}</th>
-                                        <th>${I18n.t('th_driver', 'Driver')}</th>
-                                        <th>${I18n.t('th_cash_handed', 'Cash Handed')}</th>
-                                        <th>${I18n.t('th_variance', 'Variance')}</th>
-                                        <th>${I18n.t('th_status', 'Status')}</th>
+                                        <th style="padding:10px 14px;">${I18n.t('th_settlement_num', 'Settlement #')}</th>
+                                        <th style="padding:10px 14px;">${I18n.t('th_date', 'Date')}</th>
+                                        <th style="padding:10px 14px;">${I18n.t('th_driver', 'Driver & Vehicle')}</th>
+                                        <th style="padding:10px 14px; text-align:right;">${I18n.t('th_cash_handed', 'Cash Handed')}</th>
+                                        <th style="padding:10px 14px; text-align:center;">${I18n.t('th_variance', 'Variance')}</th>
+                                        <th style="padding:10px 14px; text-align:center;">${I18n.t('th_status', 'Status')}</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    ${settlementHistory.map(s => `
+                                    ${settlementHistory.length > 0 ? settlementHistory.map(s => `
                                         <tr>
-                                            <td><strong>${SecurityClient.escapeHtml(s.settlement_number)}</strong></td>
-                                            <td>${s.settlement_date}</td>
-                                            <td>${SecurityClient.escapeHtml(s.driver_name)}</td>
-                                            <td class="font-bold text-success">${SecurityClient.formatCurrency(s.physical_cash_handed)}</td>
-                                            <td class="${s.cash_variance != 0 ? 'text-danger font-bold' : 'text-success'}">
+                                            <td style="padding:10px 14px;"><strong class="font-mono text-cyan">${SecurityClient.escapeHtml(s.settlement_number)}</strong></td>
+                                            <td style="padding:10px 14px; font-family:monospace; color:var(--text-muted);">${s.settlement_date}</td>
+                                            <td style="padding:10px 14px; font-weight:600;">${SecurityClient.escapeHtml(s.driver_name)}</td>
+                                            <td style="padding:10px 14px; text-align:right;"><strong class="text-success font-mono" style="font-size:0.95rem;">${SecurityClient.formatCurrency(s.physical_cash_handed)}</strong></td>
+                                            <td style="padding:10px 14px; text-align:center;" class="${s.cash_variance != 0 ? 'text-danger font-bold' : 'text-success'}">
                                                 ${s.cash_variance == 0 ? '✓ Balanced' : (s.cash_variance > 0 ? '+' + s.cash_variance : s.cash_variance)}
                                             </td>
-                                            <td>
-                                                <span class="badge ${s.status === 'BALANCED' ? 'badge-success' : 'badge-danger'}">
+                                            <td style="padding:10px 14px; text-align:center;">
+                                                <span class="badge ${s.status === 'BALANCED' ? 'badge-success' : 'badge-danger'}" style="font-size:0.75rem; padding:4px 8px;">
                                                     ${SecurityClient.escapeHtml(s.status)}
                                                 </span>
                                             </td>
                                         </tr>
-                                    `).join('')}
+                                    `).join('') : `
+                                        <tr><td colspan="6" style="text-align:center; padding:1.5rem; color:var(--text-muted);">No past settlement history.</td></tr>
+                                    `}
                                 </tbody>
                             </table>
                         </div>
