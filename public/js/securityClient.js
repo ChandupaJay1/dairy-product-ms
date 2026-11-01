@@ -83,33 +83,86 @@ const SecurityClient = (() => {
     }
 
     /**
-     * Shows a non-intrusive, modern toast notification on screen.
+     * Shows a non-intrusive, ultra-modern glassmorphic toast notification on screen.
      */
-    function showToast(message, type = 'info', duration = 3500) {
+    function showToast(message, type = 'info', duration = 4000) {
         const container = document.getElementById('toastContainer');
         if (!container) return;
 
-        const toast = document.createElement('div');
-        toast.className = `toast toast-${type} animate-slide-in`;
+        const safeType = ['success', 'error', 'warning', 'info', 'emergency'].includes(type) ? type : 'info';
 
         let icon = 'ℹ️';
-        if (type === 'success') icon = '✅';
-        if (type === 'error') icon = '⚠️';
-        if (type === 'warning') icon = '🔔';
-        if (type === 'emergency') icon = '🚨';
+        let badgeText = 'Notice';
+        const isSi = window.I18n && window.I18n.getLanguage() === 'si';
+        const isTa = window.I18n && window.I18n.getLanguage() === 'ta';
+
+        if (safeType === 'success') {
+            icon = '✓';
+            badgeText = isSi ? 'සාර්ථකයි' : (isTa ? 'வெற்றி' : 'Success');
+        } else if (safeType === 'error') {
+            icon = '✕';
+            badgeText = isSi ? 'දෝෂයකි' : (isTa ? 'பிழை' : 'Error');
+        } else if (safeType === 'warning') {
+            icon = '⚠';
+            badgeText = isSi ? 'අවධානයට' : (isTa ? 'எச்சரிக்கை' : 'Warning');
+        } else if (safeType === 'emergency') {
+            icon = '🚨';
+            badgeText = isSi ? 'හදිසි පණිවිඩයක්' : (isTa ? 'அவசரம்' : 'Emergency');
+        } else {
+            icon = 'ℹ';
+            badgeText = isSi ? 'දැනුම්දීම' : (isTa ? 'அறிவிப்பு' : 'Notice');
+        }
+
+        const toast = document.createElement('div');
+        toast.className = `custom-toast-pill toast-${safeType}`;
+        toast.setAttribute('role', 'alert');
 
         toast.innerHTML = `
-            <span class="toast-icon">${icon}</span>
-            <div class="toast-content">${escapeHtml(message)}</div>
-            <button class="toast-close" onclick="this.parentElement.remove()">&times;</button>
+            <div class="toast-indicator-glow"></div>
+            <div class="toast-left-capsule">
+                <div class="toast-icon-badge">${icon}</div>
+            </div>
+            <div class="toast-main-body">
+                <div class="toast-header-tag">${badgeText}</div>
+                <div class="toast-message-text">${escapeHtml(message)}</div>
+            </div>
+            <button type="button" class="toast-dismiss-btn" aria-label="Close" onclick="this.closest('.custom-toast-pill').remove()">&times;</button>
+            <div class="toast-progress-track">
+                <div class="toast-progress-fill"></div>
+            </div>
         `;
 
         container.appendChild(toast);
 
-        setTimeout(() => {
-            toast.classList.add('animate-fade-out');
-            setTimeout(() => toast.remove(), 400);
+        // Animate auto-dismiss progress bar
+        const progressFill = toast.querySelector('.toast-progress-fill');
+        if (progressFill) {
+            progressFill.style.transition = `width ${duration}ms linear`;
+            requestAnimationFrame(() => {
+                progressFill.style.width = '0%';
+            });
+        }
+
+        // Auto dismiss timer with fade out
+        let timer = setTimeout(() => {
+            toast.classList.add('toast-exit');
+            setTimeout(() => {
+                if (toast.parentNode) toast.remove();
+            }, 300);
         }, duration);
+
+        // Pause countdown on mouse hover (Desktop ergonomics)
+        toast.addEventListener('mouseenter', () => {
+            clearTimeout(timer);
+        });
+        toast.addEventListener('mouseleave', () => {
+            timer = setTimeout(() => {
+                toast.classList.add('toast-exit');
+                setTimeout(() => {
+                    if (toast.parentNode) toast.remove();
+                }, 300);
+            }, 1200);
+        });
     }
 
     /**
