@@ -437,26 +437,280 @@ const App = (() => {
         switchView(currentRole);
     }
 
+    // Dynamic Rescue Handshake Inventory State
+    let handshakeItems = [];
+    let selectedHandshakeCategory = 'ALL';
+    let currentSosAlert = null;
+
     function openTransferHandshakeModal(sosId, alertObj = null) {
         const modal = document.getElementById('transferHandshakeModal');
         if (!modal) return;
         modal.dataset.sosId = sosId;
+        currentSosAlert = alertObj;
 
-        const contextCard = document.getElementById('handshakeContextCard');
-        if (alertObj) {
-            if (contextCard) contextCard.style.display = 'block';
-            const ticketEl = document.getElementById('handshakeTicketDisplay');
-            const riskEl = document.getElementById('handshakeRiskCupsDisplay');
-            if (ticketEl) ticketEl.textContent = alertObj.sos_ticket_number || ('SOS #' + sosId);
-            if (riskEl) riskEl.textContent = alertObj.remaining_stock_at_incident || 1320;
-            const totalCupsInput = document.getElementById('transferTotalCups');
-            if (totalCupsInput) totalCupsInput.value = alertObj.remaining_stock_at_incident || 1300;
-        } else {
-            if (contextCard) contextCard.style.display = 'none';
+        const remainingAtRisk = parseInt(alertObj?.remaining_stock_at_incident, 10) || 0;
+
+        // Context Display
+        const ticketEl = document.getElementById('handshakeTicketDisplay');
+        const strandedEl = document.getElementById('handshakeStrandedVehicleDisplay');
+        const rescueEl = document.getElementById('handshakeRescueVehicleDisplay');
+        const riskEl = document.getElementById('handshakeRiskCupsDisplay');
+
+        if (ticketEl) ticketEl.textContent = alertObj?.sos_ticket_number || ('SOS #' + sosId);
+        if (strandedEl) strandedEl.textContent = alertObj?.vehicle_number ? `${alertObj.vehicle_number} (${alertObj.driver_name || 'Driver'})` : ('Stranded #' + (alertObj?.vehicle_id || sosId));
+        if (rescueEl) {
+            rescueEl.textContent = alertObj?.rescue_vehicle_number 
+                ? `${alertObj.rescue_vehicle_number} (${alertObj.rescue_driver_name || 'Rescue Driver'})`
+                : 'Standby Rescue Vehicle';
         }
+        if (riskEl) riskEl.textContent = remainingAtRisk.toLocaleString();
+
+        // Parse stranded products from alertObj (items_json or fallback)
+        let parsed = null;
+        if (alertObj && alertObj.items_json) {
+            try {
+                parsed = typeof alertObj.items_json === 'string' ? JSON.parse(alertObj.items_json) : alertObj.items_json;
+            } catch (e) {
+                console.warn('Failed parsing items_json:', e);
+            }
+        }
+
+        if (Array.isArray(parsed) && parsed.length > 0) {
+            const totalOriginalLoaded = parsed.reduce((sum, it) => sum + (parseInt(it.loaded_cups || it.qty || 0, 10)), 0);
+            if (totalOriginalLoaded > 0 && remainingAtRisk < totalOriginalLoaded) {
+                // Scale proportionally so sum of items matches remainingAtRisk
+                let allocated = 0;
+                handshakeItems = parsed.map((it, idx) => {
+                    const original = parseInt(it.loaded_cups || it.qty || 0, 10);
+                    let count = 0;
+                    if (idx === parsed.length - 1) {
+                        count = Math.max(0, remainingAtRisk - allocated);
+                    } else {
+                        count = Math.round((original / totalOriginalLoaded) * remainingAtRisk);
+                        allocated += count;
+                    }
+                    return {
+                        id: it.product_id || (idx + 1),
+                        flavor_name: it.flavor_name || it.name || 'Dairy Product',
+                        category: it.category || 'Fresh Cup Yogurt (80g)',
+                        sku_code: it.sku_code || 'YOG-PROD',
+                        unit_price: parseFloat(it.unit_price) || 85.00,
+                        stranded_cups: count,
+                        rescued_cups: count,
+                        spoiled_cups: 0
+                    };
+                });
+            } else {
+                handshakeItems = parsed.map((it, idx) => {
+                    const count = parseInt(it.loaded_cups || it.qty || remainingAtRisk || 0, 10);
+                    return {
+                        id: it.product_id || (idx + 1),
+                        flavor_name: it.flavor_name || it.name || 'Dairy Product',
+                        category: it.category || 'Fresh Cup Yogurt (80g)',
+                        sku_code: it.sku_code || 'YOG-PROD',
+                        unit_price: parseFloat(it.unit_price) || 85.00,
+                        stranded_cups: count,
+                        rescued_cups: count,
+                        spoiled_cups: 0
+                    };
+                });
+            }
+        } else {
+            // Standard fallback products breakdown
+            const defaultFlavors = [
+                { id: 1, flavor_name: 'Fresh Vanilla Yogurt (80g)', category: 'Fresh Cup Yogurt (80g)', sku_code: 'YOG-VAN-80', unit_price: 80.00, ratio: 0.4 },
+                { id: 2, flavor_name: 'Sweet Strawberry Yogurt (80g)', category: 'Fresh Cup Yogurt (80g)', sku_code: 'YOG-STR-80', unit_price: 90.00, ratio: 0.25 },
+                { id: 3, flavor_name: 'Creamy Chocolate Yogurt (80g)', category: 'Fresh Cup Yogurt (80g)', sku_code: 'YOG-CHO-80', unit_price: 95.00, ratio: 0.2 },
+                { id: 4, flavor_name: 'Tropical Mango Yogurt (80g)', category: 'Fresh Cup Yogurt (80g)', sku_code: 'YOG-MAN-80', unit_price: 95.00, ratio: 0.15 }
+            ];
+            let allocated = 0;
+            handshakeItems = defaultFlavors.map((df, idx) => {
+                let count = 0;
+                if (idx === defaultFlavors.length - 1) {
+                    count = Math.max(0, remainingAtRisk - allocated);
+                } else {
+                    count = Math.round(remainingAtRisk * df.ratio);
+                    allocated += count;
+                }
+                return {
+                    id: df.id,
+                    flavor_name: df.flavor_name,
+                    category: df.category,
+                    sku_code: df.sku_code,
+                    unit_price: df.unit_price,
+                    stranded_cups: count,
+                    rescued_cups: count,
+                    spoiled_cups: 0
+                };
+            });
+        }
+
+        // Populate Category Filter dropdown
+        selectedHandshakeCategory = 'ALL';
+        const categoryFilter = document.getElementById('handshakeCategoryFilter');
+        if (categoryFilter) {
+            const categories = Array.from(new Set(handshakeItems.map(p => p.category || 'Fresh Cup Yogurt (80g)')));
+            categoryFilter.innerHTML = `
+                <option value="ALL">All Categories (සියල්ල)</option>
+                ${categories.map(c => `<option value="${SecurityClient.escapeHtml(c)}">${SecurityClient.escapeHtml(c)}</option>`).join('')}
+            `;
+            categoryFilter.value = 'ALL';
+        }
+
+        renderHandshakeProductsList();
+        updateHandshakeTotals();
 
         modal.style.display = 'flex';
         I18n.applyTranslations(modal);
+    }
+
+    function onHandshakeCategoryFilterChange(category) {
+        selectedHandshakeCategory = category;
+        renderHandshakeProductsList();
+    }
+
+    function renderHandshakeProductsList() {
+        const container = document.getElementById('handshakeProductsListContainer');
+        if (!container) return;
+
+        if (!handshakeItems || handshakeItems.length === 0) {
+            container.innerHTML = `<div class="p-3 text-center text-muted text-xs">No stranded products on manifest.</div>`;
+            return;
+        }
+
+        const filtered = selectedHandshakeCategory === 'ALL'
+            ? handshakeItems
+            : handshakeItems.filter(p => (p.category || 'Fresh Cup Yogurt (80g)') === selectedHandshakeCategory);
+
+        container.innerHTML = filtered.map(p => {
+            const rescuedSubtotal = p.rescued_cups * p.unit_price;
+
+            return `
+                <div class="disp-product-row" id="hs-row-${p.id}">
+                    <div class="disp-prod-info">
+                        <div class="disp-prod-title">
+                            ${SecurityClient.escapeHtml(p.flavor_name)}
+                        </div>
+                        <div class="disp-prod-meta">
+                            <span class="badge badge-outline" style="font-size:0.65rem; padding:1px 6px;">${SecurityClient.escapeHtml(p.category || 'Yogurt')}</span>
+                            <span class="font-mono text-muted">${p.sku_code}</span>
+                            <span>&bull;</span>
+                            <span class="text-info font-bold">${SecurityClient.formatCurrency(p.unit_price)}</span>
+                        </div>
+                        <div class="disp-prod-stock text-warning" style="font-size:0.75rem; margin-top:3px;">
+                            ⚠️ Stranded on Truck: <strong>${p.stranded_cups} cups</strong>
+                        </div>
+                    </div>
+
+                    <div class="disp-prod-controls" style="display:flex; align-items:center; gap:8px;">
+                        <div class="disp-prod-qty-box">
+                            <label class="disp-control-label" style="color:var(--color-cash, #10b981);">Rescued (Good):</label>
+                            <input type="number" 
+                                class="form-control hs-good-qty" 
+                                id="hs-good-${p.id}" 
+                                data-id="${p.id}" 
+                                value="${p.rescued_cups}" 
+                                min="0" 
+                                max="${p.stranded_cups}" 
+                                style="width:75px; text-align:center; font-weight:700;"
+                                oninput="App.onHandshakeQtyChange(${p.id})">
+                        </div>
+                        <div class="disp-prod-qty-box">
+                            <label class="disp-control-label" style="color:var(--color-sos, #f43f5e);">Spoiled (Bad):</label>
+                            <input type="number" 
+                                class="form-control hs-spoiled-qty" 
+                                id="hs-spoiled-${p.id}" 
+                                data-id="${p.id}" 
+                                value="${p.spoiled_cups}" 
+                                min="0" 
+                                max="${p.stranded_cups}" 
+                                style="width:75px; text-align:center; font-weight:700;"
+                                oninput="App.onHandshakeQtyChange(${p.id})">
+                        </div>
+                        <div class="disp-prod-subtotal-box" style="min-width:95px; text-align:right;">
+                            <span class="disp-control-label">Rescued Value:</span>
+                            <span id="hs-subtotal-${p.id}" class="disp-subtotal-val font-bold text-success" style="font-size:0.85rem;">${SecurityClient.formatCurrency(rescuedSubtotal)}</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }).join('');
+    }
+
+    function onHandshakeQtyChange(productId) {
+        const item = handshakeItems.find(p => p.id == productId);
+        if (!item) return;
+
+        const goodInput = document.getElementById(`hs-good-${productId}`);
+        const spoiledInput = document.getElementById(`hs-spoiled-${productId}`);
+
+        let good = parseInt(goodInput?.value, 10);
+        let spoiled = parseInt(spoiledInput?.value, 10);
+
+        if (isNaN(good) || good < 0) good = 0;
+        if (isNaN(spoiled) || spoiled < 0) spoiled = 0;
+
+        // Auto-balance: if good + spoiled exceeds stranded_cups, clamp good
+        if (good + spoiled > item.stranded_cups) {
+            good = Math.max(0, item.stranded_cups - spoiled);
+            if (goodInput) goodInput.value = good;
+        }
+
+        item.rescued_cups = good;
+        item.spoiled_cups = spoiled;
+
+        // Update row subtotal
+        const subtotalEl = document.getElementById(`hs-subtotal-${productId}`);
+        if (subtotalEl) {
+            subtotalEl.textContent = SecurityClient.formatCurrency(item.rescued_cups * item.unit_price);
+        }
+
+        updateHandshakeTotals();
+    }
+
+    function updateHandshakeTotals() {
+        const totalRescued = handshakeItems.reduce((sum, it) => sum + (parseInt(it.rescued_cups, 10) || 0), 0);
+        const totalSpoiled = handshakeItems.reduce((sum, it) => sum + (parseInt(it.spoiled_cups, 10) || 0), 0);
+        const totalValue = handshakeItems.reduce((sum, it) => sum + ((parseInt(it.rescued_cups, 10) || 0) * (parseFloat(it.unit_price) || 0)), 0);
+        const remainingAtRisk = parseInt(currentSosAlert?.remaining_stock_at_incident, 10) || 0;
+
+        const rescuedDisplay = document.getElementById('handshakeTotalRescuedDisplay');
+        const spoiledDisplay = document.getElementById('handshakeTotalSpoiledDisplay');
+        const valueDisplay = document.getElementById('handshakeTotalValueDisplay');
+        const warningEl = document.getElementById('handshakeCountWarning');
+        const progressFill = document.getElementById('handshakeProgressBar');
+
+        if (rescuedDisplay) rescuedDisplay.textContent = totalRescued.toLocaleString();
+        if (spoiledDisplay) spoiledDisplay.textContent = totalSpoiled.toLocaleString();
+        if (valueDisplay) valueDisplay.textContent = SecurityClient.formatCurrency(totalValue);
+
+        // Update hidden inputs for backwards compatibility
+        const hiddenGood = document.getElementById('transferTotalCups');
+        const hiddenSpoiled = document.getElementById('transferSpoiledCups');
+        if (hiddenGood) hiddenGood.value = totalRescued;
+        if (hiddenSpoiled) hiddenSpoiled.value = totalSpoiled;
+
+        // Update Progress Bar: % Rescued
+        if (progressFill) {
+            const totalCounted = totalRescued + totalSpoiled;
+            const pct = remainingAtRisk > 0 ? Math.min(100, Math.round((totalRescued / remainingAtRisk) * 100)) : 100;
+            progressFill.style.width = pct + '%';
+            if (totalCounted > remainingAtRisk) {
+                progressFill.style.background = '#f43f5e';
+            } else {
+                progressFill.style.background = 'linear-gradient(90deg, #10b981, #06b6d4)';
+            }
+        }
+
+        // Show/hide count mismatch warning
+        if (warningEl) {
+            if ((totalRescued + totalSpoiled) !== remainingAtRisk && remainingAtRisk > 0) {
+                warningEl.style.display = 'block';
+                warningEl.innerHTML = `⚠️ Notice: Verified total (${totalRescued + totalSpoiled} cups) differs from stranded truck inventory (${remainingAtRisk} cups). Physical field adjustment logged.`;
+            } else {
+                warningEl.style.display = 'none';
+            }
+        }
     }
 
     function closeTransferHandshakeModal() {
@@ -472,14 +726,27 @@ const App = (() => {
             return;
         }
 
-        const goodStock = parseInt(document.getElementById('transferTotalCups').value) || 0;
-        const spoiledStock = parseInt(document.getElementById('transferSpoiledCups').value) || 0;
-        const notes = document.getElementById('transferHandshakeNotes').value || 'Field verified count completed.';
+        const totalGood = handshakeItems.reduce((sum, it) => sum + (parseInt(it.rescued_cups, 10) || 0), 0);
+        const totalSpoiled = handshakeItems.reduce((sum, it) => sum + (parseInt(it.spoiled_cups, 10) || 0), 0);
+        const notes = document.getElementById('transferHandshakeNotes')?.value || 'Field verified count completed.';
+
+        // Prepare itemized manifest payload
+        const rescuedItemsPayload = handshakeItems.map(it => ({
+            product_id: it.id,
+            flavor_name: it.flavor_name,
+            category: it.category,
+            sku_code: it.sku_code,
+            unit_price: it.unit_price,
+            loaded_cups: it.rescued_cups,
+            spoiled_cups: it.spoiled_cups,
+            subtotal: it.rescued_cups * it.unit_price
+        }));
 
         const payload = {
-            transferredGoodStock: goodStock,
-            spoiledUnusableStock: spoiledStock,
-            handshakeNotes: notes
+            transferredGoodStock: totalGood,
+            spoiledUnusableStock: totalSpoiled,
+            handshakeNotes: notes,
+            itemsJson: rescuedItemsPayload
         };
 
         const res = await SecurityClient.secureFetch(`/api/sos/${sosId}/transfer-stock`, {
@@ -496,8 +763,8 @@ const App = (() => {
             // Trigger celebration alert
             showSosResolvedAlert({
                 ticketCode: res.ticketCode || ('SOS #' + sosId),
-                transferredCups: res.transferredCups || goodStock,
-                spoiledCups: res.spoiledCups || spoiledStock,
+                transferredCups: res.transferredCups || totalGood,
+                spoiledCups: res.spoiledCups || totalSpoiled,
                 rescueManifestNo: res.rescueManifestNo
             });
 
@@ -537,6 +804,10 @@ const App = (() => {
         openTransferHandshakeModal,
         closeTransferHandshakeModal,
         submitTransferHandshake,
+        onHandshakeCategoryFilterChange,
+        onHandshakeQtyChange,
+        renderHandshakeProductsList,
+        updateHandshakeTotals,
         showSosResolvedAlert
     };
 })();

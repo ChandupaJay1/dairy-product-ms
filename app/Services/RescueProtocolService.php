@@ -100,7 +100,7 @@ class RescueProtocolService
     /**
      * Completes dual-driver handshake with verified physical count & atomic inventory transfer.
      */
-    public function executeStockRescueTransfer(int $sosId, int $goodStock, int $spoiledStock, string $notes): array
+    public function executeStockRescueTransfer(int $sosId, int $goodStock, int $spoiledStock, string $notes, ?string $itemsJson = null): array
     {
         $alert = Database::queryOne("SELECT * FROM sos_alerts WHERE id = ?", [$sosId]);
         if (!$alert) {
@@ -136,12 +136,13 @@ class RescueProtocolService
             Database::execute("
                 INSERT INTO dispatches (
                     manifest_number, dispatch_date, vehicle_id, driver_id, sales_rep_id, route_id,
-                    total_loaded_cups, remaining_cups, sold_cups, damaged_cups, status, notes
-                ) VALUES (?, CURDATE(), ?, ?, ?, ?, ?, ?, 0, 0, 'IN_TRANSIT', ?)
+                    total_loaded_cups, remaining_cups, sold_cups, damaged_cups, status, notes, items_json
+                ) VALUES (?, CURDATE(), ?, ?, ?, ?, ?, ?, 0, 0, 'IN_TRANSIT', ?, ?)
             ", [
                 $rescueManifestNo, $alert['rescue_vehicle_id'], $alert['rescue_driver_id'],
                 $salesRepId, $routeId,
-                $goodStock, $goodStock, "Rescued inventory from Ticket {$alert['sos_ticket_number']}"
+                $goodStock, $goodStock, "Rescued inventory from Ticket {$alert['sos_ticket_number']}",
+                $itemsJson
             ]);
 
             // 4. Update rescue vehicle & driver states

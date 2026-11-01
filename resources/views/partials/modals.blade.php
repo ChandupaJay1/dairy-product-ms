@@ -90,34 +90,89 @@
 
 <!-- MODAL 3: Stock Transfer Handshake Modal (Field Count Verification) -->
 <div class="modal-overlay" id="transferHandshakeModal">
-    <div class="modal-content-box">
+    <div class="modal-content-box" style="max-width: 680px; max-height: 90vh; overflow-y: auto;">
         <div class="modal-header">
             <h3 data-i18n="handshake_modal_title">🤝 Field Stock Rescue Handshake</h3>
             <button class="modal-close-btn" onclick="App.closeTransferHandshakeModal()">&times;</button>
         </div>
         <div class="modal-body">
-            <div id="handshakeContextCard" class="card card-subtle p-2 mb-3" style="font-size:0.85rem; display:none;">
-                <div class="flex-between">
-                    <span>SOS Ticket: <strong id="handshakeTicketDisplay" class="text-danger">--</strong></span>
-                    <span>Remaining at Risk: <strong id="handshakeRiskCupsDisplay" class="text-warning">--</strong> cups</span>
+            <!-- Context Banner with SOS ticket and vehicles -->
+            <div id="handshakeContextCard" class="card card-subtle p-3 mb-2" style="font-size:0.85rem; background:var(--bg-surface-elevated); border:1px solid var(--border-subtle); border-radius:10px;">
+                <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
+                    <div>
+                        <span class="text-xs text-muted">SOS Ticket: </span>
+                        <strong id="handshakeTicketDisplay" class="text-danger font-mono" style="font-size:0.95rem;">--</strong>
+                    </div>
+                    <div>
+                        <span class="text-xs text-muted">Stranded Truck: </span>
+                        <strong id="handshakeStrandedVehicleDisplay" class="font-mono text-cyan">--</strong>
+                    </div>
+                    <div>
+                        <span class="text-xs text-muted">Rescue Truck: </span>
+                        <strong id="handshakeRescueVehicleDisplay" class="font-mono text-warning">--</strong>
+                    </div>
                 </div>
             </div>
-            <p class="text-sm text-muted mb-3" data-i18n="handshake_modal_sub">
-                Log the verified physical count between the stranded driver and the rescue driver before transferring inventory.
-            </p>
-            <div class="form-group">
-                <label data-i18n="verified_good_cups">Verified Good Cups (Usable & Rescued):</label>
-                <input type="number" id="transferTotalCups" class="form-control" value="1300" min="0">
+
+            <!-- Telemetry & Inventory Summary Card (Mirrors Morning Load Dispatch) -->
+            <div id="handshakeTelemetryCard" class="card card-subtle p-3 my-2" style="background:var(--bg-surface-elevated); border:1px solid var(--border-subtle); border-radius:8px;">
+                <div class="disp-telemetry-grid">
+                    <div>
+                        <span class="text-xs text-muted">Stranded at Risk: </span>
+                        <strong id="handshakeRiskCupsDisplay" class="font-mono text-cyan" style="font-size:0.95rem;">0</strong> <span class="text-xs">cups</span>
+                    </div>
+                    <div>
+                        <span class="text-xs text-muted">Verified Rescued: </span>
+                        <strong id="handshakeTotalRescuedDisplay" class="font-mono text-success" style="font-size:0.95rem;">0</strong> <span class="text-xs">cups</span>
+                    </div>
+                    <div>
+                        <span class="text-xs text-muted">Spoiled / Damaged: </span>
+                        <strong id="handshakeTotalSpoiledDisplay" class="font-mono text-danger" style="font-size:0.95rem;">0</strong> <span class="text-xs">cups</span>
+                    </div>
+                    <div>
+                        <span class="text-xs text-muted">Rescued Value: </span>
+                        <strong id="handshakeTotalValueDisplay" class="font-mono text-success" style="font-size:0.95rem;">Rs. 0.00</strong>
+                    </div>
+                </div>
+
+                <div class="progress-bar-track mt-2" style="height:8px; background:rgba(255,255,255,0.08); border-radius:4px; overflow:hidden;">
+                    <div id="handshakeProgressBar" class="progress-bar-fill" style="width:100%; height:100%; background:linear-gradient(90deg, #10b981, #06b6d4); transition:all 0.3s ease;"></div>
+                </div>
+
+                <div id="handshakeCountWarning" class="text-danger font-bold text-xs mt-2" style="display:none; padding:6px 10px; background:rgba(239, 68, 68, 0.12); border-radius:6px; border-left:3px solid #ef4444;">
+                    ⚠️ Warning: Total count (Rescued + Spoiled) exceeds or does not match remaining inventory on truck!
+                </div>
             </div>
-            <div class="form-group">
-                <label data-i18n="spoiled_cups_lbl">Spoiled / Heat-Damaged Cups:</label>
-                <input type="number" id="transferSpoiledCups" class="form-control" value="0" min="0">
+
+            <!-- Dynamic Category & Products Handshake List (Mirrors Morning Load Dispatch) -->
+            <div class="card card-subtle p-3 my-2" style="background:var(--bg-surface); border:1px solid var(--border-subtle); border-radius:8px;">
+                <div class="flex-between mb-2 disp-header-row" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
+                    <div class="font-bold text-xs text-muted" data-i18n="verify_rescue_products">📦 VERIFY FLAVOR RESCUE & SPOILED COUNTS:</div>
+                    <div class="disp-cat-filter-wrap" style="display:flex; align-items:center; gap:6px;">
+                        <span class="text-xs text-muted">Category:</span>
+                        <select id="handshakeCategoryFilter" class="form-control" style="width:auto; padding:4px 8px; font-size:0.75rem; height:auto;" onchange="App.onHandshakeCategoryFilterChange(this.value)">
+                            <option value="ALL">All Categories (සියල්ල)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Products Table / List Container -->
+                <div id="handshakeProductsListContainer" style="display:flex; flex-direction:column; gap:8px;">
+                    <!-- Dynamically populated by App.renderHandshakeProductsList() -->
+                </div>
             </div>
-            <div class="form-group">
-                <label data-i18n="handshake_notes_lbl">Dual-Driver Sign-off Notes:</label>
-                <input type="text" id="transferHandshakeNotes" class="form-control" value="Physical count verified jointly by Driver & Rescue Driver.">
+
+            <!-- Dual-Driver Sign-off Notes -->
+            <div class="form-group mt-2">
+                <label class="text-xs text-muted" data-i18n="handshake_notes_lbl">Dual-Driver Verification & Sign-off Notes:</label>
+                <input type="text" id="transferHandshakeNotes" class="form-control" style="font-size:0.8rem; padding:6px 10px;" value="Physical count verified jointly by Stranded Driver & Rescue Driver.">
             </div>
-            <button class="btn btn-success btn-block mt-3 font-bold" onclick="App.submitTransferHandshake()" data-i18n="btn_confirm_handshake">
+
+            <!-- Legacy fallback hidden inputs so existing code never breaks -->
+            <input type="hidden" id="transferTotalCups" value="0">
+            <input type="hidden" id="transferSpoiledCups" value="0">
+
+            <button id="handshakeConfirmBtn" class="btn btn-success btn-block mt-3 font-bold" onclick="App.submitTransferHandshake()" data-i18n="btn_confirm_handshake">
                 ✅ Confirm Handshake & Transfer Manifest Stock
             </button>
         </div>

@@ -26,7 +26,15 @@ class SosRescueController extends Controller
                    dr.phone AS driver_phone,
                    rv.vehicle_number AS rescue_vehicle_number,
                    rdr.name AS rescue_driver_name,
-                   d.manifest_number
+                   d.manifest_number,
+                   d.items_json,
+                   d.vanilla_load,
+                   d.strawberry_load,
+                   d.chocolate_load,
+                   d.mango_load,
+                   d.treacle_pot_load,
+                   d.total_loaded_cups,
+                   d.remaining_cups AS dispatch_remaining_cups
             FROM sos_alerts s
             LEFT JOIN vehicles v ON s.vehicle_id = v.id
             LEFT JOIN drivers dr ON s.driver_id = dr.id
@@ -89,9 +97,10 @@ class SosRescueController extends Controller
         $goodStock = (int)($input['transferredGoodStock'] ?? 0);
         $spoiledStock = (int)($input['spoiledUnusableStock'] ?? 0);
         $notes = $input['handshakeNotes'] ?? 'Field verified physical count completed.';
+        $itemsJson = isset($input['itemsJson']) ? (is_string($input['itemsJson']) ? $input['itemsJson'] : json_encode($input['itemsJson'])) : null;
 
         try {
-            $res = $this->rescueService->executeStockRescueTransfer($id, $goodStock, $spoiledStock, $notes);
+            $res = $this->rescueService->executeStockRescueTransfer($id, $goodStock, $spoiledStock, $notes, $itemsJson);
             return response()->json([
                 'success' => true,
                 'message' => "Stock rescue completed! {$goodStock} cups transferred to Rescue Manifest ({$res['rescueManifestNo']}).",
