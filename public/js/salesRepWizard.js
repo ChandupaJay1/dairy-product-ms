@@ -397,21 +397,157 @@ const SalesRepWizard = (() => {
         const percent = Math.min(100, Math.max(0, Math.round((remaining / loaded) * 100)));
         const isWarning = percent < 25;
 
+        let totalValue = currentDispatch.total_stock_value || 0;
+        let remainingValue = currentDispatch.remaining_stock_value || 0;
+        if (!totalValue && productsList && productsList.length > 0) {
+            const v = (currentDispatch.vanilla_load || 0) * 80;
+            const s = (currentDispatch.strawberry_load || 0) * 90;
+            const c = (currentDispatch.chocolate_load || 0) * 95;
+            const m = (currentDispatch.mango_load || 0) * 95;
+            const t = (currentDispatch.treacle_pot_load || 0) * 160;
+            totalValue = v + s + c + m + t;
+            remainingValue = loaded > 0 ? Math.round(totalValue * (remaining / loaded)) : 0;
+        }
+
         return `
             <div style="padding:0.85rem 1rem; border-radius:var(--radius-md); background:var(--bg-surface-elevated); border:1px solid var(--border-subtle); margin-bottom:1rem;">
-                <div style="display:flex; justify-content:space-between; align-items:center; font-size:0.8rem; margin-bottom:0.5rem;">
+                <div style="display:flex; justify-content:space-between; align-items:center; font-size:0.82rem; margin-bottom:0.5rem; flex-wrap:wrap; gap:8px;">
                     <span style="font-weight:700; color:var(--text-heading); display:flex; align-items:center; gap:6px;">
                         🚚 ${I18n.t('truck_label', 'ලොරිය')}: <strong>${SecurityClient.escapeHtml(currentDispatch.vehicle_number || 'NC-GA-4521')}</strong>
+                        <span class="text-xs text-muted" style="font-weight:normal;">(${SecurityClient.escapeHtml(currentDispatch.route_name || 'Route')})</span>
                     </span>
-                    <span style="font-weight:700; font-family:monospace; color:${isWarning ? 'var(--color-sos)' : 'var(--color-cash)'};">
-                        ${I18n.t('remaining_label', 'ඉතිරි')}: ${remaining} / ${loaded} (${percent}%)
-                    </span>
+                    <div style="display:flex; align-items:center; gap:12px; flex-wrap:wrap;">
+                        <span style="font-size:0.75rem; color:var(--text-muted);">
+                            💰 ${I18n.getLanguage() === 'si' ? 'වටිනාකම' : 'Stock Value'}: <strong class="text-success font-mono" style="font-size:0.85rem;">${SecurityClient.formatCurrency(remainingValue)}</strong>
+                        </span>
+                        <span style="font-weight:700; font-family:monospace; color:${isWarning ? 'var(--color-sos)' : 'var(--color-cash)'};">
+                            ${I18n.t('remaining_label', 'ඉතිරි')}: ${remaining} / ${loaded} (${percent}%)
+                        </span>
+                        <button type="button" class="btn btn-xs btn-outline" onclick="SalesRepWizard.toggleTruckInventoryModal()" style="font-size:0.72rem; padding:2px 8px; border-radius:4px;">
+                            📦 ${I18n.getLanguage() === 'si' ? 'තොග විස්තර' : 'View Stock'}
+                        </button>
+                    </div>
                 </div>
                 <div style="height:6px; border-radius:var(--radius-full); background:var(--bg-surface); overflow:hidden;">
                     <div style="height:100%; border-radius:var(--radius-full); background:${isWarning ? 'var(--color-sos)' : 'var(--brand-gradient)'}; width:${percent}%; transition:width 0.3s ease;"></div>
                 </div>
             </div>
         `;
+    }
+
+    function toggleTruckInventoryModal() {
+        let modal = document.getElementById('repTruckStockModal');
+        if (!modal) {
+            modal = document.createElement('div');
+            modal.id = 'repTruckStockModal';
+            modal.className = 'modal-overlay';
+            modal.style.display = 'none';
+            document.body.appendChild(modal);
+        }
+
+        if (modal.style.display === 'flex') {
+            modal.style.display = 'none';
+            return;
+        }
+
+        if (!currentDispatch) {
+            SecurityClient.showToast('No active dispatch manifest found.', 'info');
+            return;
+        }
+
+        // Prepare breakdown
+        const items = currentDispatch.items || [
+            { flavor_name: 'Fresh Vanilla Yogurt (80g)', sku_code: 'YOG-VAN-80', unit_price: 80, loaded_cups: currentDispatch.vanilla_load || 0 },
+            { flavor_name: 'Sweet Strawberry Yogurt (80g)', sku_code: 'YOG-STR-80', unit_price: 90, loaded_cups: currentDispatch.strawberry_load || 0 },
+            { flavor_name: 'Creamy Chocolate Yogurt (80g)', sku_code: 'YOG-CHO-80', unit_price: 95, loaded_cups: currentDispatch.chocolate_load || 0 },
+            { flavor_name: 'Tropical Mango Yogurt (80g)', sku_code: 'YOG-MAN-80', unit_price: 95, loaded_cups: currentDispatch.mango_load || 0 },
+            { flavor_name: 'Traditional Curd & Kithul Treacle Pot (180g)', sku_code: 'YOG-TRC-180', unit_price: 160, loaded_cups: currentDispatch.treacle_pot_load || 0 }
+        ];
+
+        let grandLoadedCups = 0;
+        let grandLoadedValue = 0;
+
+        const rowsHtml = items.map(it => {
+            const qty = parseInt(it.loaded_cups || it.quantity || 0, 10);
+            const price = parseFloat(it.unit_price || 0);
+            const subtotal = qty * price;
+            grandLoadedCups += qty;
+            grandLoadedValue += subtotal;
+
+            return `
+                <tr>
+                    <td style="padding:8px;">
+                        <strong>${SecurityClient.escapeHtml(it.flavor_name)}</strong>
+                        <div class="text-xs text-muted font-mono">${it.sku_code || ''}</div>
+                    </td>
+                    <td style="padding:8px; text-align:right;" class="font-mono">${SecurityClient.formatCurrency(price)}</td>
+                    <td style="padding:8px; text-align:right; font-weight:bold;" class="font-mono text-cyan">${qty.toLocaleString()}</td>
+                    <td style="padding:8px; text-align:right; font-weight:bold;" class="font-mono text-success">${SecurityClient.formatCurrency(subtotal)}</td>
+                </tr>
+            `;
+        }).join('');
+
+        modal.innerHTML = `
+            <div class="modal-content-box" style="max-width:550px;">
+                <div class="modal-header">
+                    <h3>🚚 ${I18n.getLanguage() === 'si' ? 'ලොරියේ පටවා ඇති තොග විස්තරය' : 'Vehicle Loaded Stock Breakdown'}</h3>
+                    <button class="modal-close-btn" onclick="document.getElementById('repTruckStockModal').style.display='none'">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <div style="display:flex; justify-content:space-between; align-items:center; background:var(--bg-surface-elevated); padding:10px 14px; border-radius:8px; margin-bottom:12px;">
+                        <div>
+                            <div class="text-xs text-muted">Vehicle Number</div>
+                            <strong class="text-cyan font-mono">${SecurityClient.escapeHtml(currentDispatch.vehicle_number || 'N/A')}</strong>
+                        </div>
+                        <div>
+                            <div class="text-xs text-muted">Route Sector</div>
+                            <strong>${SecurityClient.escapeHtml(currentDispatch.route_name || 'Polonnaruwa Sector')}</strong>
+                        </div>
+                        <div>
+                            <div class="text-xs text-muted">Manifest #</div>
+                            <span class="font-mono text-xs">${SecurityClient.escapeHtml(currentDispatch.manifest_number || '--')}</span>
+                        </div>
+                    </div>
+
+                    <div class="table-responsive">
+                        <table class="table eyecare-table text-xs">
+                            <thead>
+                                <tr>
+                                    <th>Flavor Description</th>
+                                    <th style="text-align:right;">Unit Price</th>
+                                    <th style="text-align:right;">Loaded (Cups)</th>
+                                    <th style="text-align:right;">Total Value</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${rowsHtml}
+                            </tbody>
+                            <tfoot>
+                                <tr style="border-top:2px solid var(--border-subtle); font-weight:bold;">
+                                    <td style="padding:8px;">TOTAL LOADED INVENTORY</td>
+                                    <td></td>
+                                    <td style="padding:8px; text-align:right;" class="font-mono text-cyan">${grandLoadedCups.toLocaleString()} cups</td>
+                                    <td style="padding:8px; text-align:right;" class="font-mono text-success">${SecurityClient.formatCurrency(grandLoadedValue)}</td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-top:12px; padding:10px; background:rgba(16, 185, 129, 0.08); border-radius:6px; border-left:3px solid #10b981;">
+                        <span class="text-xs text-muted">Current Remaining Stock on Truck:</span>
+                        <strong class="text-success font-mono" style="font-size:0.95rem;">
+                            ${(currentDispatch.remaining_cups !== undefined ? currentDispatch.remaining_cups : grandLoadedCups).toLocaleString()} cups (${SecurityClient.formatCurrency(currentDispatch.remaining_stock_value || grandLoadedValue)})
+                        </strong>
+                    </div>
+
+                    <button class="btn btn-outline btn-block mt-3" onclick="document.getElementById('repTruckStockModal').style.display='none'">
+                        Close
+                    </button>
+                </div>
+            </div>
+        `;
+
+        modal.style.display = 'flex';
     }
 
     function onShopSelected(shopId) {
@@ -1277,6 +1413,7 @@ Thank you!
 
     return {
         initWizard,
+        toggleTruckInventoryModal,
         filterShops,
         onShopSelected,
         adjustQuantity,

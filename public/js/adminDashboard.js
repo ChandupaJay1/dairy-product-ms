@@ -24,6 +24,8 @@ const AdminDashboard = (() => {
     let activeApprovalTab = 'payments';
     let pollingTimer = null;
     let salesRepsList = [];
+    let productsList = [];
+    let selectedDispatchCategory = 'ALL';
     let activeStaffTab = 'vehicles';
     let vehicleSearchQuery = '';
     let driverSearchQuery = '';
@@ -59,7 +61,7 @@ const AdminDashboard = (() => {
         }
 
         try {
-            const [statsRes, vehiclesRes, driversRes, routesRes, dispatchesRes, shopsRes, sosRes, logsRes, approvalsRes, repsRes] = await Promise.all([
+            const [statsRes, vehiclesRes, driversRes, routesRes, dispatchesRes, shopsRes, sosRes, logsRes, approvalsRes, repsRes, prodsRes] = await Promise.all([
                 SecurityClient.secureFetch('/api/audit/dashboard-stats'),
                 SecurityClient.secureFetch('/api/fleet/vehicles'),
                 SecurityClient.secureFetch('/api/fleet/drivers'),
@@ -69,7 +71,8 @@ const AdminDashboard = (() => {
                 SecurityClient.secureFetch('/api/sos/active'),
                 SecurityClient.secureFetch('/api/audit/logs'),
                 SecurityClient.secureFetch('/api/approvals/pending'),
-                SecurityClient.secureFetch('/api/admin/sales-reps')
+                SecurityClient.secureFetch('/api/admin/sales-reps'),
+                SecurityClient.secureFetch('/api/fleet/products')
             ]);
 
             if (statsRes && statsRes.success) dashboardStats = statsRes.stats;
@@ -82,6 +85,7 @@ const AdminDashboard = (() => {
             if (logsRes && logsRes.success) auditLogs = logsRes.logs;
             if (approvalsRes && approvalsRes.success) pendingApprovals = approvalsRes;
             if (repsRes && repsRes.success) salesRepsList = repsRes.reps || [];
+            if (prodsRes && prodsRes.success) productsList = prodsRes.products || [];
 
             OfflineStorage.cacheOperationalData(OfflineStorage.CACHE_ADMIN_KEY, {
                 dashboardStats,
@@ -1576,7 +1580,7 @@ const AdminDashboard = (() => {
     }
 
     // ========================================================
-    // MORNING LOAD DISPATCH CONTROLLER & CAPACITY GAUGE
+    // MORNING LOAD DISPATCH CONTROLLER, CATEGORIES & CAPACITY
     // ========================================================
     function openNewDispatchModal() {
         const modal = document.getElementById('newDispatchModal');
@@ -1586,11 +1590,13 @@ const AdminDashboard = (() => {
         const driverSelect = document.getElementById('dispDriverSelect');
         const repSelect = document.getElementById('dispSalesRepSelect');
         const routeSelect = document.getElementById('dispRouteSelect');
+        const categoryFilter = document.getElementById('dispCategoryFilter');
 
         if (vehicleSelect) {
             vehicleSelect.innerHTML = vehiclesList.map(v => {
                 const badge = v.status === 'AVAILABLE' ? '🟢 Available' : (v.status === 'IN_TRANSIT' ? '🚚 In Transit' : '⚠️ ' + v.status);
-                return `<option value="${v.id}" data-capacity="${v.capacity_cups || 2500}" data-driver="${v.current_driver_id || ''}" data-route="${v.current_route_id || ''}">${v.vehicle_number} (${v.vehicle_type || 'Cold Truck'}) - ${v.capacity_cups || 2500} cups [${badge}]</option>`;
+                const cap = v.capacity_cups || 2500;
+                return `<option value="${v.id}" data-capacity="${cap}" data-driver="${v.current_driver_id || ''}" data-route="${v.current_route_id || ''}">${v.vehicle_number} (${v.vehicle_type || 'Cold Truck'}) — උපරිම ධාරිතාව: ${cap.toLocaleString()} cups [${badge}]</option>`;
             }).join('');
         }
 
@@ -1608,6 +1614,19 @@ const AdminDashboard = (() => {
             routeSelect.innerHTML = routesList.map(r => `<option value="${r.id}">${r.route_name}</option>`).join('');
         }
 
+        // Setup Category Filter
+        if (categoryFilter) {
+            const categories = Array.from(new Set(productsList.map(p => p.category || 'Fresh Cup Yogurt'))).filter(Boolean);
+            categoryFilter.innerHTML = `
+                <option value="ALL">All Categories (සියලු වර්ග)</option>
+                ${categories.map(c => `<option value="${SecurityClient.escapeHtml(c)}">${SecurityClient.escapeHtml(c)}</option>`).join('')}
+            `;
+            categoryFilter.value = selectedDispatchCategory;
+        }
+
+        // Render dynamic products
+        renderDispatchProductsList();
+
         modal.style.display = 'flex';
 
         // Trigger initial vehicle auto-fill & capacity gauge
@@ -1616,6 +1635,75 @@ const AdminDashboard = (() => {
         } else {
             updateDispatchLoadTotal();
         }
+    }
+
+    function onCategoryFilterChange(category) {
+        selectedDispatchCategory = category;
+        renderDispatchProductsList();
+    }
+
+    function renderDispatchProductsList() {
+        const container = document.getElementById('dispProductsListContainer');
+        if (!container) return;
+
+        if (!productsList || productsList.length === 0) {
+            container.innerHTML = `<div class="p-3 text-center text-muted text-xs">No active dairy products found in database.</div>`;
+            return;
+        }
+
+        const filtered = selectedDispatchCategory === 'ALL'
+            ? productsList
+            : productsList.filter(p => (p.category || 'Fresh Cup Yogurt') === selectedDispatchCategory);
+
+        container.innerHTML = filtered.map(p => {
+            const stock = p.stock_warehouse !== undefined && p.stock_warehouse !== null ? parseInt(p.stock_warehouse, 10) : 10000;
+            const stockBadgeClass = stock > 2000 ? 'text-success' : (stock > 0 ? 'text-warning' : 'text-danger');
+            const isOutOfStock = stock <= 0;
+
+            return `
+                <div class="disp-product-row p-2" id="disp-row-${p.id}" style="display:flex; justify-content:space-between; align-items:center; background:var(--bg-surface-elevated); border:1px solid var(--border-subtle); border-radius:6px; gap:10px; flex-wrap:wrap;">
+                    <div style="flex:1; min-width:180px;">
+                        <div style="font-weight:700; font-size:0.85rem; color:var(--text-heading);">
+                            ${SecurityClient.escapeHtml(p.flavor_name)}
+                        </div>
+                        <div class="text-xs text-muted" style="display:flex; gap:6px; align-items:center; margin-top:2px;">
+                            <span class="badge badge-outline" style="font-size:0.65rem; padding:1px 5px;">${SecurityClient.escapeHtml(p.category || 'Yogurt')}</span>
+                            <span class="font-mono">${p.sku_code}</span>
+                            <span>&bull;</span>
+                            <span class="text-info font-bold">${SecurityClient.formatCurrency(p.unit_price)}</span>
+                        </div>
+                        <div class="text-xs ${stockBadgeClass} mt-1 font-bold">
+                            📦 Warehouse Stock: ${stock.toLocaleString()} cups ${isOutOfStock ? '(OUT OF STOCK)' : ''}
+                        </div>
+                    </div>
+
+                    <div style="display:flex; align-items:center; gap:8px;">
+                        <div style="text-align:right;">
+                            <label class="text-xs text-muted" style="display:block; margin-bottom:2px;">Load (Cups):</label>
+                            <input type="number" 
+                                class="form-control disp-prod-qty" 
+                                id="disp-qty-${p.id}" 
+                                data-id="${p.id}" 
+                                data-name="${SecurityClient.escapeHtml(p.flavor_name)}"
+                                data-price="${p.unit_price}" 
+                                data-stock="${stock}" 
+                                value="0" 
+                                min="0" 
+                                max="${stock}" 
+                                ${isOutOfStock ? 'disabled' : ''}
+                                oninput="AdminDashboard.updateDispatchLoadTotal()" 
+                                style="width:100px; text-align:right; font-weight:700; font-family:monospace; padding:5px 8px; font-size:0.85rem;">
+                        </div>
+                        <div style="text-align:right; min-width:85px;">
+                            <span class="text-xs text-muted" style="display:block; margin-bottom:2px;">Subtotal:</span>
+                            <span id="disp-subtotal-${p.id}" class="font-mono font-bold text-success" style="font-size:0.85rem;">Rs. 0.00</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }).join('');
+
+        updateDispatchLoadTotal();
     }
 
     function onDispatchVehicleChange(vehicleId) {
@@ -1634,12 +1722,37 @@ const AdminDashboard = (() => {
     }
 
     function updateDispatchLoadTotal() {
-        const v = parseInt(document.getElementById('dispVanilla')?.value || '0', 10) || 0;
-        const s = parseInt(document.getElementById('dispStrawberry')?.value || '0', 10) || 0;
-        const c = parseInt(document.getElementById('dispChocolate')?.value || '0', 10) || 0;
-        const m = parseInt(document.getElementById('dispMango')?.value || '0', 10) || 0;
-        const t = parseInt(document.getElementById('dispTreacle')?.value || '0', 10) || 0;
-        const total = v + s + c + m + t;
+        const qtyInputs = document.querySelectorAll('.disp-prod-qty');
+        let total = 0;
+        let totalValue = 0;
+        let hasStockViolation = false;
+
+        qtyInputs.forEach(input => {
+            const qty = parseInt(input.value || '0', 10) || 0;
+            const price = parseFloat(input.dataset.price || '0');
+            const stock = parseInt(input.dataset.stock || '0', 10);
+            const subtotal = qty * price;
+            const pId = input.dataset.id;
+
+            // Update subtotal display
+            const subtotalEl = document.getElementById(`disp-subtotal-${pId}`);
+            if (subtotalEl) {
+                subtotalEl.textContent = SecurityClient.formatCurrency(subtotal);
+            }
+
+            // Check warehouse stock violation
+            if (qty > stock) {
+                input.style.borderColor = '#ef4444';
+                input.style.backgroundColor = 'rgba(239, 68, 68, 0.1)';
+                hasStockViolation = true;
+            } else {
+                input.style.borderColor = '';
+                input.style.backgroundColor = '';
+            }
+
+            total += qty;
+            totalValue += subtotal;
+        });
 
         const vehicleSelect = document.getElementById('dispVehicleSelect');
         const selectedOption = vehicleSelect?.selectedOptions?.[0];
@@ -1651,11 +1764,19 @@ const AdminDashboard = (() => {
         const capEl = document.getElementById('dispVehicleCapacityDisplay');
         if (capEl) capEl.textContent = capacity.toLocaleString();
 
+        const remainingEl = document.getElementById('dispRemainingCapacityDisplay');
+        if (remainingEl) remainingEl.textContent = Math.max(0, capacity - total).toLocaleString();
+
+        const valEl = document.getElementById('dispTotalValueDisplay');
+        if (valEl) valEl.textContent = SecurityClient.formatCurrency(totalValue);
+
         const percent = Math.min(Math.round((total / (capacity || 1)) * 100), 100);
         const bar = document.getElementById('dispCapacityProgressBar');
+        const isOverCapacity = total > capacity;
+
         if (bar) {
-            bar.style.width = percent + '%';
-            if (total > capacity) {
+            bar.style.width = Math.min(100, Math.round((total / (capacity || 1)) * 100)) + '%';
+            if (isOverCapacity) {
                 bar.style.background = '#ef4444';
             } else if (percent > 90) {
                 bar.style.background = '#f59e0b';
@@ -1666,7 +1787,20 @@ const AdminDashboard = (() => {
 
         const warningEl = document.getElementById('dispCapacityWarning');
         if (warningEl) {
-            warningEl.style.display = total > capacity ? 'block' : 'none';
+            if (isOverCapacity) {
+                warningEl.style.display = 'block';
+                warningEl.textContent = `⛔ Warning: Total load (${total.toLocaleString()} cups) exceeds vehicle max capacity (${capacity.toLocaleString()} cups)!`;
+            } else if (hasStockViolation) {
+                warningEl.style.display = 'block';
+                warningEl.textContent = `⚠️ Warning: Entered quantity exceeds available warehouse stock for one or more flavors!`;
+            } else {
+                warningEl.style.display = 'none';
+            }
+        }
+
+        const confirmBtn = document.getElementById('dispConfirmBtn');
+        if (confirmBtn) {
+            confirmBtn.disabled = isOverCapacity || hasStockViolation;
         }
     }
 
@@ -1680,42 +1814,89 @@ const AdminDashboard = (() => {
         const driverId = document.getElementById('dispDriverSelect').value;
         const salesRepId = document.getElementById('dispSalesRepSelect')?.value || 4;
         const routeId = document.getElementById('dispRouteSelect').value;
+        const notes = document.getElementById('dispNotes')?.value || 'Morning Cold-Chain Load Dispatch';
 
-        const vanillaLoad = parseInt(document.getElementById('dispVanilla').value) || 0;
-        const strawberryLoad = parseInt(document.getElementById('dispStrawberry').value) || 0;
-        const chocolateLoad = parseInt(document.getElementById('dispChocolate').value) || 0;
-        const mangoLoad = parseInt(document.getElementById('dispMango').value) || 0;
-        const treaclePotLoad = parseInt(document.getElementById('dispTreacle').value) || 0;
+        const qtyInputs = document.querySelectorAll('.disp-prod-qty');
+        const items = [];
+        let totalCups = 0;
+        let hasStockViolation = false;
 
-        const totalCups = vanillaLoad + strawberryLoad + chocolateLoad + mangoLoad + treaclePotLoad;
-        if (totalCups <= 0) {
-            return SecurityClient.showToast('⚠️ Please enter load quantities greater than 0.', 'warning', 3500);
-        }
+        qtyInputs.forEach(input => {
+            const qty = parseInt(input.value || '0', 10) || 0;
+            const pId = parseInt(input.dataset.id, 10);
+            const stock = parseInt(input.dataset.stock || '0', 10);
+            const name = input.dataset.name;
 
-        const payload = {
-            vehicleId,
-            driverId,
-            salesRepId,
-            routeId,
-            vanillaLoad,
-            strawberryLoad,
-            chocolateLoad,
-            mangoLoad,
-            treaclePotLoad,
-            notes: 'Morning Cold-Chain Dispatch'
-        };
-
-        const res = await SecurityClient.secureFetch('/api/dispatches/create', {
-            method: 'POST',
-            body: JSON.stringify(payload)
+            if (qty > 0) {
+                if (qty > stock) {
+                    hasStockViolation = true;
+                    SecurityClient.showToast(`⚠️ ${name} සඳහා ගබඩාවේ ඇත්තේ ${stock} පමණි. (${qty} ක් පැටවිය නොහැක)`, 'error', 4500);
+                }
+                items.push({ productId: pId, quantity: qty });
+                totalCups += qty;
+            }
         });
 
-        if (res && res.success) {
-            SecurityClient.showToast(`✅ Dispatch manifest created! #${res.manifestNumber}`, 'success');
-            closeNewDispatchModal();
-            loadAllAdminData();
-        } else {
-            SecurityClient.showToast(res.error || 'Failed to create dispatch.', 'error');
+        if (hasStockViolation) return;
+
+        if (totalCups <= 0) {
+            return SecurityClient.showToast(
+                I18n.getLanguage() === 'si' ? '⚠️ කරුණාකර අවම වශයෙන් එක් වර්ගයකින් හෝ පටවන ප්‍රමාණයක් ඇතුළත් කරන්න.' : '⚠️ Please enter load quantities greater than 0.', 
+                'warning', 
+                3500
+            );
+        }
+
+        const vehicleSelect = document.getElementById('dispVehicleSelect');
+        const selectedOption = vehicleSelect?.selectedOptions?.[0];
+        const capacity = selectedOption ? parseInt(selectedOption.dataset.capacity || '2500', 10) : 2500;
+
+        if (totalCups > capacity) {
+            return SecurityClient.showToast(
+                I18n.getLanguage() === 'si' ? `⛔ වාහනයේ උපරිම ධාරිතාව (${capacity.toLocaleString()} cups) ඉක්මවා ඇත!` : `⛔ Load exceeds vehicle capacity (${capacity.toLocaleString()} cups)!`,
+                'error',
+                4000
+            );
+        }
+
+        const btn = document.getElementById('dispConfirmBtn');
+        if (btn) {
+            btn.disabled = true;
+            btn.innerHTML = '⏳ Creating Dispatch Manifest...';
+        }
+
+        try {
+            const payload = {
+                vehicleId,
+                driverId,
+                salesRepId,
+                routeId,
+                items,
+                notes
+            };
+
+            const res = await SecurityClient.secureFetch('/api/dispatches/create', {
+                method: 'POST',
+                body: JSON.stringify(payload)
+            });
+
+            if (res && res.success) {
+                SecurityClient.showToast(`✅ Dispatch manifest created! #${res.manifestNumber} (මුළු වටිනාකම: ${SecurityClient.formatCurrency(res.totalStockValue)})`, 'success', 5000);
+                closeNewDispatchModal();
+                loadAllAdminData();
+            } else {
+                SecurityClient.showToast(res.error || 'Failed to create dispatch.', 'error', 4500);
+                if (btn) {
+                    btn.disabled = false;
+                    btn.innerHTML = I18n.t('btn_confirm_morning_dispatch', 'Confirm Morning Dispatch Load');
+                }
+            }
+        } catch(err) {
+            SecurityClient.showToast('Network error while creating dispatch.', 'error');
+            if (btn) {
+                btn.disabled = false;
+                btn.innerHTML = I18n.t('btn_confirm_morning_dispatch', 'Confirm Morning Dispatch Load');
+            }
         }
     }
 
@@ -2951,6 +3132,8 @@ const AdminDashboard = (() => {
         closeNewDispatchModal,
         submitNewDispatch,
         onDispatchVehicleChange,
+        onCategoryFilterChange,
+        renderDispatchProductsList,
         updateDispatchLoadTotal,
         openManifestDetailsModal,
         closeManifestDetailsModal,

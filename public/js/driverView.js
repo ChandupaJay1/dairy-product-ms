@@ -234,7 +234,7 @@ const DriverView = (() => {
                                 <span class="status-pill online">${currentDispatch.remaining_cups} cups left</span>
                             </div>
 
-                            <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.65rem; margin-bottom:1rem;">
+                            <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.65rem; margin-bottom:0.75rem;">
                                 <div style="padding:0.65rem; background:var(--bg-surface-elevated); border-radius:var(--radius-sm); border:1px solid var(--border-subtle); text-align:center;">
                                     <span style="font-size:0.7rem; color:var(--text-muted); text-transform:uppercase;">Total Loaded</span>
                                     <div style="font-size:1.25rem; font-weight:900; font-family:monospace; color:var(--text-heading);">${currentDispatch.total_loaded_cups}</div>
@@ -245,22 +245,34 @@ const DriverView = (() => {
                                 </div>
                             </div>
 
+                            <div style="padding:0.5rem 0.75rem; background:rgba(16, 185, 129, 0.08); border-radius:var(--radius-sm); border-left:3px solid #10b981; margin-bottom:0.75rem; display:flex; justify-content:space-between; align-items:center;">
+                                <span style="font-size:0.75rem; color:var(--text-muted);">💰 Total Stock Value:</span>
+                                <strong class="text-success font-mono" style="font-size:0.9rem;">${SecurityClient.formatCurrency(currentDispatch.total_stock_value || 0)}</strong>
+                            </div>
+
                             <div style="display:flex; flex-direction:column; gap:0.5rem; font-size:0.8rem;">
-                                <div style="display:flex; justify-content:space-between; padding:0.4rem 0.6rem; background:var(--bg-surface-elevated); border-radius:var(--radius-sm);">
-                                    <span>🍦 Vanilla:</span><strong>${currentDispatch.vanilla_load || 600} cups</strong>
-                                </div>
-                                <div style="display:flex; justify-content:space-between; padding:0.4rem 0.6rem; background:var(--bg-surface-elevated); border-radius:var(--radius-sm);">
-                                    <span>🍓 Strawberry:</span><strong>${currentDispatch.strawberry_load || 350} cups</strong>
-                                </div>
-                                <div style="display:flex; justify-content:space-between; padding:0.4rem 0.6rem; background:var(--bg-surface-elevated); border-radius:var(--radius-sm);">
-                                    <span>🍫 Chocolate:</span><strong>${currentDispatch.chocolate_load || 250} cups</strong>
-                                </div>
-                                <div style="display:flex; justify-content:space-between; padding:0.4rem 0.6rem; background:var(--bg-surface-elevated); border-radius:var(--radius-sm);">
-                                    <span>🥭 Mango:</span><strong>${currentDispatch.mango_load || 200} cups</strong>
-                                </div>
-                                <div style="display:flex; justify-content:space-between; padding:0.4rem 0.6rem; background:var(--bg-surface-elevated); border-radius:var(--radius-sm);">
-                                    <span>🏺 Curd & Treacle:</span><strong>${currentDispatch.treacle_pot_load || 100} pots</strong>
-                                </div>
+                                ${currentDispatch.items && currentDispatch.items.length > 0 ? currentDispatch.items.map(it => `
+                                    <div style="display:flex; justify-content:space-between; padding:0.4rem 0.6rem; background:var(--bg-surface-elevated); border-radius:var(--radius-sm);">
+                                        <span>${SecurityClient.escapeHtml(it.flavor_name)}:</span>
+                                        <strong>${(it.loaded_cups || it.quantity || 0).toLocaleString()} cups</strong>
+                                    </div>
+                                `).join('') : `
+                                    <div style="display:flex; justify-content:space-between; padding:0.4rem 0.6rem; background:var(--bg-surface-elevated); border-radius:var(--radius-sm);">
+                                        <span>🍦 Vanilla:</span><strong>${currentDispatch.vanilla_load || 600} cups</strong>
+                                    </div>
+                                    <div style="display:flex; justify-content:space-between; padding:0.4rem 0.6rem; background:var(--bg-surface-elevated); border-radius:var(--radius-sm);">
+                                        <span>🍓 Strawberry:</span><strong>${currentDispatch.strawberry_load || 350} cups</strong>
+                                    </div>
+                                    <div style="display:flex; justify-content:space-between; padding:0.4rem 0.6rem; background:var(--bg-surface-elevated); border-radius:var(--radius-sm);">
+                                        <span>🍫 Chocolate:</span><strong>${currentDispatch.chocolate_load || 250} cups</strong>
+                                    </div>
+                                    <div style="display:flex; justify-content:space-between; padding:0.4rem 0.6rem; background:var(--bg-surface-elevated); border-radius:var(--radius-sm);">
+                                        <span>🥭 Mango:</span><strong>${currentDispatch.mango_load || 200} cups</strong>
+                                    </div>
+                                    <div style="display:flex; justify-content:space-between; padding:0.4rem 0.6rem; background:var(--bg-surface-elevated); border-radius:var(--radius-sm);">
+                                        <span>🏺 Curd & Treacle:</span><strong>${currentDispatch.treacle_pot_load || 100} pots</strong>
+                                    </div>
+                                `}
                             </div>
                         </div>
 

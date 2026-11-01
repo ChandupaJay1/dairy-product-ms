@@ -355,68 +355,89 @@
 
 <!-- MODAL 8: New Morning Load Dispatch Modal -->
 <div class="modal-overlay" id="newDispatchModal">
-    <div class="modal-content-box">
+    <div class="modal-content-box" style="max-width: 680px; max-height: 90vh; overflow-y: auto;">
         <div class="modal-header">
             <h3 data-i18n="new_dispatch_modal_title">🥛 Create Morning Load Dispatch</h3>
             <button class="modal-close-btn" onclick="AdminDashboard.closeNewDispatchModal()">&times;</button>
         </div>
         <div class="modal-body">
-            <div class="form-group">
-                <label data-i18n="delivery_vehicle_lbl">Delivery Vehicle:</label>
-                <select id="dispVehicleSelect" class="form-control" onchange="AdminDashboard.onDispatchVehicleChange(this.value)"></select>
-            </div>
-            <div class="form-group">
-                <label data-i18n="assigned_driver_lbl">Assigned Driver:</label>
-                <select id="dispDriverSelect" class="form-control"></select>
-            </div>
-            <div class="form-group">
-                <label data-i18n="assigned_sales_rep_lbl">Assigned Sales Representative:</label>
-                <select id="dispSalesRepSelect" class="form-control"></select>
-            </div>
-            <div class="form-group">
-                <label data-i18n="route_sector_lbl">Route Sector:</label>
-                <select id="dispRouteSelect" class="form-control"></select>
-            </div>
-
-            <!-- Real-time Capacity Gauge -->
-            <div id="dispCapacitySummary" class="card card-subtle p-2 mb-2 text-xs" style="background:var(--bg-surface-elevated); border:1px solid var(--border-subtle); border-radius:8px;">
-                <div class="flex-between">
-                    <span>Total Load: <strong id="dispTotalCupsDisplay" class="font-mono text-cyan" style="font-size:0.95rem;">1,500</strong> cups</span>
-                    <span>Vehicle Capacity: <strong id="dispVehicleCapacityDisplay" class="font-mono">2,500</strong> cups</span>
+            <!-- Vehicle & Route Configuration -->
+            <div class="grid grid-2 gap-2" style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
+                <div class="form-group mb-2">
+                    <label class="font-bold text-xs" data-i18n="delivery_vehicle_lbl">🚚 Delivery Vehicle & Capacity:</label>
+                    <select id="dispVehicleSelect" class="form-control" onchange="AdminDashboard.onDispatchVehicleChange(this.value)"></select>
                 </div>
-                <div class="progress-bar-track mt-1" style="height:6px; background:rgba(255,255,255,0.08); border-radius:4px; overflow:hidden;">
-                    <div id="dispCapacityProgressBar" class="progress-bar-fill" style="width:60%; height:100%; background:var(--color-primary, #06b6d4); transition:width 0.2s;"></div>
-                </div>
-                <div id="dispCapacityWarning" class="text-danger font-bold mt-1" style="display:none;">⚠️ Warning: Total load exceeds vehicle capacity!</div>
-            </div>
-
-            <div class="card card-subtle p-3 my-2">
-                <div class="font-bold text-xs text-muted mb-2" data-i18n="flavor_load_quantities">FLAVOR LOAD QUANTITIES (CUPS):</div>
-                <div class="grid grid-2 gap-2" style="display:grid; grid-template-columns: 1fr 1fr; gap:8px;">
-                    <div>
-                        <label class="text-xs">Vanilla (80g):</label>
-                        <input type="number" id="dispVanilla" class="form-control" value="600" min="0" oninput="AdminDashboard.updateDispatchLoadTotal()">
-                    </div>
-                    <div>
-                        <label class="text-xs">Strawberry (80g):</label>
-                        <input type="number" id="dispStrawberry" class="form-control" value="350" min="0" oninput="AdminDashboard.updateDispatchLoadTotal()">
-                    </div>
-                    <div>
-                        <label class="text-xs">Chocolate (80g):</label>
-                        <input type="number" id="dispChocolate" class="form-control" value="250" min="0" oninput="AdminDashboard.updateDispatchLoadTotal()">
-                    </div>
-                    <div>
-                        <label class="text-xs">Mango (80g):</label>
-                        <input type="number" id="dispMango" class="form-control" value="200" min="0" oninput="AdminDashboard.updateDispatchLoadTotal()">
-                    </div>
-                    <div style="grid-column: span 2;">
-                        <label class="text-xs">Curd & Treacle Pot (180g):</label>
-                        <input type="number" id="dispTreacle" class="form-control" value="100" min="0" oninput="AdminDashboard.updateDispatchLoadTotal()">
-                    </div>
+                <div class="form-group mb-2">
+                    <label class="font-bold text-xs" data-i18n="route_sector_lbl">🗺️ Route Sector:</label>
+                    <select id="dispRouteSelect" class="form-control"></select>
                 </div>
             </div>
 
-            <button class="btn btn-primary btn-block mt-3 font-bold" onclick="AdminDashboard.submitNewDispatch()" data-i18n="btn_confirm_morning_dispatch">
+            <div class="grid grid-2 gap-2" style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
+                <div class="form-group mb-2">
+                    <label class="font-bold text-xs" data-i18n="assigned_driver_lbl">👤 Assigned Driver:</label>
+                    <select id="dispDriverSelect" class="form-control"></select>
+                </div>
+                <div class="form-group mb-2">
+                    <label class="font-bold text-xs" data-i18n="assigned_sales_rep_lbl">💼 Assigned Sales Rep:</label>
+                    <select id="dispSalesRepSelect" class="form-control"></select>
+                </div>
+            </div>
+
+            <!-- Real-time Vehicle Payload Telemetry & Capacity Gauge -->
+            <div id="dispCapacitySummary" class="card card-subtle p-3 my-2" style="background:var(--bg-surface-elevated); border:1px solid var(--border-subtle); border-radius:8px;">
+                <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
+                    <div>
+                        <span class="text-xs text-muted">Vehicle Payload: </span>
+                        <strong id="dispVehicleCapacityDisplay" class="font-mono text-cyan" style="font-size:0.95rem;">2,500</strong> <span class="text-xs">cups max</span>
+                    </div>
+                    <div>
+                        <span class="text-xs text-muted">Total Loaded: </span>
+                        <strong id="dispTotalCupsDisplay" class="font-mono text-warning" style="font-size:0.95rem;">0</strong> <span class="text-xs">cups</span>
+                    </div>
+                    <div>
+                        <span class="text-xs text-muted">Remaining Space: </span>
+                        <strong id="dispRemainingCapacityDisplay" class="font-mono text-success" style="font-size:0.95rem;">2,500</strong> <span class="text-xs">cups</span>
+                    </div>
+                    <div>
+                        <span class="text-xs text-muted">Total Value: </span>
+                        <strong id="dispTotalValueDisplay" class="font-mono text-success" style="font-size:0.95rem;">Rs. 0.00</strong>
+                    </div>
+                </div>
+
+                <div class="progress-bar-track mt-2" style="height:8px; background:rgba(255,255,255,0.08); border-radius:4px; overflow:hidden;">
+                    <div id="dispCapacityProgressBar" class="progress-bar-fill" style="width:0%; height:100%; background:var(--color-primary, #06b6d4); transition:all 0.3s ease;"></div>
+                </div>
+                
+                <div id="dispCapacityWarning" class="text-danger font-bold text-xs mt-2" style="display:none; padding:6px 10px; background:rgba(239, 68, 68, 0.12); border-radius:6px; border-left:3px solid #ef4444;">
+                    ⛔ Warning: Total load exceeds vehicle payload capacity! Please reduce loaded cups.
+                </div>
+            </div>
+
+            <!-- Dynamic Category & Products Inventory Loading Section -->
+            <div class="card card-subtle p-3 my-2" style="background:var(--bg-surface); border:1px solid var(--border-subtle); border-radius:8px;">
+                <div class="flex-between mb-2" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
+                    <div class="font-bold text-xs text-muted" data-i18n="flavor_load_quantities">📦 SELECT PRODUCTS & LOAD QUANTITIES:</div>
+                    <div style="display:flex; align-items:center; gap:6px;">
+                        <span class="text-xs text-muted">Category:</span>
+                        <select id="dispCategoryFilter" class="form-control" style="width:auto; padding:4px 8px; font-size:0.75rem; height:auto;" onchange="AdminDashboard.onCategoryFilterChange(this.value)">
+                            <option value="ALL">All Categories (සියල්ල)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Products Table / List Container -->
+                <div id="dispProductsListContainer" style="display:flex; flex-direction:column; gap:8px;">
+                    <!-- Dynamically populated by AdminDashboard.renderDispatchProductsList() -->
+                </div>
+            </div>
+
+            <div class="form-group mt-2">
+                <label class="text-xs text-muted">Notes / Special Instructions (Optional):</label>
+                <input type="text" id="dispNotes" class="form-control" style="font-size:0.8rem; padding:6px 10px;" placeholder="e.g. Morning Polonnaruwa dairy dispatch with cold-chain lock">
+            </div>
+
+            <button id="dispConfirmBtn" class="btn btn-primary btn-block mt-3 font-bold" onclick="AdminDashboard.submitNewDispatch()" data-i18n="btn_confirm_morning_dispatch">
                 Confirm Morning Dispatch Load
             </button>
         </div>
