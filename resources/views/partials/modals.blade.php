@@ -362,7 +362,7 @@
         </div>
         <div class="modal-body">
             <!-- Vehicle & Route Configuration -->
-            <div class="grid grid-2 gap-2" style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
+            <div class="modal-grid-2col" style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
                 <div class="form-group mb-2">
                     <label class="font-bold text-xs" data-i18n="delivery_vehicle_lbl">🚚 Delivery Vehicle & Capacity:</label>
                     <select id="dispVehicleSelect" class="form-control" onchange="AdminDashboard.onDispatchVehicleChange(this.value)"></select>
@@ -373,7 +373,7 @@
                 </div>
             </div>
 
-            <div class="grid grid-2 gap-2" style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
+            <div class="modal-grid-2col" style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
                 <div class="form-group mb-2">
                     <label class="font-bold text-xs" data-i18n="assigned_driver_lbl">👤 Assigned Driver:</label>
                     <select id="dispDriverSelect" class="form-control"></select>
@@ -386,7 +386,7 @@
 
             <!-- Real-time Vehicle Payload Telemetry & Capacity Gauge -->
             <div id="dispCapacitySummary" class="card card-subtle p-3 my-2" style="background:var(--bg-surface-elevated); border:1px solid var(--border-subtle); border-radius:8px;">
-                <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
+                <div class="disp-telemetry-grid">
                     <div>
                         <span class="text-xs text-muted">Vehicle Payload: </span>
                         <strong id="dispVehicleCapacityDisplay" class="font-mono text-cyan" style="font-size:0.95rem;">2,500</strong> <span class="text-xs">cups max</span>
@@ -416,9 +416,9 @@
 
             <!-- Dynamic Category & Products Inventory Loading Section -->
             <div class="card card-subtle p-3 my-2" style="background:var(--bg-surface); border:1px solid var(--border-subtle); border-radius:8px;">
-                <div class="flex-between mb-2" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
+                <div class="flex-between mb-2 disp-header-row" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
                     <div class="font-bold text-xs text-muted" data-i18n="flavor_load_quantities">📦 SELECT PRODUCTS & LOAD QUANTITIES:</div>
-                    <div style="display:flex; align-items:center; gap:6px;">
+                    <div class="disp-cat-filter-wrap" style="display:flex; align-items:center; gap:6px;">
                         <span class="text-xs text-muted">Category:</span>
                         <select id="dispCategoryFilter" class="form-control" style="width:auto; padding:4px 8px; font-size:0.75rem; height:auto;" onchange="AdminDashboard.onCategoryFilterChange(this.value)">
                             <option value="ALL">All Categories (සියල්ල)</option>

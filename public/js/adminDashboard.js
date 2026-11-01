@@ -1825,25 +1825,25 @@ const AdminDashboard = (() => {
             const isOutOfStock = stock <= 0;
 
             return `
-                <div class="disp-product-row p-2" id="disp-row-${p.id}" style="display:flex; justify-content:space-between; align-items:center; background:var(--bg-surface-elevated); border:1px solid var(--border-subtle); border-radius:6px; gap:10px; flex-wrap:wrap;">
-                    <div style="flex:1; min-width:180px;">
-                        <div style="font-weight:700; font-size:0.85rem; color:var(--text-heading);">
+                <div class="disp-product-row" id="disp-row-${p.id}">
+                    <div class="disp-prod-info">
+                        <div class="disp-prod-title">
                             ${SecurityClient.escapeHtml(p.flavor_name)}
                         </div>
-                        <div class="text-xs text-muted" style="display:flex; gap:6px; align-items:center; margin-top:2px;">
-                            <span class="badge badge-outline" style="font-size:0.65rem; padding:1px 5px;">${SecurityClient.escapeHtml(p.category || 'Yogurt')}</span>
-                            <span class="font-mono">${p.sku_code}</span>
+                        <div class="disp-prod-meta">
+                            <span class="badge badge-outline" style="font-size:0.65rem; padding:1px 6px;">${SecurityClient.escapeHtml(p.category || 'Yogurt')}</span>
+                            <span class="font-mono text-muted">${p.sku_code}</span>
                             <span>&bull;</span>
                             <span class="text-info font-bold">${SecurityClient.formatCurrency(p.unit_price)}</span>
                         </div>
-                        <div class="text-xs ${stockBadgeClass} mt-1 font-bold">
-                            📦 Warehouse Stock: ${stock.toLocaleString()} cups ${isOutOfStock ? '(OUT OF STOCK)' : ''}
+                        <div class="disp-prod-stock ${stockBadgeClass}">
+                            📦 Warehouse Stock: <strong>${stock.toLocaleString()} cups</strong> ${isOutOfStock ? '(OUT OF STOCK)' : ''}
                         </div>
                     </div>
 
-                    <div style="display:flex; align-items:center; gap:8px;">
-                        <div style="text-align:right;">
-                            <label class="text-xs text-muted" style="display:block; margin-bottom:2px;">Load (Cups):</label>
+                    <div class="disp-prod-controls">
+                        <div class="disp-prod-qty-box">
+                            <label class="disp-control-label">Load (Cups):</label>
                             <input type="number" 
                                 class="form-control disp-prod-qty" 
                                 id="disp-qty-${p.id}" 
@@ -1855,12 +1855,11 @@ const AdminDashboard = (() => {
                                 min="0" 
                                 max="${stock}" 
                                 ${isOutOfStock ? 'disabled' : ''}
-                                oninput="AdminDashboard.updateDispatchLoadTotal()" 
-                                style="width:100px; text-align:right; font-weight:700; font-family:monospace; padding:5px 8px; font-size:0.85rem;">
+                                oninput="AdminDashboard.updateDispatchLoadTotal()">
                         </div>
-                        <div style="text-align:right; min-width:85px;">
-                            <span class="text-xs text-muted" style="display:block; margin-bottom:2px;">Subtotal:</span>
-                            <span id="disp-subtotal-${p.id}" class="font-mono font-bold text-success" style="font-size:0.85rem;">Rs. 0.00</span>
+                        <div class="disp-prod-subtotal-box">
+                            <span class="disp-control-label">Subtotal:</span>
+                            <span id="disp-subtotal-${p.id}" class="disp-subtotal-val">Rs. 0.00</span>
                         </div>
                     </div>
                 </div>

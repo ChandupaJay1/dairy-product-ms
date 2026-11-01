@@ -254,7 +254,7 @@ const SettlementView = (() => {
                 <!-- Settlement Form Sign-Off & Submission -->
                 <div class="card">
                     <div class="card-sheen-top"></div>
-                    <div style="display:grid; grid-template-columns:1fr; gap:1rem; @media(min-width:768px){grid-template-columns:1fr 2fr;}">
+                    <div class="settlement-signoff-grid" style="display:grid; gap:1rem;">
                         <div class="form-group">
                             <label class="form-label">${I18n.t('settlement_cashier_name_lbl', 'Cashier Name:')}</label>
                             <input type="text" id="settleCashierName" class="form-control" value="P. Rajapaksha (Chief Cashier)">

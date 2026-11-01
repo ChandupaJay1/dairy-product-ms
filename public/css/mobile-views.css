@@ -990,3 +990,222 @@ html:not(.dark) .sig-header-tag {
     }
 }
 
+/* ========================================================
+   DISPATCH INVENTORY MODAL & PRODUCT ROWS RESPONSIVE STYLES
+   ======================================================== */
+.disp-product-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: var(--bg-surface-elevated);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-md);
+    padding: 0.85rem 1rem;
+    gap: 14px;
+    transition: all 0.2s ease;
+}
+
+.disp-product-row:hover {
+    background: var(--bg-surface-hover);
+    border-color: var(--border-medium);
+}
+
+.disp-prod-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.disp-prod-title {
+    font-weight: 700;
+    font-size: 0.92rem;
+    color: var(--text-heading);
+}
+
+.disp-prod-meta {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 3px;
+    flex-wrap: wrap;
+}
+
+.disp-prod-stock {
+    font-size: 0.75rem;
+    margin-top: 4px;
+    font-weight: 600;
+}
+
+.disp-prod-controls {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-shrink: 0;
+}
+
+.disp-control-label {
+    display: block;
+    font-size: 0.72rem;
+    color: var(--text-muted);
+    font-weight: 600;
+    margin-bottom: 2px;
+}
+
+.disp-prod-qty-box {
+    text-align: right;
+}
+
+.disp-prod-qty {
+    width: 105px !important;
+    text-align: right !important;
+    font-weight: 800 !important;
+    font-family: monospace !important;
+    padding: 6px 10px !important;
+    font-size: 0.9rem !important;
+    border-radius: var(--radius-sm) !important;
+}
+
+.disp-prod-subtotal-box {
+    text-align: right;
+    min-width: 95px;
+}
+
+.disp-subtotal-val {
+    display: block;
+    font-family: monospace;
+    font-weight: 800;
+    color: var(--color-cash);
+    font-size: 0.92rem;
+}
+
+.disp-telemetry-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    align-items: center;
+}
+
+@media (max-width: 600px) {
+    .disp-product-row {
+        flex-direction: column !important;
+        align-items: stretch !important;
+        gap: 10px !important;
+        padding: 0.85rem !important;
+    }
+
+    .disp-prod-controls {
+        display: grid !important;
+        grid-template-columns: 1fr 1fr !important;
+        align-items: center !important;
+        gap: 10px !important;
+        background: var(--bg-surface) !important;
+        padding: 8px 12px !important;
+        border-radius: var(--radius-sm) !important;
+        border: 1px solid var(--border-subtle) !important;
+        width: 100% !important;
+        box-sizing: border-box !important;
+    }
+
+    .disp-prod-qty-box {
+        text-align: left !important;
+    }
+
+    .disp-prod-qty {
+        width: 100% !important;
+        text-align: center !important;
+    }
+
+    .disp-prod-subtotal-box {
+        text-align: right !important;
+    }
+
+    .disp-header-row {
+        flex-direction: column !important;
+        align-items: stretch !important;
+        gap: 8px !important;
+    }
+
+    .disp-cat-filter-wrap {
+        width: 100% !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: space-between !important;
+        gap: 8px !important;
+    }
+
+    .disp-cat-filter-wrap select {
+        flex: 1 !important;
+        width: auto !important;
+    }
+
+    .disp-telemetry-grid {
+        grid-template-columns: 1fr 1fr !important;
+        gap: 8px !important;
+    }
+
+    .modal-grid-2col {
+        grid-template-columns: 1fr !important;
+    }
+}
+
+@media (max-width: 380px) {
+    .disp-telemetry-grid {
+        grid-template-columns: 1fr !important;
+    }
+}
+
+/* ========================================================
+   GLOBAL MODALS & FORMS RESPONSIVE GRID OVERRIDES
+   ======================================================== */
+.grid.grid-2,
+.modal-grid-2col {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+}
+
+.settlement-signoff-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1rem;
+}
+
+@media (min-width: 768px) {
+    .settlement-signoff-grid {
+        grid-template-columns: 1fr 2fr;
+    }
+}
+
+@media (max-width: 600px) {
+    .grid.grid-2,
+    .modal-grid-2col,
+    #driverAccountFields,
+    #repAccountFields {
+        grid-template-columns: 1fr !important;
+        gap: 10px !important;
+    }
+
+    .card-header-toolbar {
+        width: 100% !important;
+        flex-direction: column !important;
+        align-items: stretch !important;
+        gap: 8px !important;
+    }
+
+    .card-header-toolbar input {
+        width: 100% !important;
+        max-width: 100% !important;
+    }
+
+    .card-header-toolbar button {
+        width: 100% !important;
+    }
+}
+
+@media (max-width: 420px) {
+    .quick-debt-chips-grid {
+        grid-template-columns: 1fr 1fr !important;
+    }
+}
+
