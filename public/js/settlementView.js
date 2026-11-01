@@ -155,7 +155,7 @@ const SettlementView = (() => {
                 </div>
 
                 <!-- 3-Column Reconciliation Cards Grid -->
-                <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(320px, 1fr)); gap:1.25rem;">
+                <div class="settlement-step-grid" style="display:grid; grid-template-columns:repeat(auto-fit, minmax(min(100%, 280px), 1fr)); gap:1.25rem;">
                     
                     <!-- CARD 1: CASH RECONCILIATION -->
                     <div class="card">

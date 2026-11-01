@@ -176,6 +176,20 @@ const App = (() => {
         // Close mobile drawer on navigation
         toggleMobileDrawer(false);
 
+        // Ensure Distribution module accordion is expanded on active selection
+        const distGroup = document.getElementById('moduleGroupDistribution');
+        const distChevron = document.getElementById('distChevron');
+        if (distGroup && distGroup.classList.contains('collapsed')) {
+            distGroup.classList.remove('collapsed');
+            if (distChevron) distChevron.textContent = '▾';
+        }
+        const distDrawerGroup = document.getElementById('drawerModuleGroupDistribution');
+        const distDrawerChevron = document.getElementById('distDrawerChevron');
+        if (distDrawerGroup && distDrawerGroup.classList.contains('collapsed')) {
+            distDrawerGroup.classList.remove('collapsed');
+            if (distDrawerChevron) distDrawerChevron.textContent = '▾';
+        }
+
         // Update nav button active states across sidebar and drawer
         document.querySelectorAll('.role-nav-btn, .sidebar-nav-btn').forEach(btn => {
             btn.classList.toggle('active', btn.dataset.view === viewName);
@@ -224,6 +238,28 @@ const App = (() => {
 
     function toggleMobileFrame() {
         // The layout is now 100% fluidly responsive across all devices
+    }
+
+    function toggleDistributionModule() {
+        const group = document.getElementById('moduleGroupDistribution');
+        const chevron = document.getElementById('distChevron');
+        if (group) {
+            group.classList.toggle('collapsed');
+            if (chevron) {
+                chevron.textContent = group.classList.contains('collapsed') ? '▸' : '▾';
+            }
+        }
+    }
+
+    function toggleDistributionDrawerModule() {
+        const group = document.getElementById('drawerModuleGroupDistribution');
+        const chevron = document.getElementById('distDrawerChevron');
+        if (group) {
+            group.classList.toggle('collapsed');
+            if (chevron) {
+                chevron.textContent = group.classList.contains('collapsed') ? '▸' : '▾';
+            }
+        }
     }
 
     /**
@@ -396,6 +432,8 @@ const App = (() => {
         switchView,
         toggleMobileDrawer,
         toggleMobileFrame,
+        toggleDistributionModule,
+        toggleDistributionDrawerModule,
         playSirenAudio,
         triggerSosAlarm,
         installPwa,

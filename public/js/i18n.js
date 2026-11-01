@@ -16,6 +16,9 @@ const I18n = (() => {
         en: {
         "app_title": "Polonnaruwa Yogurt Distribution",
         "app_subtitle": "Dairy Fleet & Field Operations",
+        "nav_modules_title": "Enterprise Modules",
+        "nav_distribution": "Distribution",
+        "nav_distribution_sub": "Fleet & Sales Operations",
         "nav_section_main": "Field & Fleet Operations",
         "nav_admin": "Office Admin",
         "nav_driver": "Driver Mobile",
@@ -495,6 +498,9 @@ const I18n = (() => {
     si: {
         "app_title": "පොළොන්නරුව යෝගට් බෙදාහැරීමේ පද්ධතිය",
         "app_subtitle": "ක්ෂේත්‍ර හා රථවාහන මෙහෙයුම් පද්ධතිය",
+        "nav_modules_title": "පද්ධති අංශ (Enterprise Modules)",
+        "nav_distribution": "බෙදාහැරීම් (Distribution)",
+        "nav_distribution_sub": "රථ වාහන හා බෙදාහැරීම් අංශය",
         "nav_section_main": "ක්ෂේත්‍ර සහ බෙදාහැරීම් මෙහෙයුම්",
         "nav_admin": "කාර්යාලය (Admin)",
         "nav_driver": "රියදුරු (Driver)",
@@ -974,6 +980,9 @@ const I18n = (() => {
     ta: {
         "app_title": "பொலன்னறுவை தயிர் விநியோக அமைப்பு",
         "app_subtitle": "பால் பண்ணை கடற்படை & கள செயல்பாடுகள்",
+        "nav_modules_title": "நிறுவன தொகுதிகள் (Modules)",
+        "nav_distribution": "விநியோகம் (Distribution)",
+        "nav_distribution_sub": "வாகன & கள செயல்பாடுகள்",
         "nav_section_main": "கள மற்றும் கடற்படை செயல்பாடுகள்",
         "nav_admin": "நிர்வாகம் (Admin)",
         "nav_driver": "சாரதி (Driver)",

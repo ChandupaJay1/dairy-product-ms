@@ -104,13 +104,54 @@
 }
 
 /* ========================================================
-   2. GLOBAL RESETS & TYPOGRAPHY
+   2. GLOBAL RESETS & MODERN SLEEK SCROLLBARS
    ======================================================== */
 *, *::before, *::after {
     box-sizing: border-box;
     margin: 0;
     padding: 0;
     -webkit-tap-highlight-color: transparent;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 255, 255, 0.16) transparent;
+}
+
+/* Custom Sleek Glassmorphism Scrollbar (Eliminates bulky Windows OS scrollbars) */
+::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.16);
+    border-radius: 999px;
+    transition: background 0.2s ease;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--accent-lime);
+}
+
+[data-theme="light"] *, html:not(.dark) * {
+    scrollbar-color: rgba(0, 0, 0, 0.18) transparent;
+}
+
+[data-theme="light"] ::-webkit-scrollbar-thumb, html:not(.dark) ::-webkit-scrollbar-thumb {
+    background: rgba(0, 0, 0, 0.18);
+}
+
+[data-theme="light"] ::-webkit-scrollbar-thumb:hover, html:not(.dark) ::-webkit-scrollbar-thumb:hover {
+    background: var(--accent-lime-dark);
+}
+
+html {
+    overflow-x: hidden !important;
+    width: 100% !important;
+    max-width: 100vw !important;
+    -webkit-text-size-adjust: 100%;
 }
 
 body {
@@ -118,10 +159,13 @@ body {
     background-color: var(--bg-app);
     color: var(--text-primary);
     min-height: 100vh;
-    overflow-x: hidden;
+    width: 100% !important;
+    max-width: 100vw !important;
+    overflow-x: hidden !important;
     line-height: 1.5;
     transition: background-color 0.3s ease, color 0.3s ease;
     -webkit-font-smoothing: antialiased;
+    position: relative;
 }
 
 ::selection {
@@ -224,6 +268,9 @@ input, select, textarea {
 .app-layout-wrapper {
     display: flex;
     min-height: 100vh;
+    width: 100% !important;
+    max-width: 100vw !important;
+    overflow-x: hidden !important;
     position: relative;
     z-index: 1;
 }
@@ -321,7 +368,7 @@ input, select, textarea {
 
 /* Navigation Links */
 .sidebar-nav-section {
-    margin-top: 1.75rem;
+    margin-top: 1.5rem;
 }
 
 .sidebar-section-title {
@@ -332,7 +379,117 @@ input, select, textarea {
     letter-spacing: 0.14em;
     color: var(--text-muted);
     padding-left: 0.75rem;
-    margin-bottom: 0.6rem;
+    margin-bottom: 0.65rem;
+}
+
+/* ========================================================
+   ENTERPRISE MODULE ACCORDION (Distribution Suite)
+   ======================================================== */
+.sidebar-module-group {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 0.65rem;
+    transition: all 0.25s ease;
+}
+
+.sidebar-module-btn {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    padding: 0.75rem 0.9rem;
+    border-radius: var(--radius-md);
+    background: var(--bg-surface-elevated);
+    border: 1px solid var(--border-medium);
+    border-left: 3.5px solid var(--accent-lime);
+    color: var(--text-heading);
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.15);
+    user-select: none;
+}
+
+.sidebar-module-btn:hover {
+    background: var(--bg-surface-hover);
+    border-color: var(--border-highlight);
+    transform: translateY(-1px);
+}
+
+.sidebar-module-group.active .sidebar-module-btn {
+    background: linear-gradient(135deg, rgba(245, 158, 11, 0.14) 0%, rgba(163, 230, 53, 0.12) 100%);
+    border-color: rgba(163, 230, 53, 0.45);
+    box-shadow: 0 0 18px rgba(163, 230, 53, 0.16), inset 0 0 10px rgba(163, 230, 53, 0.05);
+}
+
+[data-theme="light"] .sidebar-module-group.active .sidebar-module-btn,
+html:not(.dark) .sidebar-module-group.active .sidebar-module-btn {
+    background: linear-gradient(135deg, rgba(245, 158, 11, 0.1) 0%, rgba(101, 163, 13, 0.1) 100%);
+    border-color: rgba(101, 163, 13, 0.4);
+}
+
+.module-btn-left {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    text-align: left;
+    min-width: 0;
+}
+
+.module-icon {
+    font-size: 1.35rem;
+    line-height: 1;
+    flex-shrink: 0;
+}
+
+.module-title-box {
+    display: flex;
+    flex-direction: column;
+    line-height: 1.25;
+    min-width: 0;
+}
+
+.module-title {
+    font-size: 0.9rem;
+    font-weight: 800;
+    color: var(--text-heading);
+    letter-spacing: -0.01em;
+}
+
+.module-sub-tag {
+    font-size: 0.65rem;
+    color: var(--text-muted);
+    font-weight: 500;
+    font-family: monospace;
+    letter-spacing: 0.02em;
+}
+
+.module-chevron {
+    font-size: 0.85rem;
+    color: var(--accent-lime);
+    font-weight: bold;
+    transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    flex-shrink: 0;
+    margin-left: 6px;
+}
+
+.sidebar-module-group.collapsed .module-chevron {
+    transform: rotate(-90deg);
+}
+
+.sidebar-subnav-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+    margin-top: 0.4rem;
+    padding-left: 0.75rem;
+    border-left: 2px solid rgba(163, 230, 53, 0.2);
+    margin-left: 0.95rem;
+    list-style: none;
+    transition: all 0.3s ease;
+}
+
+.sidebar-module-group.collapsed .sidebar-subnav-list {
+    display: none;
 }
 
 .sidebar-nav-list {
@@ -1119,6 +1276,25 @@ input, select, textarea {
     box-shadow: 0 25px 60px rgba(0, 0, 0, 0.8);
     position: relative;
     animation: modalSlideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@media (max-width: 640px) {
+    .modal-overlay {
+        padding: 0.5rem !important;
+    }
+    .modal-content-box {
+        padding: 1.25rem 1rem !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        max-height: 94vh !important;
+        border-radius: var(--radius-lg) !important;
+    }
+    #toastContainer {
+        bottom: 14px !important;
+        right: 12px !important;
+        left: 12px !important;
+        max-width: calc(100vw - 24px) !important;
+    }
 }
 
 .modal-header {

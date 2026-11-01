@@ -157,8 +157,8 @@ const SalesRepWizard = (() => {
                         </div>
 
                         <div style="padding: 1.25rem 1.5rem;">
-                            <div class="shop-selection-toolbar" style="display: flex; gap: 1rem; align-items: flex-end; flex-wrap: wrap; margin-bottom: 1.25rem;">
-                                <div style="flex: 1; min-width: 260px;">
+                            <div class="shop-selection-toolbar" style="display: flex; gap: 0.85rem; align-items: flex-end; flex-wrap: wrap; margin-bottom: 1.25rem;">
+                                <div style="flex: 1 1 220px; min-width: 0; max-width: 100%;">
                                     <label for="shopSearchInput" class="form-label" style="font-size:0.82rem; font-weight:700; color:var(--text-secondary); margin-bottom: 6px; display:block;">
                                         ${I18n.t('step1_label', 'බෙදාහරින වෙළඳසැල තෝරන්න:')}
                                     </label>
@@ -168,7 +168,7 @@ const SalesRepWizard = (() => {
                                     </div>
                                 </div>
 
-                                <div style="flex: 2; min-width: 320px;">
+                                <div style="flex: 2 1 240px; min-width: 0; max-width: 100%;">
                                     <label for="shopSelectDropdown" class="form-label" style="font-size:0.82rem; font-weight:700; color:var(--text-secondary); margin-bottom: 6px; display:block;">
                                         🏪 ${I18n.t('shop_roster_label', 'Retail Outlets Roster:')}
                                     </label>
@@ -297,7 +297,7 @@ const SalesRepWizard = (() => {
                         </div>
 
                         <div style="padding: 1.25rem 1.5rem;">
-                            <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:1.25rem;">
+                            <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(min(100%, 260px), 1fr)); gap:1.25rem;">
                                 <!-- Cash Button -->
                                 <button type="button" class="btn btn-cash btn-block" onclick="SalesRepWizard.processCashSale()" style="padding:1.4rem; border-radius:var(--radius-lg); display:flex; flex-direction:column; align-items:center; gap:8px; height:auto; transition:all 0.25s ease; box-shadow:0 4px 18px rgba(16,185,129,0.25);">
                                     <span style="font-size:2.2rem;">💵</span>

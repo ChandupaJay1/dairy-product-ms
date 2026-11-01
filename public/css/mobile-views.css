@@ -825,3 +825,168 @@ html:not(.dark) .sig-header-tag {
     box-shadow: 0 4px 16px rgba(245, 158, 11, 0.3);
 }
 
+/* ========================================================
+   COMPREHENSIVE 100% MOBILE-FIRST RESPONSIVE ARCHITECTURE
+   Guarantees zero document-level horizontal scrollbar &
+   optimizes UI for smartphones (Sales Rep, Driver, Settlement)
+   ======================================================== */
+
+/* 1. Global Touch-Friendly Controls & Form Resets */
+@media (max-width: 640px) {
+    /* Touch target comfort */
+    button, .btn, .role-nav-btn, .sidebar-nav-btn {
+        min-height: 40px;
+    }
+
+    /* Card padding optimization for small phone viewports (360px-412px) */
+    .card, .eyecare-card, .reports-shell {
+        padding: 1rem 0.85rem !important;
+        border-radius: var(--radius-md) !important;
+    }
+
+    .card-header {
+        padding: 0.85rem 0.85rem !important;
+        flex-direction: column !important;
+        align-items: flex-start !important;
+        gap: 8px !important;
+    }
+
+    /* Stepper navigation mobile optimization */
+    .stepper-nav {
+        padding: 0.75rem 0.85rem !important;
+        gap: 0.5rem !important;
+        overflow-x: auto !important;
+        white-space: nowrap !important;
+        -webkit-overflow-scrolling: touch !important;
+    }
+
+    .stepper-step {
+        padding: 0.2rem 0.35rem !important;
+    }
+
+    .stepper-num {
+        width: 28px !important;
+        height: 28px !important;
+        font-size: 0.78rem !important;
+    }
+
+    .stepper-title {
+        font-size: 0.78rem !important;
+    }
+
+    .stepper-desc {
+        font-size: 0.68rem !important;
+    }
+
+    .stepper-connector {
+        min-width: 14px !important;
+    }
+
+    /* Sales Rep Wizard: Compact Flavor Counter on narrow mobile */
+    .flavor-counter-box {
+        gap: 2px !important;
+        padding: 0.35rem 0.45rem !important;
+        justify-content: center !important;
+    }
+
+    .counter-btn {
+        min-width: 28px !important;
+        height: 34px !important;
+        font-size: 0.72rem !important;
+        padding: 0 2px !important;
+    }
+
+    .counter-input-field {
+        width: 44px !important;
+        font-size: 1.05rem !important;
+    }
+
+    /* Order summary bar mobile layout */
+    .order-summary-bar {
+        flex-direction: column !important;
+        align-items: stretch !important;
+        gap: 1rem !important;
+        padding: 1rem !important;
+    }
+
+    /* Payment buttons full width */
+    .btn-cash, .btn-credit {
+        width: 100% !important;
+        padding: 1.1rem 0.85rem !important;
+    }
+
+    /* Driver mobile layout */
+    .driver-hero-grid {
+        grid-template-columns: 1fr !important;
+    }
+
+    .stop-checklist-item {
+        flex-direction: column !important;
+        align-items: flex-start !important;
+        gap: 8px !important;
+        padding: 0.85rem !important;
+    }
+
+    .stop-checklist-item .stop-actions-row {
+        width: 100% !important;
+        display: flex !important;
+        justify-content: flex-end !important;
+        gap: 6px !important;
+    }
+
+    /* Settlement 3-column cards stack to 1 column */
+    .settlement-step-grid,
+    .reconciliation-grid {
+        grid-template-columns: 1fr !important;
+    }
+
+    /* Reports sub-nav tabs: 2x2 grid */
+    .report-subnav {
+        grid-template-columns: 1fr 1fr !important;
+        gap: 6px !important;
+        padding: 6px !important;
+    }
+
+    .report-tab-btn {
+        padding: 8px 6px !important;
+        font-size: 0.76rem !important;
+        min-height: 40px !important;
+    }
+
+    /* Route cards grid: 1 card per row */
+    .report-cards-grid {
+        grid-template-columns: 1fr !important;
+    }
+
+    /* Tables: strictly horizontal scroll inside card */
+    .table-responsive,
+    .data-table-container {
+        border-radius: var(--radius-sm) !important;
+        -webkit-overflow-scrolling: touch !important;
+    }
+}
+
+/* 2. Extra Small Screens (< 380px, e.g. iPhone SE / small Androids) */
+@media (max-width: 380px) {
+    .report-subnav {
+        grid-template-columns: 1fr !important;
+    }
+
+    .flavor-icon-box {
+        width: 36px !important;
+        height: 36px !important;
+        font-size: 1.2rem !important;
+    }
+
+    .counter-btn {
+        min-width: 25px !important;
+        height: 32px !important;
+        font-size: 0.68rem !important;
+    }
+
+    .counter-input-field {
+        width: 38px !important;
+        font-size: 0.95rem !important;
+    }
+}
+

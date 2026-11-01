@@ -169,7 +169,7 @@ const DriverView = (() => {
                 ${isSosActive ? renderActiveSosCard() : ''}
 
                 <!-- Main Layout Grid: Route Checklist on Left, Manifest & SOS on Right -->
-                <div style="display:grid; grid-template-columns:1fr; gap:1.5rem; @media(min-width:1024px){grid-template-columns:1.4fr 1fr;}">
+                <div class="driver-hero-grid" style="display:grid; grid-template-columns:1fr; gap:1.5rem;">
                     
                     <!-- Left: Step-by-Step Route Delivery Stops Checklist -->
                     <div class="card">
