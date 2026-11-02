@@ -75,3 +75,4 @@ Homestead.yaml
 /storage/pail
 .phpunit.result.cache
 /.phpunit.cache
+/database/backups/
