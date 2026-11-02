@@ -95,7 +95,7 @@
                     <div class="sidebar-module-group active" id="moduleGroupAdmin">
                         <button type="button" class="sidebar-module-btn" id="btnAdminModule" onclick="App.toggleAdminModule()" title="Toggle Office Admin Operations">
                             <div class="module-btn-left">
-                                <span class="module-icon">🏢</span>
+                                <span class="module-icon"><svg class="svg-icon" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="20" rx="2" ry="2"></rect><path d="M9 22v-4h6v4"></path><path d="M8 6h.01"></path><path d="M16 6h.01"></path><path d="M8 10h.01"></path><path d="M16 10h.01"></path><path d="M8 14h.01"></path><path d="M16 14h.01"></path></svg></span>
                                 <div class="module-title-box">
                                     <span class="module-title" data-i18n="nav_admin_suite">Office Admin</span>
                                     <span class="module-sub-tag" data-i18n="nav_admin_suite_sub">Central Command & Ops</span>
@@ -110,44 +110,44 @@
                         <ul class="sidebar-subnav-list" id="adminSubnav" role="navigation">
                             <li>
                                 <button class="sidebar-nav-btn role-nav-btn active" data-view="admin" data-admin-section="adminTopSection" id="sideBtnAdminOverview">
-                                    <span class="sidebar-nav-icon">🖥️</span>
+                                    <span class="sidebar-nav-icon"><svg class="svg-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"></rect><path d="M3 9h18"></path><path d="M9 21V9"></path></svg></span>
                                     <span class="sidebar-nav-text" data-i18n="nav_admin_kpis">Command & KPIs</span>
                                 </button>
                             </li>
                             <li>
                                 <button class="sidebar-nav-btn role-nav-btn" data-view="admin" data-admin-section="approvalCenterSection" id="sideBtnApprovals">
-                                    <span class="sidebar-nav-icon">📋</span>
+                                    <span class="sidebar-nav-icon"><svg class="svg-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect><path d="m9 14 2 2 4-4"></path></svg></span>
                                     <span class="sidebar-nav-text" data-i18n="nav_admin_approvals">Approvals Center</span>
                                     <span class="badge badge-warning ml-auto" id="sideNavApprovalBadge" style="display:none; margin-left:auto; font-size:0.65rem; padding:2px 6px; border-radius:10px;">0</span>
                                 </button>
                             </li>
                             <li>
                                 <button class="sidebar-nav-btn role-nav-btn" data-view="admin" data-admin-section="dailyDispatchesSection" id="sideBtnDispatches">
-                                    <span class="sidebar-nav-icon">📦</span>
+                                    <span class="sidebar-nav-icon"><svg class="svg-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m7.5 4.27 9 5.15"></path><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"></path><path d="m3.3 7 8.7 5 8.7-5"></path><path d="M12 22V12"></path></svg></span>
                                     <span class="sidebar-nav-text" data-i18n="nav_admin_dispatches">Daily Dispatches</span>
                                 </button>
                             </li>
                             <li>
                                 <button class="sidebar-nav-btn role-nav-btn" data-view="admin" data-admin-section="fleetRadarSection" id="sideBtnFleetRadar">
-                                    <span class="sidebar-nav-icon">🗺️</span>
+                                    <span class="sidebar-nav-icon"><svg class="svg-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="m16.24 7.76-2.12 6.36-6.36 2.12 2.12-6.36z"></path></svg></span>
                                     <span class="sidebar-nav-text" data-i18n="nav_admin_radar">Fleet GPS Radar</span>
                                 </button>
                             </li>
                             <li>
                                 <button class="sidebar-nav-btn role-nav-btn" data-view="admin" data-admin-section="fleetStaffManagementSection" id="sideBtnFleetStaff">
-                                    <span class="sidebar-nav-icon">🚛</span>
+                                    <span class="sidebar-nav-icon"><svg class="svg-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 18V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v11a1 1 0 0 0 1 1h2"></path><path d="M15 18H9"></path><path d="M19 18h2a1 1 0 0 0 1-1v-3.65a1 1 0 0 0-.22-.624l-3.48-4.35A1 1 0 0 0 17.52 8H14"></path><circle cx="17" cy="18" r="2"></circle><circle cx="7" cy="18" r="2"></circle></svg></span>
                                     <span class="sidebar-nav-text" data-i18n="nav_admin_fleet">Fleet & Staff Control</span>
                                 </button>
                             </li>
                             <li>
                                 <button class="sidebar-nav-btn role-nav-btn" data-view="admin" data-admin-section="creditRiskSection" id="sideBtnCreditRisk">
-                                    <span class="sidebar-nav-icon">💳</span>
+                                    <span class="sidebar-nav-icon"><svg class="svg-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="14" x="2" y="5" rx="2"></rect><line x1="2" x2="22" y1="10" y2="10"></line></svg></span>
                                     <span class="sidebar-nav-text" data-i18n="nav_admin_credit">Credit & Shop Risk</span>
                                 </button>
                             </li>
                             <li>
                                 <button class="sidebar-nav-btn role-nav-btn" data-view="admin" data-admin-section="auditLogsSection" id="sideBtnAudit">
-                                    <span class="sidebar-nav-icon">🔒</span>
+                                    <span class="sidebar-nav-icon"><svg class="svg-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path><path d="M12 11v4"></path><circle cx="12" cy="9" r="1"></circle></svg></span>
                                     <span class="sidebar-nav-text" data-i18n="nav_audit">Activity Logs</span>
                                 </button>
                             </li>
@@ -159,7 +159,7 @@
                     <div class="sidebar-module-group active" id="moduleGroupDistribution">
                         <button type="button" class="sidebar-module-btn" id="btnDistributionModule" onclick="App.toggleDistributionModule()" title="Toggle Distribution Operations Suite">
                             <div class="module-btn-left">
-                                <span class="module-icon">🚚</span>
+                                <span class="module-icon"><svg class="svg-icon" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="3" width="15" height="13" rx="1"></rect><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon><circle cx="5.5" cy="18.5" r="2.5"></circle><circle cx="18.5" cy="18.5" r="2.5"></circle></svg></span>
                                 <div class="module-title-box">
                                     <span class="module-title" data-i18n="nav_distribution">Distribution</span>
                                     <span class="module-sub-tag" data-i18n="nav_distribution_sub">Field Fleet & Sales</span>
@@ -172,52 +172,52 @@
                             @if(Auth::user()->isAdmin())
                                 <li>
                                     <button class="sidebar-nav-btn role-nav-btn" data-view="sales_rep" id="sideBtnRep">
-                                        <span class="sidebar-nav-icon">📱</span>
+                                        <span class="sidebar-nav-icon"><svg class="svg-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="20" x="5" y="2" rx="2" ry="2"></rect><path d="M12 18h.01"></path></svg></span>
                                         <span class="sidebar-nav-text" data-i18n="nav_rep">Sales Rep Order Wizard</span>
                                     </button>
                                 </li>
                                 <li>
                                     <button class="sidebar-nav-btn role-nav-btn" data-view="driver" id="sideBtnDriver">
-                                        <span class="sidebar-nav-icon">🚚</span>
+                                        <span class="sidebar-nav-icon"><svg class="svg-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="3" width="15" height="13" rx="1"></rect><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon><circle cx="5.5" cy="18.5" r="2.5"></circle><circle cx="18.5" cy="18.5" r="2.5"></circle></svg></span>
                                         <span class="sidebar-nav-text" data-i18n="nav_driver">Driver Mobile Manifest</span>
                                     </button>
                                 </li>
                                 <li>
                                     <button class="sidebar-nav-btn role-nav-btn" data-view="settlement" id="sideBtnSettlement">
-                                        <span class="sidebar-nav-icon">🧾</span>
+                                        <span class="sidebar-nav-icon"><svg class="svg-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 2v20l2-1 2 1 2-1 2 1 2-1 2 1 2-1 2 1V2l-2 1-2-1-2 1-2-1-2 1-2-1-2 1Z"></path><path d="M16 8h-8"></path><path d="M16 12h-8"></path><path d="M12 16h-4"></path></svg></span>
                                         <span class="sidebar-nav-text" data-i18n="nav_settlement">Day Settlement Hub</span>
                                     </button>
                                 </li>
                                 <li>
                                     <button class="sidebar-nav-btn role-nav-btn" data-view="reports" id="sideBtnReports">
-                                        <span class="sidebar-nav-icon">📊</span>
+                                        <span class="sidebar-nav-icon"><svg class="svg-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" x2="12" y1="20" y2="10"></line><line x1="18" x2="18" y1="20" y2="4"></line><line x1="6" x2="6" y1="20" y2="16"></line></svg></span>
                                         <span class="sidebar-nav-text" data-i18n="nav_reports">Distribution Reports</span>
                                     </button>
                                 </li>
                             @elseif(Auth::user()->isSalesRep())
                                 <li>
                                     <button class="sidebar-nav-btn role-nav-btn active" data-view="sales_rep" id="sideBtnRep">
-                                        <span class="sidebar-nav-icon">📱</span>
+                                        <span class="sidebar-nav-icon"><svg class="svg-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="20" x="5" y="2" rx="2" ry="2"></rect><path d="M12 18h.01"></path></svg></span>
                                         <span class="sidebar-nav-text" data-i18n="nav_rep">Sales Rep Order Wizard</span>
                                     </button>
                                 </li>
                             @elseif(Auth::user()->isDriver())
                                 <li>
                                     <button class="sidebar-nav-btn role-nav-btn active" data-view="driver" id="sideBtnDriver">
-                                        <span class="sidebar-nav-icon">🚚</span>
+                                        <span class="sidebar-nav-icon"><svg class="svg-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="3" width="15" height="13" rx="1"></rect><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon><circle cx="5.5" cy="18.5" r="2.5"></circle><circle cx="18.5" cy="18.5" r="2.5"></circle></svg></span>
                                         <span class="sidebar-nav-text" data-i18n="nav_driver">Driver Mobile Manifest</span>
                                     </button>
                                 </li>
                             @elseif(Auth::user()->isCashier())
                                 <li>
                                     <button class="sidebar-nav-btn role-nav-btn active" data-view="settlement" id="sideBtnSettlement">
-                                        <span class="sidebar-nav-icon">🧾</span>
+                                        <span class="sidebar-nav-icon"><svg class="svg-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 2v20l2-1 2 1 2-1 2 1 2-1 2 1 2-1 2 1V2l-2 1-2-1-2 1-2-1-2 1-2-1-2 1Z"></path><path d="M16 8h-8"></path><path d="M16 12h-8"></path><path d="M12 16h-4"></path></svg></span>
                                         <span class="sidebar-nav-text" data-i18n="nav_settlement">Day-End Settlement Hub</span>
                                     </button>
                                 </li>
                                 <li>
                                     <button class="sidebar-nav-btn role-nav-btn" data-view="reports" id="sideBtnReports">
-                                        <span class="sidebar-nav-icon">📊</span>
+                                        <span class="sidebar-nav-icon"><svg class="svg-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" x2="12" y1="20" y2="10"></line><line x1="18" x2="18" y1="20" y2="4"></line><line x1="6" x2="6" y1="20" y2="16"></line></svg></span>
                                         <span class="sidebar-nav-text" data-i18n="nav_reports">Reports</span>
                                     </button>
                                 </li>
@@ -254,15 +254,15 @@
                     </div>
                     <div class="sidebar-user-info">
                         <div class="sidebar-user-name" title="{{ Auth::user()->name }}">{{ Auth::user()->name }}</div>
-                        <div class="sidebar-user-role">
+                        <div class="sidebar-user-role" style="display:inline-flex; align-items:center; gap:4px;">
                             @if(Auth::user()->isAdmin())
-                                👑 Administrator
+                                <svg class="svg-icon" viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m2 4 3 12h14l3-12-6 7-4-7-4 7-6-7zm3 16h14"></path></svg> Administrator
                             @elseif(Auth::user()->isSalesRep())
-                                📱 Sales Representative
+                                <svg class="svg-icon" viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="20" x="5" y="2" rx="2" ry="2"></rect><path d="M12 18h.01"></path></svg> Sales Representative
                             @elseif(Auth::user()->isDriver())
-                                🚚 Fleet Driver
+                                <svg class="svg-icon" viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="3" width="15" height="13" rx="1"></rect><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon><circle cx="5.5" cy="18.5" r="2.5"></circle><circle cx="18.5" cy="18.5" r="2.5"></circle></svg> Fleet Driver
                             @elseif(Auth::user()->isCashier())
-                                🧾 Cashier / Auditor
+                                <svg class="svg-icon" viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 2v20l2-1 2 1 2-1 2 1 2-1 2 1 2-1 2 1V2l-2 1-2-1-2 1-2-1-2 1-2-1-2 1Z"></path><path d="M16 8h-8"></path><path d="M16 12h-8"></path><path d="M12 16h-4"></path></svg> Cashier / Auditor
                             @else
                                 {{ Auth::user()->role }}
                             @endif
@@ -272,8 +272,8 @@
 
                 <form method="POST" action="{{ route('logout') }}" style="margin-top: 8px;">
                     @csrf
-                    <button type="submit" class="btn btn-xs btn-outline btn-block" style="font-size:0.75rem; border-color: rgba(244,63,94,0.3); color: #f43f5e; padding: 6px;">
-                        🚪 Sign Out
+                    <button type="submit" class="btn btn-xs btn-outline btn-block" style="font-size:0.75rem; border-color: rgba(244,63,94,0.3); color: #f43f5e; padding: 6px; display:inline-flex; align-items:center; justify-content:center; gap:6px;">
+                        <svg class="svg-icon" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" x2="9" y1="12" y2="12"></line></svg> Sign Out
                     </button>
                 </form>
             </div>
@@ -300,7 +300,7 @@
                     <div class="sidebar-module-group active" id="drawerModuleGroupAdmin">
                         <button type="button" class="sidebar-module-btn" id="btnDrawerAdminModule" onclick="App.toggleAdminDrawerModule()" title="Toggle Office Admin Suite">
                             <div class="module-btn-left">
-                                <span class="module-icon">🏢</span>
+                                <span class="module-icon"><svg class="svg-icon" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="20" rx="2" ry="2"></rect><path d="M9 22v-4h6v4"></path><path d="M8 6h.01"></path><path d="M16 6h.01"></path><path d="M8 10h.01"></path><path d="M16 10h.01"></path><path d="M8 14h.01"></path><path d="M16 14h.01"></path></svg></span>
                                 <div class="module-title-box">
                                     <span class="module-title" data-i18n="nav_admin_suite">Office Admin</span>
                                     <span class="module-sub-tag" data-i18n="nav_admin_suite_sub">Central Command & Ops</span>
@@ -313,13 +313,13 @@
                         </button>
 
                         <ul class="sidebar-subnav-list" id="adminDrawerSubnav" role="navigation">
-                            <li><button class="sidebar-nav-btn role-nav-btn active" data-view="admin" data-admin-section="adminTopSection"><span class="sidebar-nav-icon">🖥️</span><span data-i18n="nav_admin_kpis">Command & KPIs</span></button></li>
-                            <li><button class="sidebar-nav-btn role-nav-btn" data-view="admin" data-admin-section="approvalCenterSection"><span class="sidebar-nav-icon">📋</span><span data-i18n="nav_admin_approvals">Approvals Center</span><span class="badge badge-warning ml-auto" id="drawerNavApprovalBadge" style="display:none; margin-left:auto; font-size:0.65rem; padding:2px 6px; border-radius:10px;">0</span></button></li>
-                            <li><button class="sidebar-nav-btn role-nav-btn" data-view="admin" data-admin-section="dailyDispatchesSection"><span class="sidebar-nav-icon">📦</span><span data-i18n="nav_admin_dispatches">Daily Dispatches</span></button></li>
-                            <li><button class="sidebar-nav-btn role-nav-btn" data-view="admin" data-admin-section="fleetRadarSection"><span class="sidebar-nav-icon">🗺️</span><span data-i18n="nav_admin_radar">Fleet GPS Radar</span></button></li>
-                            <li><button class="sidebar-nav-btn role-nav-btn" data-view="admin" data-admin-section="fleetStaffManagementSection"><span class="sidebar-nav-icon">🚛</span><span data-i18n="nav_admin_fleet">Fleet & Staff Control</span></button></li>
-                            <li><button class="sidebar-nav-btn role-nav-btn" data-view="admin" data-admin-section="creditRiskSection"><span class="sidebar-nav-icon">💳</span><span data-i18n="nav_admin_credit">Credit & Shop Risk</span></button></li>
-                            <li><button class="sidebar-nav-btn role-nav-btn" data-view="admin" data-admin-section="auditLogsSection"><span class="sidebar-nav-icon">🔒</span><span data-i18n="nav_audit">Activity Logs</span></button></li>
+                            <li><button class="sidebar-nav-btn role-nav-btn active" data-view="admin" data-admin-section="adminTopSection"><span class="sidebar-nav-icon"><svg class="svg-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"></rect><path d="M3 9h18"></path><path d="M9 21V9"></path></svg></span><span data-i18n="nav_admin_kpis">Command & KPIs</span></button></li>
+                            <li><button class="sidebar-nav-btn role-nav-btn" data-view="admin" data-admin-section="approvalCenterSection"><span class="sidebar-nav-icon"><svg class="svg-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect><path d="m9 14 2 2 4-4"></path></svg></span><span data-i18n="nav_admin_approvals">Approvals Center</span><span class="badge badge-warning ml-auto" id="drawerNavApprovalBadge" style="display:none; margin-left:auto; font-size:0.65rem; padding:2px 6px; border-radius:10px;">0</span></button></li>
+                            <li><button class="sidebar-nav-btn role-nav-btn" data-view="admin" data-admin-section="dailyDispatchesSection"><span class="sidebar-nav-icon"><svg class="svg-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m7.5 4.27 9 5.15"></path><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"></path><path d="m3.3 7 8.7 5 8.7-5"></path><path d="M12 22V12"></path></svg></span><span data-i18n="nav_admin_dispatches">Daily Dispatches</span></button></li>
+                            <li><button class="sidebar-nav-btn role-nav-btn" data-view="admin" data-admin-section="fleetRadarSection"><span class="sidebar-nav-icon"><svg class="svg-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="m16.24 7.76-2.12 6.36-6.36 2.12 2.12-6.36z"></path></svg></span><span data-i18n="nav_admin_radar">Fleet GPS Radar</span></button></li>
+                            <li><button class="sidebar-nav-btn role-nav-btn" data-view="admin" data-admin-section="fleetStaffManagementSection"><span class="sidebar-nav-icon"><svg class="svg-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 18V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v11a1 1 0 0 0 1 1h2"></path><path d="M15 18H9"></path><path d="M19 18h2a1 1 0 0 0 1-1v-3.65a1 1 0 0 0-.22-.624l-3.48-4.35A1 1 0 0 0 17.52 8H14"></path><circle cx="17" cy="18" r="2"></circle><circle cx="7" cy="18" r="2"></circle></svg></span><span data-i18n="nav_admin_fleet">Fleet & Staff Control</span></button></li>
+                            <li><button class="sidebar-nav-btn role-nav-btn" data-view="admin" data-admin-section="creditRiskSection"><span class="sidebar-nav-icon"><svg class="svg-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="14" x="2" y="5" rx="2"></rect><line x1="2" x2="22" y1="10" y2="10"></line></svg></span><span data-i18n="nav_admin_credit">Credit & Shop Risk</span></button></li>
+                            <li><button class="sidebar-nav-btn role-nav-btn" data-view="admin" data-admin-section="auditLogsSection"><span class="sidebar-nav-icon"><svg class="svg-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path><path d="M12 11v4"></path><circle cx="12" cy="9" r="1"></circle></svg></span><span data-i18n="nav_audit">Activity Logs</span></button></li>
                         </ul>
                     </div>
                     @endif
@@ -328,7 +328,7 @@
                     <div class="sidebar-module-group active" id="drawerModuleGroupDistribution">
                         <button type="button" class="sidebar-module-btn" id="btnDrawerDistributionModule" onclick="App.toggleDistributionDrawerModule()" title="Toggle Distribution Suite">
                             <div class="module-btn-left">
-                                <span class="module-icon">🚚</span>
+                                <span class="module-icon"><svg class="svg-icon" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="3" width="15" height="13" rx="1"></rect><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon><circle cx="5.5" cy="18.5" r="2.5"></circle><circle cx="18.5" cy="18.5" r="2.5"></circle></svg></span>
                                 <div class="module-title-box">
                                     <span class="module-title" data-i18n="nav_distribution">Distribution</span>
                                     <span class="module-sub-tag" data-i18n="nav_distribution_sub">Field Fleet & Sales</span>
@@ -339,17 +339,17 @@
 
                         <ul class="sidebar-subnav-list" id="distributionDrawerSubnav" role="navigation">
                             @if(Auth::user()->isAdmin())
-                                <li><button class="sidebar-nav-btn role-nav-btn" data-view="sales_rep"><span class="sidebar-nav-icon">📱</span><span data-i18n="nav_rep">Sales Rep Order Wizard</span></button></li>
-                                <li><button class="sidebar-nav-btn role-nav-btn" data-view="driver"><span class="sidebar-nav-icon">🚚</span><span data-i18n="nav_driver">Driver Mobile Manifest</span></button></li>
-                                <li><button class="sidebar-nav-btn role-nav-btn" data-view="settlement"><span class="sidebar-nav-icon">🧾</span><span data-i18n="nav_settlement">Day Settlement Hub</span></button></li>
-                                <li><button class="sidebar-nav-btn role-nav-btn" data-view="reports"><span class="sidebar-nav-icon">📊</span><span data-i18n="nav_reports">Distribution Reports</span></button></li>
+                                <li><button class="sidebar-nav-btn role-nav-btn" data-view="sales_rep"><span class="sidebar-nav-icon"><svg class="svg-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="20" x="5" y="2" rx="2" ry="2"></rect><path d="M12 18h.01"></path></svg></span><span data-i18n="nav_rep">Sales Rep Order Wizard</span></button></li>
+                                <li><button class="sidebar-nav-btn role-nav-btn" data-view="driver"><span class="sidebar-nav-icon"><svg class="svg-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="3" width="15" height="13" rx="1"></rect><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon><circle cx="5.5" cy="18.5" r="2.5"></circle><circle cx="18.5" cy="18.5" r="2.5"></circle></svg></span><span data-i18n="nav_driver">Driver Mobile Manifest</span></button></li>
+                                <li><button class="sidebar-nav-btn role-nav-btn" data-view="settlement"><span class="sidebar-nav-icon"><svg class="svg-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 2v20l2-1 2 1 2-1 2 1 2-1 2 1 2-1 2 1V2l-2 1-2-1-2 1-2-1-2 1-2-1-2 1Z"></path><path d="M16 8h-8"></path><path d="M16 12h-8"></path><path d="M12 16h-4"></path></svg></span><span data-i18n="nav_settlement">Day Settlement Hub</span></button></li>
+                                <li><button class="sidebar-nav-btn role-nav-btn" data-view="reports"><span class="sidebar-nav-icon"><svg class="svg-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="20" x2="12" y2="10"></line><line x1="18" y1="20" x2="18" y2="4"></line><line x1="6" y1="20" x2="6" y2="16"></line></svg></span><span data-i18n="nav_reports">Distribution Reports</span></button></li>
                             @elseif(Auth::user()->isSalesRep())
-                                <li><button class="sidebar-nav-btn role-nav-btn active" data-view="sales_rep"><span class="sidebar-nav-icon">📱</span><span data-i18n="nav_rep">Sales Rep Order Wizard</span></button></li>
+                                <li><button class="sidebar-nav-btn role-nav-btn active" data-view="sales_rep"><span class="sidebar-nav-icon"><svg class="svg-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="20" x="5" y="2" rx="2" ry="2"></rect><path d="M12 18h.01"></path></svg></span><span data-i18n="nav_rep">Sales Rep Order Wizard</span></button></li>
                             @elseif(Auth::user()->isDriver())
-                                <li><button class="sidebar-nav-btn role-nav-btn active" data-view="driver"><span class="sidebar-nav-icon">🚚</span><span data-i18n="nav_driver">Driver Mobile Manifest</span></button></li>
+                                <li><button class="sidebar-nav-btn role-nav-btn active" data-view="driver"><span class="sidebar-nav-icon"><svg class="svg-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="3" width="15" height="13" rx="1"></rect><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon><circle cx="5.5" cy="18.5" r="2.5"></circle><circle cx="18.5" cy="18.5" r="2.5"></circle></svg></span><span data-i18n="nav_driver">Driver Mobile Manifest</span></button></li>
                             @elseif(Auth::user()->isCashier())
-                                <li><button class="sidebar-nav-btn role-nav-btn active" data-view="settlement"><span class="sidebar-nav-icon">🧾</span><span data-i18n="nav_settlement">Day-End Settlement Hub</span></button></li>
-                                <li><button class="sidebar-nav-btn role-nav-btn" data-view="reports"><span class="sidebar-nav-icon">📊</span><span data-i18n="nav_reports">Reports</span></button></li>
+                                <li><button class="sidebar-nav-btn role-nav-btn active" data-view="settlement"><span class="sidebar-nav-icon"><svg class="svg-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 2v20l2-1 2 1 2-1 2 1 2-1 2 1 2-1 2 1V2l-2 1-2-1-2 1-2-1-2 1-2-1-2 1Z"></path><path d="M16 8h-8"></path><path d="M16 12h-8"></path><path d="M12 16h-4"></path></svg></span><span data-i18n="nav_settlement">Day-End Settlement Hub</span></button></li>
+                                <li><button class="sidebar-nav-btn role-nav-btn" data-view="reports"><span class="sidebar-nav-icon"><svg class="svg-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="20" x2="12" y2="10"></line><line x1="18" y1="20" x2="18" y2="4"></line><line x1="6" y1="20" x2="6" y2="16"></line></svg></span><span data-i18n="nav_reports">Reports</span></button></li>
                             @endif
                         </ul>
                     </div>
@@ -360,8 +360,8 @@
                 <div style="font-size:0.75rem; color:var(--text-muted); margin-bottom:8px;">{{ Auth::user()->getRoleDisplayName() }}</div>
                 <form method="POST" action="{{ route('logout') }}">
                     @csrf
-                    <button type="submit" class="btn btn-xs btn-outline btn-block" style="border-color: rgba(244,63,94,0.3); color: #f43f5e; padding: 6px;">
-                        🚪 Sign Out
+                    <button type="submit" class="btn btn-xs btn-outline btn-block" style="border-color: rgba(244,63,94,0.3); color: #f43f5e; padding: 6px; display:inline-flex; align-items:center; justify-content:center; gap:6px;">
+                        <svg class="svg-icon" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" x2="9" y1="12" y2="12"></line></svg> Sign Out
                     </button>
                 </form>
             </div>
@@ -388,7 +388,10 @@
                     <div class="breadcrumb-trail">
                         <span class="breadcrumb-root">PulseERP</span>
                         <span class="breadcrumb-sep">/</span>
-                        <span class="breadcrumb-root" id="currentModuleBreadcrumb" style="color:var(--accent-lime); font-weight:700;">🏢 Office Admin</span>
+                        <span class="breadcrumb-root" id="currentModuleBreadcrumb" style="color:var(--accent-lime); font-weight:700; display:inline-flex; align-items:center; gap:5px;">
+                            <svg class="svg-icon" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="20" rx="2" ry="2"></rect><path d="M9 22v-4h6v4"></path></svg>
+                            <span>Office Admin</span>
+                        </span>
                         <span class="breadcrumb-sep">/</span>
                         <span class="breadcrumb-current" id="currentViewBreadcrumb">Command & KPIs</span>
                     </div>
@@ -398,27 +401,29 @@
                 <div class="header-actions-group">
                     <!-- Global SOS Emergency Pulsing Pill (Auto-displays when an SOS is active) -->
                     <button id="globalSosHeaderBadge" type="button" class="btn btn-xs btn-sos animate-pulse" style="display:none; align-items:center; gap:6px; cursor:pointer; font-weight:800; border-radius:20px; padding:6px 14px; background:linear-gradient(135deg, #ef4444, #dc2626); color:#fff; border:1px solid #fca5a5; box-shadow:0 0 14px rgba(239, 68, 68, 0.6); font-size:0.8rem;" onclick="App.switchView('admin'); setTimeout(() => AdminDashboard.scrollToSection('adminSosSection'), 250);" title="View Critical SOS Breakdown Incident">
-                        🚨 <span id="globalSosCountText">1 Active SOS</span>
+                        <svg class="svg-icon" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+                        <span id="globalSosCountText">1 Active SOS</span>
                     </button>
 
                     <!-- User Role Pill -->
-                    <div class="status-pill online" style="display:none; @media(min-width:640px){display:inline-flex;}">
+                    <div class="status-pill online" style="display:none; @media(min-width:640px){display:inline-flex; align-items:center; gap:5px;}">
                         @if(Auth::user()->isAdmin())
-                            👑 <span>Admin</span>
+                            <svg class="svg-icon" viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m2 4 3 12h14l3-12-6 7-4-7-4 7-6-7zm3 16h14"></path></svg> <span>Admin</span>
                         @elseif(Auth::user()->isSalesRep())
-                            📱 <span>Sales Rep</span>
+                            <svg class="svg-icon" viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="20" x="5" y="2" rx="2" ry="2"></rect><path d="M12 18h.01"></path></svg> <span>Sales Rep</span>
                         @elseif(Auth::user()->isDriver())
-                            🚚 <span>Driver</span>
+                            <svg class="svg-icon" viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="3" width="15" height="13" rx="1"></rect><polygon points="16 8 20 8 23 11 23 16 16 16 8"></polygon><circle cx="5.5" cy="18.5" r="2.5"></circle><circle cx="18.5" cy="18.5" r="2.5"></circle></svg> <span>Driver</span>
                         @elseif(Auth::user()->isCashier())
-                            🧾 <span>Cashier</span>
+                            <svg class="svg-icon" viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 2v20l2-1 2 1 2-1 2 1 2-1 2 1 2-1 2 1V2l-2 1-2-1-2 1-2-1-2 1-2-1-2 1Z"></path><path d="M16 8h-8"></path><path d="M16 12h-8"></path><path d="M12 16h-4"></path></svg> <span>Cashier</span>
                         @else
                             <span>{{ Auth::user()->name }}</span>
                         @endif
                     </div>
 
                     <!-- Online/Offline Sync Status -->
-                    <span class="status-pill online" id="networkStatusBadge">
-                        📶 Online
+                    <span class="status-pill online" id="networkStatusBadge" style="display:inline-flex; align-items:center; gap:5px;">
+                        <svg class="svg-icon" viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.55a11 11 0 0 1 14.08 0"></path><path d="M1.42 9a16 16 0 0 1 21.16 0"></path><path d="M8.53 16.11a6 6 0 0 1 6.95 0"></path><line x1="12" y1="20" x2="12.01" y2="20"></line></svg>
+                        <span>Online</span>
                     </span>
                     <span class="status-pill queue-pill" id="offlineSyncBadge" onclick="OfflineStorage.syncQueue()" title="Pending orders waiting for cellular sync">
                         0 Queued
@@ -426,7 +431,9 @@
 
                     <!-- Trilingual Language Selector -->
                     <div class="lang-select-box" title="භාෂාව තෝරන්න / Change Language">
-                        <span class="lang-icon-prefix">🌐</span>
+                        <span class="lang-icon-prefix" style="display:inline-flex; align-items:center;">
+                            <svg class="svg-icon" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="2" x2="22" y1="12" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>
+                        </span>
                         <select id="langSelectDropdown" class="lang-dropdown" onchange="I18n.setLanguage(this.value)" aria-label="Select Language">
                             <option value="si" selected>සිංහල</option>
                             <option value="en">English</option>
@@ -436,7 +443,9 @@
 
                     <!-- Dark / Light Theme Toggle Button -->
                     <button type="button" class="theme-toggle-btn" id="btnThemeToggle" onclick="ThemeManager.toggleTheme()" title="Toggle Light/Dark Theme" aria-label="Toggle Theme">
-                        <span id="themeIcon">☀️</span>
+                        <span id="themeIcon" style="display:inline-flex; align-items:center;">
+                            <svg class="svg-icon" viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
+                        </span>
                     </button>
                 </div>
             </header>
@@ -559,6 +568,7 @@
     </script>
 
     <!-- Application Client Scripts -->
+    <script defer src="/js/appIcons.js?v=1.0"></script>
     <script defer src="/js/i18n.js?v=3.8"></script>
     <script defer src="/js/theme.js?v=3.0"></script>
     <script defer src="/js/securityClient.js?v=3.0"></script>

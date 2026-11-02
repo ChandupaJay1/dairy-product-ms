@@ -1267,4 +1267,143 @@ input[type="search"]::-webkit-search-results-decoration {
     cursor: not-allowed !important;
 }
 
+/* ========================================================
+   9. CRISP VECTOR SVG ICONS (LUCIDE / TAILWIND DESIGN SYSTEM)
+   ======================================================== */
+.svg-icon {
+    display: inline-block;
+    vertical-align: middle;
+    flex-shrink: 0;
+    transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), stroke 0.2s ease, filter 0.2s ease;
+}
+
+.sidebar-nav-icon {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: 24px !important;
+    height: 24px !important;
+    flex-shrink: 0 !important;
+    color: var(--text-muted, #94a3b8);
+    transition: all 0.2s ease;
+}
+
+.sidebar-nav-icon svg,
+.sidebar-nav-icon .svg-icon {
+    width: 18px;
+    height: 18px;
+    stroke: currentColor;
+    stroke-width: 2;
+}
+
+.sidebar-nav-btn:hover .sidebar-nav-icon,
+.sidebar-nav-btn.active .sidebar-nav-icon {
+    color: var(--accent-lime, #a3e635) !important;
+}
+
+.sidebar-nav-btn:hover .sidebar-nav-icon svg,
+.sidebar-nav-btn.active .sidebar-nav-icon svg {
+    transform: scale(1.12);
+    filter: drop-shadow(0 0 6px rgba(163, 230, 53, 0.4));
+}
+
+.module-icon {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: 28px !important;
+    height: 28px !important;
+    flex-shrink: 0 !important;
+}
+
+.module-icon svg,
+.module-icon .svg-icon {
+    width: 22px;
+    height: 22px;
+    stroke-width: 2;
+}
+
+#moduleGroupAdmin .module-icon svg,
+#drawerModuleGroupAdmin .module-icon svg {
+    stroke: var(--accent-lime, #a3e635);
+    filter: drop-shadow(0 0 8px rgba(163, 230, 53, 0.45));
+}
+
+#moduleGroupDistribution .module-icon svg,
+#drawerModuleGroupDistribution .module-icon svg {
+    stroke: var(--accent-cyan, #06b6d4);
+    filter: drop-shadow(0 0 8px rgba(6, 182, 212, 0.45));
+}
+
+/* KPI Cards SVG Icons with Vibrancy */
+.kpi-icon {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    transition: transform 0.25s ease;
+}
+
+.kpi-card:hover .kpi-icon {
+    transform: scale(1.08);
+}
+
+.kpi-icon svg,
+.kpi-icon .svg-icon {
+    width: 24px;
+    height: 24px;
+    stroke-width: 2;
+}
+
+.card-glow-cyan .kpi-icon svg {
+    stroke: #06b6d4;
+    filter: drop-shadow(0 0 8px rgba(6, 182, 212, 0.5));
+}
+
+.card-glow-emerald .kpi-icon svg {
+    stroke: #10b981;
+    filter: drop-shadow(0 0 8px rgba(16, 185, 129, 0.5));
+}
+
+.card-glow-amber .kpi-icon svg {
+    stroke: #f59e0b;
+    filter: drop-shadow(0 0 8px rgba(245, 158, 11, 0.5));
+}
+
+.card-glow-rose .kpi-icon svg {
+    stroke: #f43f5e;
+    filter: drop-shadow(0 0 8px rgba(244, 63, 94, 0.5));
+}
+
+.card-glow-indigo .kpi-icon svg {
+    stroke: #818cf8;
+    filter: drop-shadow(0 0 8px rgba(129, 140, 248, 0.5));
+}
+
+/* Approval Tab SVG Icons */
+.approval-tab-btn .svg-icon,
+.approval-tab-btn svg {
+    margin-right: 6px;
+    vertical-align: middle;
+}
+
+/* Quick Nav Matrix */
+.btn-matrix-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: var(--accent-lime, #a3e635);
+    flex-shrink: 0;
+}
+
+.btn-matrix-icon svg {
+    width: 20px;
+    height: 20px;
+}
+
+
 

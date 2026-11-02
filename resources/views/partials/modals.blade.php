@@ -92,7 +92,10 @@
 <div class="modal-overlay" id="transferHandshakeModal">
     <div class="modal-content-box" style="max-width: 680px; max-height: 90vh; overflow-y: auto;">
         <div class="modal-header">
-            <h3 data-i18n="handshake_modal_title">🤝 Field Stock Rescue Handshake</h3>
+            <h3 data-i18n="handshake_modal_title" style="display:inline-flex; align-items:center; gap:8px;">
+                <svg class="svg-icon" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m11 17 2 2a1 1 0 0 0 1.42 0l6.17-6.17a3 3 0 0 0 0-4.24l-.88-.88a3 3 0 0 0-4.24 0L13.1 10.1"></path><path d="m13 14 2-2"></path><path d="M10.9 9.9 8.53 7.53a3 3 0 0 0-4.24 0l-.88.88a3 3 0 0 0 0 4.24L9.58 18.8a1 1 0 0 0 1.42 0l2-2"></path></svg>
+                <span>Field Stock Rescue Handshake</span>
+            </h3>
             <button class="modal-close-btn" onclick="App.closeTransferHandshakeModal()">&times;</button>
         </div>
         <div class="modal-body">
@@ -172,8 +175,9 @@
             <input type="hidden" id="transferTotalCups" value="0">
             <input type="hidden" id="transferSpoiledCups" value="0">
 
-            <button id="handshakeConfirmBtn" class="btn btn-success btn-block mt-3 font-bold" onclick="App.submitTransferHandshake()" data-i18n="btn_confirm_handshake">
-                ✅ Confirm Handshake & Transfer Manifest Stock
+            <button id="handshakeConfirmBtn" class="btn btn-success btn-block mt-3 font-bold" onclick="App.submitTransferHandshake()" data-i18n="btn_confirm_handshake" style="display:inline-flex; align-items:center; justify-content:center; gap:8px;">
+                <svg class="svg-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+                <span>Confirm Handshake & Transfer Manifest Stock</span>
             </button>
         </div>
     </div>
@@ -184,7 +188,9 @@
     <div class="modal-content-box credit-modal-box">
         <div class="modal-header">
             <div style="display:flex; align-items:center; gap:8px;">
-                <span style="font-size:1.2rem;">📝</span>
+                <span style="color:var(--accent-lime); display:inline-flex; align-items:center;">
+                    <svg class="svg-icon" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="14" x="2" y="5" rx="2"></rect><line x1="2" x2="22" y1="10" y2="10"></line></svg>
+                </span>
                 <div>
                     <h3 data-i18n="credit_modal_title" style="margin:0; font-size:1.05rem;">Credit Sale Legal Binding</h3>
                     <p style="margin:0; font-size:0.72rem; color:var(--text-muted);">Verified Shopkeeper Authorization</p>

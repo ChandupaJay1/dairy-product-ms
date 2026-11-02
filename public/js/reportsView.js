@@ -108,32 +108,41 @@ const ReportsView = (() => {
                 <!-- Header Banner -->
                 <div class="report-header-banner">
                     <div class="report-title-area">
-                        <h2>${I18n.t('reports_title', '📊 Financial Analytics & Reports')}</h2>
+                        <h2 style="display:inline-flex; align-items:center; gap:8px;">
+                            <span style="color:var(--accent-lime);">${window.AppIcons ? AppIcons.get('bar-chart', {size:22}) : ''}</span>
+                            <span>${I18n.t('reports_title', 'Financial Analytics & Reports')}</span>
+                        </h2>
                         <p>${I18n.t('reports_subtitle', 'Polonnaruwa Sector • Operations Intelligence & Profitability')}</p>
                     </div>
                     <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
-                        <button class="btn-report-action" onclick="ReportsView.forceRefresh()" title="Clear cache & reload live data">
-                            🔄 ${I18n.t('btn_refresh_data', 'Refresh Data')}
+                        <button class="btn-report-action" onclick="ReportsView.forceRefresh()" title="Clear cache & reload live data" style="display:inline-flex; align-items:center; gap:6px;">
+                            ${window.AppIcons ? AppIcons.get('refresh', {size:14}) : ''}
+                            <span>${I18n.t('btn_refresh_data', 'Refresh Data')}</span>
                         </button>
-                        <button class="btn-report-action" onclick="ReportsView.exportReportPdf()">
-                            ${I18n.t('btn_print_pdf', '🖨️ Export PDF')}
+                        <button class="btn-report-action" onclick="ReportsView.exportReportPdf()" style="display:inline-flex; align-items:center; gap:6px;">
+                            ${window.AppIcons ? AppIcons.get('printer', {size:15}) : ''}
+                            <span>${I18n.t('btn_print_pdf', 'Export PDF')}</span>
                         </button>
                     </div>
                 </div>
 
                 <!-- Sub-Tabs Navigation (Segmented Minimal Pill Buttons) -->
                 <div class="report-subnav">
-                    <button type="button" class="btn report-tab-btn ${activeSubTab === 'routes' ? 'active' : ''}" onclick="ReportsView.switchSubTab('routes')">
-                        ${I18n.t('tab_route_profit', '🛣️ Route Profit')}
+                    <button type="button" class="btn report-tab-btn ${activeSubTab === 'routes' ? 'active' : ''}" onclick="ReportsView.switchSubTab('routes')" style="display:inline-flex; align-items:center; gap:6px;">
+                        ${window.AppIcons ? AppIcons.get('transit-truck', {size:15}) : ''}
+                        <span>${I18n.t('tab_route_profit', 'Route Profit')}</span>
                     </button>
-                    <button type="button" class="btn report-tab-btn ${activeSubTab === 'flavors' ? 'active' : ''}" onclick="ReportsView.switchSubTab('flavors')">
-                        ${I18n.t('tab_flavor_trends', '🍦 Flavor Trends')}
+                    <button type="button" class="btn report-tab-btn ${activeSubTab === 'flavors' ? 'active' : ''}" onclick="ReportsView.switchSubTab('flavors')" style="display:inline-flex; align-items:center; gap:6px;">
+                        ${window.AppIcons ? AppIcons.get('milk', {size:15}) : ''}
+                        <span>${I18n.t('tab_flavor_trends', 'Flavor Trends')}</span>
                     </button>
-                    <button type="button" class="btn report-tab-btn ${activeSubTab === 'statement' ? 'active' : ''}" onclick="ReportsView.switchSubTab('statement')">
-                        ${I18n.t('tab_shop_statement', '🏪 Shop Statement')}
+                    <button type="button" class="btn report-tab-btn ${activeSubTab === 'statement' ? 'active' : ''}" onclick="ReportsView.switchSubTab('statement')" style="display:inline-flex; align-items:center; gap:6px;">
+                        ${window.AppIcons ? AppIcons.get('store', {size:15}) : ''}
+                        <span>${I18n.t('tab_shop_statement', 'Shop Statement')}</span>
                     </button>
-                    <button type="button" class="btn report-tab-btn ${activeSubTab === 'commissions' ? 'active' : ''}" onclick="ReportsView.switchSubTab('commissions')">
-                        ${I18n.t('tab_rep_commissions', '🏆 Rep Commissions')}
+                    <button type="button" class="btn report-tab-btn ${activeSubTab === 'commissions' ? 'active' : ''}" onclick="ReportsView.switchSubTab('commissions')" style="display:inline-flex; align-items:center; gap:6px;">
+                        ${window.AppIcons ? AppIcons.get('coins', {size:15}) : ''}
+                        <span>${I18n.t('tab_rep_commissions', 'Rep Commissions')}</span>
                     </button>
                 </div>
 
@@ -488,11 +497,11 @@ const ReportsView = (() => {
                                 </option>
                             `).join('')}
                         </select>
-                        <button class="btn-report-action" onclick="ReportsView.openStatementModal()">
-                            <span>📋</span> <span>View Modal Slip</span>
+                        <button class="btn-report-action" onclick="ReportsView.openStatementModal()" style="display:inline-flex; align-items:center; gap:6px;">
+                            <span>${window.AppIcons ? AppIcons.get('clipboard-list', {size:15}) : ''}</span> <span>View Modal Slip</span>
                         </button>
-                        <button class="btn btn-primary btn-sm font-bold" onclick="ReportsView.printStatementSlip()">
-                            <span>🖨️</span> <span>Print Official Statement</span>
+                        <button class="btn btn-primary btn-sm font-bold" onclick="ReportsView.printStatementSlip()" style="display:inline-flex; align-items:center; gap:6px;">
+                            <span>${window.AppIcons ? AppIcons.get('printer', {size:15}) : ''}</span> <span>Print Official Statement</span>
                         </button>
                     </div>
                 </div>

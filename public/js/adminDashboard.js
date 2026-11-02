@@ -165,20 +165,26 @@ const AdminDashboard = (() => {
                 <div class="admin-process-section ${activeAdminSection === 'adminTopSection' ? 'active' : ''}" id="adminSec-adminTopSection">
                     <div class="admin-top-banner" id="adminTopSection">
                         <div>
-                            <h2>${I18n.t('admin_central_command', '🏢 Front Office Central Command (Polonnaruwa Region)')}</h2>
+                            <h2 style="display:inline-flex; align-items:center; gap:8px;">
+                                <span style="color:var(--accent-lime);">${window.AppIcons ? AppIcons.get('building', {size:22}) : ''}</span>
+                                <span>${I18n.t('admin_central_command', 'Front Office Central Command (Polonnaruwa Region)')}</span>
+                            </h2>
                             <p class="text-sm text-eyecare-sub">
                                 ${I18n.t('admin_op_hours', 'Operational Hours: 06:00 - 18:00 • Cold Chain Telemetry: All Hubs Optimal')}
                             </p>
                         </div>
                         <div class="banner-actions">
-                            <button class="btn btn-sm btn-outline font-bold" onclick="AdminDashboard.refreshData()" id="adminRefreshBtn" title="Refresh Live Fleet & Dashboard Data">
-                                🔄 ${I18n.t('btn_refresh_admin', 'Refresh Data')}
+                            <button class="btn btn-sm btn-outline font-bold" onclick="AdminDashboard.refreshData()" id="adminRefreshBtn" title="Refresh Live Fleet & Dashboard Data" style="display:inline-flex; align-items:center; gap:6px;">
+                                ${window.AppIcons ? AppIcons.get('refresh', {size:14}) : ''}
+                                <span>${I18n.t('btn_refresh_admin', 'Refresh Data')}</span>
                             </button>
-                            <button class="btn btn-sm btn-primary" onclick="AdminDashboard.openNewDispatchModal()">
-                                ${I18n.t('btn_new_dispatch', '+ New Morning Load Dispatch')}
+                            <button class="btn btn-sm btn-primary font-bold" onclick="AdminDashboard.openNewDispatchModal()" style="display:inline-flex; align-items:center; gap:6px;">
+                                ${window.AppIcons ? AppIcons.get('plus-circle', {size:15}) : ''}
+                                <span>${I18n.t('btn_new_dispatch', 'New Morning Load Dispatch')}</span>
                             </button>
-                            <button class="btn btn-sm btn-secondary" onclick="AdminDashboard.openRotationModal()">
-                                ${I18n.t('btn_rotate_fleet_top', '🔄 Rotate Fleet & Drivers')}
+                            <button class="btn btn-sm btn-secondary font-bold" onclick="AdminDashboard.openRotationModal()" style="display:inline-flex; align-items:center; gap:6px;">
+                                ${window.AppIcons ? AppIcons.get('users-truck', {size:15}) : ''}
+                                <span>${I18n.t('btn_rotate_fleet_top', 'Rotate Fleet & Drivers')}</span>
                             </button>
                         </div>
                     </div>
@@ -186,7 +192,7 @@ const AdminDashboard = (() => {
                     <!-- Key Operational Performance Metrics (KPIs) -->
                     <div class="kpi-grid mt-4">
                         <div class="kpi-card card-glow-cyan" onclick="AdminDashboard.switchAdminSection('dailyDispatchesSection')" style="cursor: pointer;" title="Open Daily Dispatches">
-                            <div class="kpi-icon">🥛</div>
+                            <div class="kpi-icon">${window.AppIcons ? AppIcons.get('milk', {size:24}) : '🥛'}</div>
                             <div class="kpi-data">
                                 <span class="kpi-label">${I18n.t('kpi_morning_dispatched', 'Morning Dispatched')}</span>
                                 <span class="kpi-val">${dashboardStats ? dashboardStats.totalLoadedToday.toLocaleString() : '1,500'}</span>
@@ -195,7 +201,7 @@ const AdminDashboard = (() => {
                         </div>
 
                         <div class="kpi-card card-glow-emerald" onclick="AdminDashboard.switchAdminSection('dailyDispatchesSection')" style="cursor: pointer;" title="Open Dispatches & Sales">
-                            <div class="kpi-icon">✅</div>
+                            <div class="kpi-icon">${window.AppIcons ? AppIcons.get('check-circle', {size:24}) : '✅'}</div>
                             <div class="kpi-data">
                                 <span class="kpi-label">${I18n.t('kpi_delivered_sold', 'Cups Delivered & Sold')}</span>
                                 <span class="kpi-val text-success">${dashboardStats ? dashboardStats.totalSoldToday.toLocaleString() : '180'}</span>
@@ -204,7 +210,7 @@ const AdminDashboard = (() => {
                         </div>
 
                         <div class="kpi-card card-glow-amber" onclick="AdminDashboard.switchAdminSection('fleetRadarSection')" style="cursor: pointer;" title="Open Fleet GPS Radar">
-                            <div class="kpi-icon">🚚</div>
+                            <div class="kpi-icon">${window.AppIcons ? AppIcons.get('transit-truck', {size:24}) : '🚚'}</div>
                             <div class="kpi-data">
                                 <span class="kpi-label">${I18n.t('kpi_remaining_fleet', 'Remaining On Fleet')}</span>
                                 <span class="kpi-val text-warning">${dashboardStats ? dashboardStats.totalRemainingToday.toLocaleString() : '1,320'}</span>
@@ -213,7 +219,7 @@ const AdminDashboard = (() => {
                         </div>
 
                         <div class="kpi-card card-glow-rose" onclick="AdminDashboard.switchAdminSection('fleetRadarSection')" style="cursor: pointer;" title="Open Incident Radar">
-                            <div class="kpi-icon">🚨</div>
+                            <div class="kpi-icon">${window.AppIcons ? AppIcons.get('siren', {size:24}) : '🚨'}</div>
                             <div class="kpi-data">
                                 <span class="kpi-label">${I18n.t('kpi_sos_incidents', 'Active SOS Incidents')}</span>
                                 <span class="kpi-val ${sosAlerts.length > 0 ? 'text-danger font-bold' : ''}">
@@ -224,7 +230,7 @@ const AdminDashboard = (() => {
                         </div>
 
                         <div class="kpi-card card-glow-indigo" onclick="AdminDashboard.switchAdminSection('creditRiskSection')" style="cursor: pointer;" title="Open Credit & Shop Risk">
-                            <div class="kpi-icon">💰</div>
+                            <div class="kpi-icon">${window.AppIcons ? AppIcons.get('coins', {size:24}) : '💰'}</div>
                             <div class="kpi-data">
                                 <span class="kpi-label">${I18n.t('kpi_credit_exposure', 'Total Credit Exposure')}</span>
                                 <span class="kpi-val text-info">
@@ -235,7 +241,7 @@ const AdminDashboard = (() => {
                         </div>
 
                         <div class="kpi-card ${pendingApprovals.total_pending > 0 ? 'card-glow-amber' : ''}" onclick="AdminDashboard.switchAdminSection('approvalCenterSection')" style="cursor: pointer;" title="Open Approvals Center">
-                            <div class="kpi-icon">📋</div>
+                            <div class="kpi-icon">${window.AppIcons ? AppIcons.get('clipboard-list', {size:24}) : '📋'}</div>
                             <div class="kpi-data">
                                 <span class="kpi-label">${I18n.t('kpi_pending_approvals', 'Front Office Approvals')}</span>
                                 <span class="kpi-val ${pendingApprovals.total_pending > 0 ? 'text-warning font-bold' : ''}">
@@ -249,47 +255,50 @@ const AdminDashboard = (() => {
                     <!-- Quick Navigation Process Matrix -->
                     <div class="card eyecare-card mt-4" style="background: rgba(15, 23, 42, 0.45); border: 1px solid rgba(255,255,255,0.08);">
                         <div class="card-header flex-between" style="padding: 1rem 1.25rem;">
-                            <h3 style="font-size:1rem; font-weight:700; margin:0;">⚡ ${I18n.t('admin_quick_nav', 'Quick Process Navigation')}</h3>
+                            <h3 style="font-size:1rem; font-weight:700; margin:0; display:inline-flex; align-items:center; gap:8px;">
+                                <span style="color:var(--accent-lime);">${window.AppIcons ? AppIcons.get('zap', {size:18}) : '⚡'}</span>
+                                <span>${I18n.t('admin_quick_nav', 'Quick Process Navigation')}</span>
+                            </h3>
                             <span class="badge badge-outline text-xs">All Systems Operational</span>
                         </div>
                         <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; padding: 1.25rem;">
-                            <button type="button" class="btn btn-outline" style="justify-content: flex-start; gap: 10px; padding: 12px;" onclick="AdminDashboard.switchAdminSection('approvalCenterSection')">
-                                <span style="font-size:1.25rem;">📋</span>
+                            <button type="button" class="btn btn-outline" style="justify-content: flex-start; gap: 12px; padding: 12px;" onclick="AdminDashboard.switchAdminSection('approvalCenterSection')">
+                                <div class="btn-matrix-icon">${window.AppIcons ? AppIcons.get('clipboard-check', {size:20}) : '📋'}</div>
                                 <div style="text-align:left;">
                                     <div style="font-weight:700; font-size:0.85rem;">Approvals Center</div>
                                     <div style="font-size:0.75rem; color:var(--text-muted);">${pendingApprovals.total_pending || 0} Pending Actions</div>
                                 </div>
                             </button>
-                            <button type="button" class="btn btn-outline" style="justify-content: flex-start; gap: 10px; padding: 12px;" onclick="AdminDashboard.switchAdminSection('dailyDispatchesSection')">
-                                <span style="font-size:1.25rem;">📦</span>
+                            <button type="button" class="btn btn-outline" style="justify-content: flex-start; gap: 12px; padding: 12px;" onclick="AdminDashboard.switchAdminSection('dailyDispatchesSection')">
+                                <div class="btn-matrix-icon">${window.AppIcons ? AppIcons.get('package', {size:20}) : '📦'}</div>
                                 <div style="text-align:left;">
                                     <div style="font-weight:700; font-size:0.85rem;">Daily Dispatches</div>
                                     <div style="font-size:0.75rem; color:var(--text-muted);">${activeDispatches.length} Manifests Today</div>
                                 </div>
                             </button>
-                            <button type="button" class="btn btn-outline" style="justify-content: flex-start; gap: 10px; padding: 12px;" onclick="AdminDashboard.switchAdminSection('fleetRadarSection')">
-                                <span style="font-size:1.25rem;">🗺️</span>
+                            <button type="button" class="btn btn-outline" style="justify-content: flex-start; gap: 12px; padding: 12px;" onclick="AdminDashboard.switchAdminSection('fleetRadarSection')">
+                                <div class="btn-matrix-icon">${window.AppIcons ? AppIcons.get('radar', {size:20}) : '🗺️'}</div>
                                 <div style="text-align:left;">
                                     <div style="font-weight:700; font-size:0.85rem;">Fleet GPS Radar</div>
                                     <div style="font-size:0.75rem; color:var(--text-muted);">Real-time Telemetry</div>
                                 </div>
                             </button>
-                            <button type="button" class="btn btn-outline" style="justify-content: flex-start; gap: 10px; padding: 12px;" onclick="AdminDashboard.switchAdminSection('fleetStaffManagementSection')">
-                                <span style="font-size:1.25rem;">🚛</span>
+                            <button type="button" class="btn btn-outline" style="justify-content: flex-start; gap: 12px; padding: 12px;" onclick="AdminDashboard.switchAdminSection('fleetStaffManagementSection')">
+                                <div class="btn-matrix-icon">${window.AppIcons ? AppIcons.get('users-truck', {size:20}) : '🚛'}</div>
                                 <div style="text-align:left;">
                                     <div style="font-weight:700; font-size:0.85rem;">Fleet & Staff Control</div>
                                     <div style="font-size:0.75rem; color:var(--text-muted);">Vehicles, Drivers, Reps</div>
                                 </div>
                             </button>
-                            <button type="button" class="btn btn-outline" style="justify-content: flex-start; gap: 10px; padding: 12px;" onclick="AdminDashboard.switchAdminSection('creditRiskSection')">
-                                <span style="font-size:1.25rem;">💳</span>
+                            <button type="button" class="btn btn-outline" style="justify-content: flex-start; gap: 12px; padding: 12px;" onclick="AdminDashboard.switchAdminSection('creditRiskSection')">
+                                <div class="btn-matrix-icon">${window.AppIcons ? AppIcons.get('credit-card', {size:20}) : '💳'}</div>
                                 <div style="text-align:left;">
                                     <div style="font-weight:700; font-size:0.85rem;">Credit & Shop Risk</div>
                                     <div style="font-size:0.75rem; color:var(--text-muted);">${shopsList.length} Registered Shops</div>
                                 </div>
                             </button>
-                            <button type="button" class="btn btn-outline" style="justify-content: flex-start; gap: 10px; padding: 12px;" onclick="AdminDashboard.switchAdminSection('auditLogsSection')">
-                                <span style="font-size:1.25rem;">🔒</span>
+                            <button type="button" class="btn btn-outline" style="justify-content: flex-start; gap: 12px; padding: 12px;" onclick="AdminDashboard.switchAdminSection('auditLogsSection')">
+                                <div class="btn-matrix-icon">${window.AppIcons ? AppIcons.get('shield-lock', {size:20}) : '🔒'}</div>
                                 <div style="text-align:left;">
                                     <div style="font-weight:700; font-size:0.85rem;">Activity Audit Trail</div>
                                     <div style="font-size:0.75rem; color:var(--text-muted);">${auditLogs.length} Events Logged</div>
@@ -693,7 +702,9 @@ const AdminDashboard = (() => {
             <div class="approval-center-card">
                 <div class="approval-center-header">
                     <div class="approval-center-title">
-                        <span style="font-size: 1.35rem;">🛡️</span>
+                        <div style="display:inline-flex; align-items:center; justify-content:center; width:34px; height:34px; border-radius:8px; background:rgba(16, 185, 129, 0.15); color:#10b981; flex-shrink:0;">
+                            ${window.AppIcons ? AppIcons.get('shield-check', {size:20}) : '🛡️'}
+                        </div>
                         <div>
                             <h3>${I18n.t('approval_center_title', 'Front Office Approval Center (Maker-Checker Protocol)')}</h3>
                             <div class="text-xs text-eyecare-sub">
@@ -710,27 +721,27 @@ const AdminDashboard = (() => {
 
                 <div class="approval-nav-tabs">
                     <button type="button" class="btn approval-tab-btn ${activeApprovalTab === 'payments' ? 'active' : ''}" onclick="AdminDashboard.switchApprovalTab('payments')">
-                        <span>💳</span>
+                        <span>${window.AppIcons ? AppIcons.get('credit-card', {size:15}) : '💳'}</span>
                         <span>${I18n.t('tab_pending_payments', 'Rep Cash Handover')}</span>
                         <span class="approval-tab-pill ${payments.length > 0 ? 'pill-alert' : ''}">${payments.length}</span>
                     </button>
                     <button type="button" class="btn approval-tab-btn ${activeApprovalTab === 'returns' ? 'active' : ''}" onclick="AdminDashboard.switchApprovalTab('returns')">
-                        <span>🥛</span>
+                        <span>${window.AppIcons ? AppIcons.get('milk', {size:15}) : '🥛'}</span>
                         <span>${I18n.t('tab_pending_returns', 'Returns & Expiry')}</span>
                         <span class="approval-tab-pill ${returns.length > 0 ? 'pill-alert' : ''}">${returns.length}</span>
                     </button>
                     <button type="button" class="btn approval-tab-btn ${activeApprovalTab === 'shops' ? 'active' : ''}" onclick="AdminDashboard.switchApprovalTab('shops')">
-                        <span>🏪</span>
+                        <span>${window.AppIcons ? AppIcons.get('store', {size:15}) : '🏪'}</span>
                         <span>${I18n.t('tab_pending_shops', 'New Shop Approvals')}</span>
                         <span class="approval-tab-pill ${shops.length > 0 ? 'pill-alert' : ''}">${shops.length}</span>
                     </button>
                     <button type="button" class="btn approval-tab-btn ${activeApprovalTab === 'orders' ? 'active' : ''}" onclick="AdminDashboard.switchApprovalTab('orders')">
-                        <span>📝</span>
+                        <span>${window.AppIcons ? AppIcons.get('file-invoice', {size:15}) : '📝'}</span>
                         <span>${I18n.t('tab_pending_orders', 'Credit Invoices')}</span>
                         <span class="approval-tab-pill ${orders.length > 0 ? 'pill-alert' : ''}">${orders.length}</span>
                     </button>
                     <button type="button" class="btn approval-tab-btn ${activeApprovalTab === 'settlements' ? 'active' : ''}" onclick="AdminDashboard.switchApprovalTab('settlements')">
-                        <span>🧾</span>
+                        <span>${window.AppIcons ? AppIcons.get('landmark', {size:15}) : '🧾'}</span>
                         <span>${I18n.t('tab_pending_settlements', 'Day Settlements')}</span>
                         <span class="approval-tab-pill ${settlements.length > 0 ? 'pill-alert' : ''}">${settlements.length}</span>
                     </button>

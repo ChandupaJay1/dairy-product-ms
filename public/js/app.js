@@ -238,11 +238,13 @@ const App = (() => {
         // Update module & view breadcrumb texts
         const moduleBreadcrumbEl = document.getElementById('currentModuleBreadcrumb');
         if (moduleBreadcrumbEl) {
-            if (viewName === 'admin' || viewName === 'audit') {
-                moduleBreadcrumbEl.textContent = '🏢 ' + I18n.t('nav_admin_suite', 'Office Admin');
-            } else {
-                moduleBreadcrumbEl.textContent = '🚚 ' + I18n.t('nav_distribution', 'Distribution');
-            }
+            const iconSvg = (viewName === 'admin' || viewName === 'audit')
+                ? (window.AppIcons ? AppIcons.get('building', {size: 14}) : '')
+                : (window.AppIcons ? AppIcons.get('truck', {size: 14}) : '');
+            const titleText = (viewName === 'admin' || viewName === 'audit')
+                ? I18n.t('nav_admin_suite', 'Office Admin')
+                : I18n.t('nav_distribution', 'Distribution');
+            moduleBreadcrumbEl.innerHTML = `<span style="display:inline-flex; align-items:center; gap:5px;">${iconSvg}<span>${titleText}</span></span>`;
         }
 
         const breadcrumbEl = document.getElementById('currentViewBreadcrumb');
@@ -306,7 +308,9 @@ const App = (() => {
 
         const moduleBreadcrumbEl = document.getElementById('currentModuleBreadcrumb');
         if (moduleBreadcrumbEl) {
-            moduleBreadcrumbEl.textContent = '🏢 ' + I18n.t('nav_admin_suite', 'Office Admin');
+            const iconSvg = window.AppIcons ? AppIcons.get('building', {size: 14}) : '';
+            const titleText = I18n.t('nav_admin_suite', 'Office Admin');
+            moduleBreadcrumbEl.innerHTML = `<span style="display:inline-flex; align-items:center; gap:5px;">${iconSvg}<span>${titleText}</span></span>`;
         }
 
         const breadcrumbEl = document.getElementById('currentViewBreadcrumb');

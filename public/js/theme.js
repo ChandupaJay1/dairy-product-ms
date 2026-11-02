@@ -43,7 +43,13 @@ const ThemeManager = (() => {
         const lang = window.I18n ? I18n.getLanguage() : 'si';
 
         if (isDark) {
-            if (icon) icon.textContent = '☀️';
+            if (icon) {
+                if (window.AppIcons) {
+                    icon.innerHTML = AppIcons.get('sun', { size: 15 });
+                } else {
+                    icon.textContent = '☀️';
+                }
+            }
             if (label) {
                 const labels = {
                     en: 'Day Mode',
@@ -57,14 +63,20 @@ const ThemeManager = (() => {
             }
             if (showToastNotification && window.SecurityClient) {
                 const toasts = {
-                    en: '🌙 Switched to Dark Theme (PulseERP)',
-                    si: '🌙 Dark Mode සක්‍රීය විය (PulseERP Theme)',
-                    ta: '🌙 இருண்ட முறைக்கு மாற்றப்பட்டது'
+                    en: 'Switched to Dark Theme (PulseERP)',
+                    si: 'Dark Mode සක්‍රීය විය (PulseERP Theme)',
+                    ta: 'இருண்ட முறைக்கு மாற்றப்பட்டது'
                 };
                 SecurityClient.showToast(toasts[lang] || toasts.en, 'info', 2500);
             }
         } else {
-            if (icon) icon.textContent = '🌙';
+            if (icon) {
+                if (window.AppIcons) {
+                    icon.innerHTML = AppIcons.get('moon', { size: 15 });
+                } else {
+                    icon.textContent = '🌙';
+                }
+            }
             if (label) {
                 const labels = {
                     en: 'Night Mode',
@@ -78,9 +90,9 @@ const ThemeManager = (() => {
             }
             if (showToastNotification && window.SecurityClient) {
                 const toasts = {
-                    en: '☀️ Switched to Light Theme (Slate-50)',
-                    si: '☀️ Light Mode සක්‍රීය විය (Slate-50)',
-                    ta: '☀️ ஒளி முறைக்கு மாற்றப்பட்டது'
+                    en: 'Switched to Light Theme (Slate-50)',
+                    si: 'Light Mode සක්‍රීය විය (Slate-50)',
+                    ta: 'ஒளி முறைக்கு மாற்றப்பட்டது'
                 };
                 SecurityClient.showToast(toasts[lang] || toasts.en, 'info', 2500);
             }
