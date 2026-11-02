@@ -156,7 +156,7 @@ const AdminDashboard = (() => {
         container.innerHTML = `
             <div class="admin-eyecare-shell">
                 <!-- Top Eye-Care Status Banner -->
-                <div class="admin-top-banner">
+                <div class="admin-top-banner" id="adminTopSection">
                     <div>
                         <h2>${I18n.t('admin_central_command', '🏢 Front Office Central Command (Polonnaruwa Region)')}</h2>
                         <p class="text-sm text-eyecare-sub">
@@ -437,7 +437,7 @@ const AdminDashboard = (() => {
                 </div>
 
                 <!-- System Activity & Audit Trail -->
-                <div class="card eyecare-card mt-4">
+                <div class="card eyecare-card mt-4" id="auditLogsSection">
                     <div class="card-header flex-between">
                         <h3>${I18n.t('audit_trail_title', '🔒 System Activity & Audit Trail')}</h3>
                         <div style="display:flex; align-items:center; gap:8px;">
@@ -506,6 +506,7 @@ const AdminDashboard = (() => {
                 </div>
             `;
         }
+        updateNavApprovalBadges();
     }
 
     function renderSosAlertBanners() {
@@ -599,6 +600,30 @@ const AdminDashboard = (() => {
         const elementPosition = el.getBoundingClientRect().top;
         const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
         window.scrollTo({ top: offsetPosition, behavior: 'smooth' });
+        highlightSection(id);
+    }
+
+    function highlightSection(id) {
+        const el = document.getElementById(id);
+        if (!el) return;
+        el.classList.remove('section-pulse-highlight');
+        void el.offsetWidth;
+        el.classList.add('section-pulse-highlight');
+        setTimeout(() => el.classList.remove('section-pulse-highlight'), 3000);
+    }
+
+    function updateNavApprovalBadges() {
+        const total = (pendingApprovals && pendingApprovals.total_pending) || 0;
+        const sideBadge = document.getElementById('sideNavApprovalBadge');
+        const drawerBadge = document.getElementById('drawerNavApprovalBadge');
+        if (sideBadge) {
+            sideBadge.style.display = total > 0 ? 'inline-block' : 'none';
+            sideBadge.textContent = total;
+        }
+        if (drawerBadge) {
+            drawerBadge.style.display = total > 0 ? 'inline-block' : 'none';
+            drawerBadge.textContent = total;
+        }
     }
 
     function switchApprovalTab(tab) {
@@ -3306,6 +3331,8 @@ const AdminDashboard = (() => {
         closeManifestDetailsModal,
         printManifest,
         scrollToSection,
+        highlightSection,
+        updateNavApprovalBadges,
         switchApprovalTab,
         approvePayment,
         rejectPayment,

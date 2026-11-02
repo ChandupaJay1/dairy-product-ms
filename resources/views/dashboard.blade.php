@@ -90,14 +90,79 @@
                 <div class="sidebar-nav-section">
                     <p class="sidebar-section-title" data-i18n="nav_modules_title">Enterprise Modules</p>
 
-                    <!-- Main Distribution Module Parent Group -->
+                    <!-- 1. Main Office Admin Module Parent Group (Admin Only) -->
+                    @if(Auth::user()->isAdmin())
+                    <div class="sidebar-module-group active" id="moduleGroupAdmin">
+                        <button type="button" class="sidebar-module-btn" id="btnAdminModule" onclick="App.toggleAdminModule()" title="Toggle Office Admin Operations">
+                            <div class="module-btn-left">
+                                <span class="module-icon">🏢</span>
+                                <div class="module-title-box">
+                                    <span class="module-title" data-i18n="nav_admin_suite">Office Admin</span>
+                                    <span class="module-sub-tag" data-i18n="nav_admin_suite_sub">Central Command & Ops</span>
+                                </div>
+                            </div>
+                            <div style="display:flex; align-items:center; gap:6px;">
+                                <span class="badge badge-danger" id="adminNavSosBadge" style="display:none; font-size:0.65rem; padding:2px 6px; border-radius:10px; background:#ef4444; color:#fff; font-weight:800;">1</span>
+                                <span class="module-chevron" id="adminChevron">▾</span>
+                            </div>
+                        </button>
+
+                        <ul class="sidebar-subnav-list" id="adminSubnav" role="navigation">
+                            <li>
+                                <button class="sidebar-nav-btn role-nav-btn active" data-view="admin" data-admin-section="adminTopSection" id="sideBtnAdminOverview">
+                                    <span class="sidebar-nav-icon">🖥️</span>
+                                    <span class="sidebar-nav-text" data-i18n="nav_admin_kpis">Command & KPIs</span>
+                                </button>
+                            </li>
+                            <li>
+                                <button class="sidebar-nav-btn role-nav-btn" data-view="admin" data-admin-section="approvalCenterSection" id="sideBtnApprovals">
+                                    <span class="sidebar-nav-icon">📋</span>
+                                    <span class="sidebar-nav-text" data-i18n="nav_admin_approvals">Approvals Center</span>
+                                    <span class="badge badge-warning ml-auto" id="sideNavApprovalBadge" style="display:none; margin-left:auto; font-size:0.65rem; padding:2px 6px; border-radius:10px;">0</span>
+                                </button>
+                            </li>
+                            <li>
+                                <button class="sidebar-nav-btn role-nav-btn" data-view="admin" data-admin-section="dailyDispatchesSection" id="sideBtnDispatches">
+                                    <span class="sidebar-nav-icon">📦</span>
+                                    <span class="sidebar-nav-text" data-i18n="nav_admin_dispatches">Daily Dispatches</span>
+                                </button>
+                            </li>
+                            <li>
+                                <button class="sidebar-nav-btn role-nav-btn" data-view="admin" data-admin-section="fleetRadarSection" id="sideBtnFleetRadar">
+                                    <span class="sidebar-nav-icon">🗺️</span>
+                                    <span class="sidebar-nav-text" data-i18n="nav_admin_radar">Fleet GPS Radar</span>
+                                </button>
+                            </li>
+                            <li>
+                                <button class="sidebar-nav-btn role-nav-btn" data-view="admin" data-admin-section="fleetStaffManagementSection" id="sideBtnFleetStaff">
+                                    <span class="sidebar-nav-icon">🚛</span>
+                                    <span class="sidebar-nav-text" data-i18n="nav_admin_fleet">Fleet & Staff Control</span>
+                                </button>
+                            </li>
+                            <li>
+                                <button class="sidebar-nav-btn role-nav-btn" data-view="admin" data-admin-section="creditRiskSection" id="sideBtnCreditRisk">
+                                    <span class="sidebar-nav-icon">💳</span>
+                                    <span class="sidebar-nav-text" data-i18n="nav_admin_credit">Credit & Shop Risk</span>
+                                </button>
+                            </li>
+                            <li>
+                                <button class="sidebar-nav-btn role-nav-btn" data-view="audit" id="sideBtnAudit">
+                                    <span class="sidebar-nav-icon">🔒</span>
+                                    <span class="sidebar-nav-text" data-i18n="nav_audit">Activity Logs</span>
+                                </button>
+                            </li>
+                        </ul>
+                    </div>
+                    @endif
+
+                    <!-- 2. Main Distribution Module Parent Group -->
                     <div class="sidebar-module-group active" id="moduleGroupDistribution">
                         <button type="button" class="sidebar-module-btn" id="btnDistributionModule" onclick="App.toggleDistributionModule()" title="Toggle Distribution Operations Suite">
                             <div class="module-btn-left">
                                 <span class="module-icon">🚚</span>
                                 <div class="module-title-box">
                                     <span class="module-title" data-i18n="nav_distribution">Distribution</span>
-                                    <span class="module-sub-tag" data-i18n="nav_distribution_sub">Fleet & Sales Operations</span>
+                                    <span class="module-sub-tag" data-i18n="nav_distribution_sub">Field Fleet & Sales</span>
                                 </div>
                             </div>
                             <span class="module-chevron" id="distChevron">▾</span>
@@ -106,40 +171,27 @@
                         <ul class="sidebar-subnav-list" id="distributionSubnav" role="navigation">
                             @if(Auth::user()->isAdmin())
                                 <li>
-                                    <button class="sidebar-nav-btn role-nav-btn active" data-view="admin" id="sideBtnAdmin">
-                                        <span class="sidebar-nav-icon">🖥️</span>
-                                        <span class="sidebar-nav-text" data-i18n="nav_admin">Office Admin</span>
-                                        <span class="badge badge-danger ml-auto" id="adminNavSosBadge" style="display:none; margin-left:auto; font-size:0.7rem; padding:2px 7px; border-radius:10px; background:#ef4444; color:#fff; font-weight:800;">1</span>
-                                    </button>
-                                </li>
-                                <li>
                                     <button class="sidebar-nav-btn role-nav-btn" data-view="sales_rep" id="sideBtnRep">
                                         <span class="sidebar-nav-icon">📱</span>
-                                        <span class="sidebar-nav-text" data-i18n="nav_rep">Sales Rep</span>
+                                        <span class="sidebar-nav-text" data-i18n="nav_rep">Sales Rep Order Wizard</span>
                                     </button>
                                 </li>
                                 <li>
                                     <button class="sidebar-nav-btn role-nav-btn" data-view="driver" id="sideBtnDriver">
                                         <span class="sidebar-nav-icon">🚚</span>
-                                        <span class="sidebar-nav-text" data-i18n="nav_driver">Driver Mobile</span>
+                                        <span class="sidebar-nav-text" data-i18n="nav_driver">Driver Mobile Manifest</span>
                                     </button>
                                 </li>
                                 <li>
                                     <button class="sidebar-nav-btn role-nav-btn" data-view="settlement" id="sideBtnSettlement">
                                         <span class="sidebar-nav-icon">🧾</span>
-                                        <span class="sidebar-nav-text" data-i18n="nav_settlement">Day Settlement</span>
+                                        <span class="sidebar-nav-text" data-i18n="nav_settlement">Day Settlement Hub</span>
                                     </button>
                                 </li>
                                 <li>
                                     <button class="sidebar-nav-btn role-nav-btn" data-view="reports" id="sideBtnReports">
                                         <span class="sidebar-nav-icon">📊</span>
-                                        <span class="sidebar-nav-text" data-i18n="nav_reports">Reports</span>
-                                    </button>
-                                </li>
-                                <li>
-                                    <button class="sidebar-nav-btn role-nav-btn" data-view="audit" id="sideBtnAudit">
-                                        <span class="sidebar-nav-icon">🔒</span>
-                                        <span class="sidebar-nav-text" data-i18n="nav_audit">Activity Logs</span>
+                                        <span class="sidebar-nav-text" data-i18n="nav_reports">Distribution Reports</span>
                                     </button>
                                 </li>
                             @elseif(Auth::user()->isSalesRep())
@@ -243,14 +295,43 @@
                 <div class="sidebar-nav-section" style="margin-top:0.75rem; padding: 0 0.5rem;">
                     <p class="sidebar-section-title" data-i18n="nav_modules_title">Enterprise Modules</p>
 
-                    <!-- Main Distribution Module Group for Mobile Drawer -->
+                    <!-- 1. Office Admin Module Group for Mobile Drawer (Admin Only) -->
+                    @if(Auth::user()->isAdmin())
+                    <div class="sidebar-module-group active" id="drawerModuleGroupAdmin">
+                        <button type="button" class="sidebar-module-btn" id="btnDrawerAdminModule" onclick="App.toggleAdminDrawerModule()" title="Toggle Office Admin Suite">
+                            <div class="module-btn-left">
+                                <span class="module-icon">🏢</span>
+                                <div class="module-title-box">
+                                    <span class="module-title" data-i18n="nav_admin_suite">Office Admin</span>
+                                    <span class="module-sub-tag" data-i18n="nav_admin_suite_sub">Central Command & Ops</span>
+                                </div>
+                            </div>
+                            <div style="display:flex; align-items:center; gap:6px;">
+                                <span class="badge badge-danger" id="drawerNavSosBadge" style="display:none; font-size:0.65rem; padding:2px 6px; border-radius:10px; background:#ef4444; color:#fff; font-weight:800;">1</span>
+                                <span class="module-chevron" id="drawerAdminChevron">▾</span>
+                            </div>
+                        </button>
+
+                        <ul class="sidebar-subnav-list" id="adminDrawerSubnav" role="navigation">
+                            <li><button class="sidebar-nav-btn role-nav-btn active" data-view="admin" data-admin-section="adminTopSection"><span class="sidebar-nav-icon">🖥️</span><span data-i18n="nav_admin_kpis">Command & KPIs</span></button></li>
+                            <li><button class="sidebar-nav-btn role-nav-btn" data-view="admin" data-admin-section="approvalCenterSection"><span class="sidebar-nav-icon">📋</span><span data-i18n="nav_admin_approvals">Approvals Center</span><span class="badge badge-warning ml-auto" id="drawerNavApprovalBadge" style="display:none; margin-left:auto; font-size:0.65rem; padding:2px 6px; border-radius:10px;">0</span></button></li>
+                            <li><button class="sidebar-nav-btn role-nav-btn" data-view="admin" data-admin-section="dailyDispatchesSection"><span class="sidebar-nav-icon">📦</span><span data-i18n="nav_admin_dispatches">Daily Dispatches</span></button></li>
+                            <li><button class="sidebar-nav-btn role-nav-btn" data-view="admin" data-admin-section="fleetRadarSection"><span class="sidebar-nav-icon">🗺️</span><span data-i18n="nav_admin_radar">Fleet GPS Radar</span></button></li>
+                            <li><button class="sidebar-nav-btn role-nav-btn" data-view="admin" data-admin-section="fleetStaffManagementSection"><span class="sidebar-nav-icon">🚛</span><span data-i18n="nav_admin_fleet">Fleet & Staff Control</span></button></li>
+                            <li><button class="sidebar-nav-btn role-nav-btn" data-view="admin" data-admin-section="creditRiskSection"><span class="sidebar-nav-icon">💳</span><span data-i18n="nav_admin_credit">Credit & Shop Risk</span></button></li>
+                            <li><button class="sidebar-nav-btn role-nav-btn" data-view="audit"><span class="sidebar-nav-icon">🔒</span><span data-i18n="nav_audit">Activity Logs</span></button></li>
+                        </ul>
+                    </div>
+                    @endif
+
+                    <!-- 2. Main Distribution Module Group for Mobile Drawer -->
                     <div class="sidebar-module-group active" id="drawerModuleGroupDistribution">
                         <button type="button" class="sidebar-module-btn" id="btnDrawerDistributionModule" onclick="App.toggleDistributionDrawerModule()" title="Toggle Distribution Suite">
                             <div class="module-btn-left">
                                 <span class="module-icon">🚚</span>
                                 <div class="module-title-box">
                                     <span class="module-title" data-i18n="nav_distribution">Distribution</span>
-                                    <span class="module-sub-tag" data-i18n="nav_distribution_sub">Fleet & Sales Operations</span>
+                                    <span class="module-sub-tag" data-i18n="nav_distribution_sub">Field Fleet & Sales</span>
                                 </div>
                             </div>
                             <span class="module-chevron" id="distDrawerChevron">▾</span>
@@ -258,18 +339,16 @@
 
                         <ul class="sidebar-subnav-list" id="distributionDrawerSubnav" role="navigation">
                             @if(Auth::user()->isAdmin())
-                                <li><button class="sidebar-nav-btn role-nav-btn active" data-view="admin"><span class="sidebar-nav-icon">🖥️</span><span data-i18n="nav_admin">Office Admin</span><span class="badge badge-danger ml-auto" id="drawerNavSosBadge" style="display:none; margin-left:auto; font-size:0.7rem; padding:2px 7px; border-radius:10px; background:#ef4444; color:#fff; font-weight:800;">1</span></button></li>
-                                <li><button class="sidebar-nav-btn role-nav-btn" data-view="sales_rep"><span class="sidebar-nav-icon">📱</span><span data-i18n="nav_rep">Sales Rep</span></button></li>
-                                <li><button class="sidebar-nav-btn role-nav-btn" data-view="driver"><span class="sidebar-nav-icon">🚚</span><span data-i18n="nav_driver">Driver Mobile</span></button></li>
-                                <li><button class="sidebar-nav-btn role-nav-btn" data-view="settlement"><span class="sidebar-nav-icon">🧾</span><span data-i18n="nav_settlement">Day Settlement</span></button></li>
-                                <li><button class="sidebar-nav-btn role-nav-btn" data-view="reports"><span class="sidebar-nav-icon">📊</span><span data-i18n="nav_reports">Reports</span></button></li>
-                                <li><button class="sidebar-nav-btn role-nav-btn" data-view="audit"><span class="sidebar-nav-icon">🔒</span><span data-i18n="nav_audit">Activity Logs</span></button></li>
+                                <li><button class="sidebar-nav-btn role-nav-btn" data-view="sales_rep"><span class="sidebar-nav-icon">📱</span><span data-i18n="nav_rep">Sales Rep Order Wizard</span></button></li>
+                                <li><button class="sidebar-nav-btn role-nav-btn" data-view="driver"><span class="sidebar-nav-icon">🚚</span><span data-i18n="nav_driver">Driver Mobile Manifest</span></button></li>
+                                <li><button class="sidebar-nav-btn role-nav-btn" data-view="settlement"><span class="sidebar-nav-icon">🧾</span><span data-i18n="nav_settlement">Day Settlement Hub</span></button></li>
+                                <li><button class="sidebar-nav-btn role-nav-btn" data-view="reports"><span class="sidebar-nav-icon">📊</span><span data-i18n="nav_reports">Distribution Reports</span></button></li>
                             @elseif(Auth::user()->isSalesRep())
-                                <li><button class="sidebar-nav-btn role-nav-btn active" data-view="sales_rep"><span class="sidebar-nav-icon">📱</span><span data-i18n="nav_rep">Sales Rep</span></button></li>
+                                <li><button class="sidebar-nav-btn role-nav-btn active" data-view="sales_rep"><span class="sidebar-nav-icon">📱</span><span data-i18n="nav_rep">Sales Rep Order Wizard</span></button></li>
                             @elseif(Auth::user()->isDriver())
-                                <li><button class="sidebar-nav-btn role-nav-btn active" data-view="driver"><span class="sidebar-nav-icon">🚚</span><span data-i18n="nav_driver">Driver Mobile</span></button></li>
+                                <li><button class="sidebar-nav-btn role-nav-btn active" data-view="driver"><span class="sidebar-nav-icon">🚚</span><span data-i18n="nav_driver">Driver Mobile Manifest</span></button></li>
                             @elseif(Auth::user()->isCashier())
-                                <li><button class="sidebar-nav-btn role-nav-btn active" data-view="settlement"><span class="sidebar-nav-icon">🧾</span><span data-i18n="nav_settlement">Day Settlement</span></button></li>
+                                <li><button class="sidebar-nav-btn role-nav-btn active" data-view="settlement"><span class="sidebar-nav-icon">🧾</span><span data-i18n="nav_settlement">Day-End Settlement Hub</span></button></li>
                                 <li><button class="sidebar-nav-btn role-nav-btn" data-view="reports"><span class="sidebar-nav-icon">📊</span><span data-i18n="nav_reports">Reports</span></button></li>
                             @endif
                         </ul>

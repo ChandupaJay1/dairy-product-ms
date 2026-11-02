@@ -117,7 +117,8 @@ const App = (() => {
         document.addEventListener('click', (e) => {
             const roleBtn = e.target.closest('.role-nav-btn');
             if (roleBtn && roleBtn.dataset.view) {
-                switchView(roleBtn.dataset.view);
+                const adminSection = roleBtn.dataset.adminSection || (roleBtn.dataset.view === 'admin' ? 'adminTopSection' : null);
+                switchView(roleBtn.dataset.view, adminSection);
             }
         });
 
@@ -160,7 +161,7 @@ const App = (() => {
         }
     }
 
-    function switchView(viewName) {
+    function switchView(viewName, targetAdminSection) {
         // Enforce role permission
         if (!isViewPermittedForUser(viewName)) {
             const fallback = getDefaultViewForRole();
@@ -179,23 +180,48 @@ const App = (() => {
         // Close mobile drawer on navigation
         toggleMobileDrawer(false);
 
-        // Ensure Distribution module accordion is expanded on active selection
-        const distGroup = document.getElementById('moduleGroupDistribution');
-        const distChevron = document.getElementById('distChevron');
-        if (distGroup && distGroup.classList.contains('collapsed')) {
-            distGroup.classList.remove('collapsed');
-            if (distChevron) distChevron.textContent = '▾';
+        // Manage module accordion expansion states
+        if (viewName === 'admin' || viewName === 'audit') {
+            const adminGroup = document.getElementById('moduleGroupAdmin');
+            const adminChevron = document.getElementById('adminChevron');
+            if (adminGroup && adminGroup.classList.contains('collapsed')) {
+                adminGroup.classList.remove('collapsed');
+                if (adminChevron) adminChevron.textContent = '▾';
+            }
+            const adminDrawerGroup = document.getElementById('drawerModuleGroupAdmin');
+            const adminDrawerChevron = document.getElementById('drawerAdminChevron');
+            if (adminDrawerGroup && adminDrawerGroup.classList.contains('collapsed')) {
+                adminDrawerGroup.classList.remove('collapsed');
+                if (adminDrawerChevron) adminDrawerChevron.textContent = '▾';
+            }
+        } else {
+            // Ensure Distribution module accordion is expanded on active selection
+            const distGroup = document.getElementById('moduleGroupDistribution');
+            const distChevron = document.getElementById('distChevron');
+            if (distGroup && distGroup.classList.contains('collapsed')) {
+                distGroup.classList.remove('collapsed');
+                if (distChevron) distChevron.textContent = '▾';
+            }
+            const distDrawerGroup = document.getElementById('drawerModuleGroupDistribution');
+            const distDrawerChevron = document.getElementById('distDrawerChevron');
+            if (distDrawerGroup && distDrawerGroup.classList.contains('collapsed')) {
+                distDrawerGroup.classList.remove('collapsed');
+                if (distDrawerChevron) distDrawerChevron.textContent = '▾';
+            }
         }
-        const distDrawerGroup = document.getElementById('drawerModuleGroupDistribution');
-        const distDrawerChevron = document.getElementById('distDrawerChevron');
-        if (distDrawerGroup && distDrawerGroup.classList.contains('collapsed')) {
-            distDrawerGroup.classList.remove('collapsed');
-            if (distDrawerChevron) distDrawerChevron.textContent = '▾';
-        }
+
+        // Active admin section resolution
+        const activeSection = targetAdminSection || (viewName === 'admin' ? 'adminTopSection' : null);
 
         // Update nav button active states across sidebar and drawer
         document.querySelectorAll('.role-nav-btn, .sidebar-nav-btn').forEach(btn => {
-            btn.classList.toggle('active', btn.dataset.view === viewName);
+            if (viewName === 'admin' && btn.dataset.adminSection) {
+                btn.classList.toggle('active', btn.dataset.adminSection === activeSection);
+            } else if (viewName === 'admin' && !btn.dataset.adminSection) {
+                btn.classList.toggle('active', btn.dataset.view === 'admin' && !activeSection);
+            } else {
+                btn.classList.toggle('active', btn.dataset.view === viewName);
+            }
         });
 
         // Hide all views
@@ -220,12 +246,33 @@ const App = (() => {
                 admin: I18n.t('nav_admin', 'Office Admin'),
                 audit: I18n.t('nav_audit', 'Activity Logs')
             };
-            breadcrumbEl.textContent = labels[viewName] || viewName;
+
+            const adminSubLabels = {
+                adminTopSection: I18n.t('nav_admin_kpis', 'Command & KPIs'),
+                approvalCenterSection: I18n.t('nav_admin_approvals', 'Approvals Center'),
+                dailyDispatchesSection: I18n.t('nav_admin_dispatches', 'Daily Dispatches'),
+                fleetRadarSection: I18n.t('nav_admin_radar', 'Fleet GPS Radar'),
+                fleetStaffManagementSection: I18n.t('nav_admin_fleet', 'Fleet & Staff Control'),
+                creditRiskSection: I18n.t('nav_admin_credit', 'Credit & Shop Risk')
+            };
+
+            if (viewName === 'admin' && activeSection && adminSubLabels[activeSection]) {
+                breadcrumbEl.textContent = `${labels.admin} › ${adminSubLabels[activeSection]}`;
+            } else {
+                breadcrumbEl.textContent = labels[viewName] || viewName;
+            }
         }
 
         // Load data for specific view
         if (viewName === 'admin') {
             AdminDashboard.loadAllAdminData();
+            if (activeSection) {
+                setTimeout(() => {
+                    if (window.AdminDashboard && typeof window.AdminDashboard.scrollToSection === 'function') {
+                        window.AdminDashboard.scrollToSection(activeSection);
+                    }
+                }, 160);
+            }
         } else if (viewName === 'driver') {
             DriverView.loadDriverData();
         } else if (viewName === 'sales_rep') {
@@ -236,6 +283,28 @@ const App = (() => {
             ReportsView.loadData();
         } else if (viewName === 'audit') {
             AdminDashboard.loadAllAdminData();
+        }
+    }
+
+    function toggleAdminModule() {
+        const group = document.getElementById('moduleGroupAdmin');
+        const chevron = document.getElementById('adminChevron');
+        if (group) {
+            group.classList.toggle('collapsed');
+            if (chevron) {
+                chevron.textContent = group.classList.contains('collapsed') ? '▸' : '▾';
+            }
+        }
+    }
+
+    function toggleAdminDrawerModule() {
+        const group = document.getElementById('drawerModuleGroupAdmin');
+        const chevron = document.getElementById('drawerAdminChevron');
+        if (group) {
+            group.classList.toggle('collapsed');
+            if (chevron) {
+                chevron.textContent = group.classList.contains('collapsed') ? '▸' : '▾';
+            }
         }
     }
 
@@ -793,6 +862,8 @@ const App = (() => {
         switchView,
         toggleMobileDrawer,
         toggleMobileFrame,
+        toggleAdminModule,
+        toggleAdminDrawerModule,
         toggleDistributionModule,
         toggleDistributionDrawerModule,
         playSirenAudio,

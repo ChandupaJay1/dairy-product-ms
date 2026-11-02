@@ -1730,6 +1730,25 @@ html:not(.dark) .sidebar-module-group.active .sidebar-module-btn {
     }
 }
 
+/* Section Focus & Highlight Glow for Side Nav Deep-Linking */
+.section-pulse-highlight {
+    animation: sectionPulseHighlight 2.5s ease-out forwards;
+}
+
+@keyframes sectionPulseHighlight {
+    0% {
+        box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.7), 0 0 25px rgba(16, 185, 129, 0.35);
+        border-color: #10b981 !important;
+    }
+    60% {
+        box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.4), 0 0 14px rgba(16, 185, 129, 0.2);
+        border-color: rgba(16, 185, 129, 0.5) !important;
+    }
+    100% {
+        box-shadow: none;
+    }
+}
+
 /* ========================================================
    15. ADMIN KPI TILES & DASHBOARD UTILITIES
    ======================================================== */
