@@ -32,9 +32,9 @@
         })();
     </script>
 
-    <!-- Figtree Typography -->
+    <!-- High-Legibility Premium Enterprise Typography (Plus Jakarta Sans, Inter & JetBrains Mono) -->
     <link rel="preconnect" href="https://fonts.bunny.net">
-    <link href="https://fonts.bunny.net/css?family=figtree:300,400,500,600,700,800,900&display=swap" rel="stylesheet" />
+    <link href="https://fonts.bunny.net/css?family=plus-jakarta-sans:300,400,500,600,700,800|jetbrains-mono:400,500,600,700,800|inter:400,500,600,700|figtree:400,500,600,700,800&display=swap" rel="stylesheet" />
 
     <!-- Application Stylesheets -->
     <link rel="stylesheet" href="/css/global.css?v=3.3">

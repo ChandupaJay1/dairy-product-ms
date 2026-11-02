@@ -1405,5 +1405,97 @@ input[type="search"]::-webkit-search-results-decoration {
     height: 20px;
 }
 
+/* ========================================================
+   10. HIGH-LEGIBILITY ENTERPRISE TYPOGRAPHY SYSTEM
+   ======================================================== */
+:root {
+    --font-sans: 'Plus Jakarta Sans', 'Inter', 'Figtree', 'Noto Sans Sinhala', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    --font-mono: 'JetBrains Mono', 'Fira Code', 'SF Mono', Consolas, 'Liberation Mono', Menlo, monospace;
+}
+
+body,
+button,
+input,
+select,
+textarea {
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+}
+
+/* Crisp Heading Scale with Optical Kerning */
+h1, h2, h3, h4, h5, h6,
+.modal-header h3,
+.card-title,
+.module-title,
+.report-title-area h2 {
+    font-family: var(--font-sans);
+    letter-spacing: -0.025em;
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+}
+
+/* Clean, Balanced Subtitles & Meta Tags */
+.card-subtitle,
+.text-eyecare-sub,
+.module-sub-tag,
+.report-title-area p {
+    font-family: var(--font-sans);
+    letter-spacing: -0.005em;
+    line-height: 1.45;
+}
+
+/* Precision Tabular Numbers for Metrics, Currency & Telemetry */
+.font-mono,
+.kpi-val,
+.report-summary-val,
+.metric-value-huge,
+.telemetry-val,
+.brand-sub-badge,
+.badge-mono,
+.disp-stat-val,
+.receipt-number,
+.slip-value,
+.report-tfoot-row td,
+.report-table td:nth-child(n+3),
+.report-table th:nth-child(n+3),
+.table td.font-mono,
+.table th.font-mono,
+#handshakeRiskCupsDisplay,
+#handshakeTotalRescuedDisplay,
+#handshakeTotalSpoiledDisplay,
+#handshakeTotalValueDisplay,
+#creditAmountDisplay {
+    font-family: var(--font-mono) !important;
+    font-feature-settings: "tnum" 1, "zero" 1;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.02em;
+}
+
+/* Enhanced Sinhala & Multilingual Readability */
+[lang="si"],
+body:has(#langSelectDropdown option[value="si"]:checked) {
+    line-height: 1.6;
+}
+
+/* High-Contrast Interactive Controls Typography */
+.btn,
+.sidebar-nav-btn,
+.approval-tab-btn,
+.report-tab-btn,
+.btn-report-action {
+    letter-spacing: -0.01em;
+    font-weight: 600;
+}
+
+.kpi-label,
+.report-summary-label {
+    letter-spacing: 0.05em;
+    font-weight: 700;
+    text-transform: uppercase;
+    font-size: 0.72rem;
+}
+
+
 
 
