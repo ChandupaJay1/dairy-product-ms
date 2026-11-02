@@ -714,7 +714,7 @@ const AdminDashboard = (() => {
                     </div>
                     <div>
                         <span class="approval-badge-count ${total === 0 ? 'approval-badge-zero' : ''}">
-                            ${total > 0 ? `${I18n.t('status_action_required', '⚠️ Action Required')}: ${total}` : I18n.t('status_all_verified', '✅ All Verified')}
+                            ${total > 0 ? `${I18n.t('status_action_required', 'Action Required')}: ${total}` : I18n.t('status_all_verified', 'All Verified')}
                         </span>
                     </div>
                 </div>

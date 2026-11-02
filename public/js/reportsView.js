@@ -183,14 +183,19 @@ const ReportsView = (() => {
         return `
             <div>
                 <div style="margin-bottom: 1.25rem;">
-                    <h3 style="font-size: 1.15rem; font-weight: 800; color: var(--text-heading); margin: 0;">🛣️ Route Profitability & Fleet Operational Economics</h3>
+                    <h3 style="font-size: 1.15rem; font-weight: 800; color: var(--text-heading); margin: 0; display:inline-flex; align-items:center; gap:8px;">
+                        <span style="color:var(--accent-lime);">${window.AppIcons ? AppIcons.get('transit-truck', {size:20}) : ''}</span>
+                        <span>Route Profitability & Fleet Operational Economics</span>
+                    </h3>
                     <p style="font-size: 0.78rem; color: var(--text-muted); margin: 3px 0 0;">Fuel Benchmark: Rs. 370.00/L &bull; Consumption: 4.2 km/L &bull; Crew Shift Allowance: Rs. 3,500.00 per truck</p>
                 </div>
 
                 <!-- Executive KPI Summary Bar -->
                 <div class="report-summary-kpis">
                     <div class="report-summary-card">
-                        <div class="report-summary-icon" style="background: rgba(16, 185, 129, 0.12); color: #10b981;">💰</div>
+                        <div class="report-summary-icon" style="background: rgba(16, 185, 129, 0.12); color: #10b981;">
+                            ${window.AppIcons ? AppIcons.get('coins', {size:20}) : ''}
+                        </div>
                         <div class="report-summary-data">
                             <span class="report-summary-label">Total Fleet Revenue</span>
                             <span class="report-summary-val" style="color: #10b981;">${SecurityClient.formatCurrency(totalRevenue)}</span>
@@ -198,7 +203,9 @@ const ReportsView = (() => {
                         </div>
                     </div>
                     <div class="report-summary-card">
-                        <div class="report-summary-icon" style="background: rgba(239, 68, 68, 0.12); color: #ef4444;">⛽</div>
+                        <div class="report-summary-icon" style="background: rgba(239, 68, 68, 0.12); color: #ef4444;">
+                            ${window.AppIcons ? AppIcons.get('fuel', {size:20}) : ''}
+                        </div>
                         <div class="report-summary-data">
                             <span class="report-summary-label">Total Diesel Fuel Cost</span>
                             <span class="report-summary-val" style="color: #ef4444;">${SecurityClient.formatCurrency(totalFuel)}</span>
@@ -206,7 +213,9 @@ const ReportsView = (() => {
                         </div>
                     </div>
                     <div class="report-summary-card">
-                        <div class="report-summary-icon" style="background: rgba(14, 165, 233, 0.12); color: #0ea5e9;">👥</div>
+                        <div class="report-summary-icon" style="background: rgba(14, 165, 233, 0.12); color: #0ea5e9;">
+                            ${window.AppIcons ? AppIcons.get('users', {size:20}) : ''}
+                        </div>
                         <div class="report-summary-data">
                             <span class="report-summary-label">Crew Shift Allowances</span>
                             <span class="report-summary-val" style="color: #0ea5e9;">${SecurityClient.formatCurrency(totalCrew)}</span>
@@ -214,7 +223,9 @@ const ReportsView = (() => {
                         </div>
                     </div>
                     <div class="report-summary-card">
-                        <div class="report-summary-icon" style="background: rgba(163, 230, 53, 0.12); color: #a3e635;">📈</div>
+                        <div class="report-summary-icon" style="background: rgba(163, 230, 53, 0.12); color: #a3e635;">
+                            ${window.AppIcons ? AppIcons.get('trending-up', {size:20}) : ''}
+                        </div>
                         <div class="report-summary-data">
                             <span class="report-summary-label">Net Fleet Margin</span>
                             <span class="report-summary-val" style="color: #a3e635;">${SecurityClient.formatCurrency(totalProfit)}</span>
@@ -338,14 +349,19 @@ const ReportsView = (() => {
         return `
             <div>
                 <div style="margin-bottom: 1.25rem;">
-                    <h3 style="font-size: 1.15rem; font-weight: 800; color: var(--text-heading); margin: 0;">🍦 Flavor Demand, Product Velocity & Market Share</h3>
+                    <h3 style="font-size: 1.15rem; font-weight: 800; color: var(--text-heading); margin: 0; display:inline-flex; align-items:center; gap:8px;">
+                        <span style="color:var(--accent-lime);">${window.AppIcons ? AppIcons.get('milk', {size:20}) : ''}</span>
+                        <span>Flavor Demand, Product Velocity & Market Share</span>
+                    </h3>
                     <p style="font-size: 0.78rem; color: var(--text-muted); margin: 3px 0 0;">Monthly demand velocity and market penetration across Polonnaruwa retail network</p>
                 </div>
 
                 <!-- Executive KPI Summary Bar -->
                 <div class="report-summary-kpis">
                     <div class="report-summary-card">
-                        <div class="report-summary-icon" style="background: rgba(56, 189, 248, 0.12); color: #38bdf8;">🥛</div>
+                        <div class="report-summary-icon" style="background: rgba(56, 189, 248, 0.12); color: #38bdf8;">
+                            ${window.AppIcons ? AppIcons.get('milk', {size:20}) : ''}
+                        </div>
                         <div class="report-summary-data">
                             <span class="report-summary-label">Total Monthly Volume</span>
                             <span class="report-summary-val" style="color: #38bdf8;">${totalCups.toLocaleString()} cups</span>
@@ -353,7 +369,9 @@ const ReportsView = (() => {
                         </div>
                     </div>
                     <div class="report-summary-card">
-                        <div class="report-summary-icon" style="background: rgba(16, 185, 129, 0.12); color: #10b981;">💵</div>
+                        <div class="report-summary-icon" style="background: rgba(16, 185, 129, 0.12); color: #10b981;">
+                            ${window.AppIcons ? AppIcons.get('cash', {size:20}) : ''}
+                        </div>
                         <div class="report-summary-data">
                             <span class="report-summary-label">Gross Portfolio Revenue</span>
                             <span class="report-summary-val" style="color: #10b981;">${SecurityClient.formatCurrency(totalFlavorRevenue)}</span>
@@ -361,7 +379,9 @@ const ReportsView = (() => {
                         </div>
                     </div>
                     <div class="report-summary-card">
-                        <div class="report-summary-icon" style="background: rgba(245, 158, 11, 0.12); color: #f59e0b;">🥇</div>
+                        <div class="report-summary-icon" style="background: rgba(245, 158, 11, 0.12); color: #f59e0b;">
+                            ${window.AppIcons ? AppIcons.get('trophy', {size:20}) : ''}
+                        </div>
                         <div class="report-summary-data">
                             <span class="report-summary-label">Top Demand Flavor</span>
                             <span class="report-summary-val" style="color: #f59e0b; font-size: 1.15rem;">${topFlavor ? (I18n.getProductFlavor(topFlavor) || topFlavor.name) : 'Vanilla'}</span>
@@ -369,7 +389,9 @@ const ReportsView = (() => {
                         </div>
                     </div>
                     <div class="report-summary-card">
-                        <div class="report-summary-icon" style="background: rgba(168, 85, 247, 0.12); color: #a855f7;">🏭</div>
+                        <div class="report-summary-icon" style="background: rgba(168, 85, 247, 0.12); color: #a855f7;">
+                            ${window.AppIcons ? AppIcons.get('gauge', {size:20}) : ''}
+                        </div>
                         <div class="report-summary-data">
                             <span class="report-summary-label">Fleet Capacity Utilized</span>
                             <span class="report-summary-val" style="color: #a855f7;">${capPercent}%</span>
@@ -485,7 +507,10 @@ const ReportsView = (() => {
             <div>
                 <div class="flex-between" style="flex-wrap: wrap; gap: 10px; margin-bottom: 1.25rem;">
                     <div>
-                        <h3 style="font-size: 1.15rem; font-weight: 800; color: var(--text-heading); margin: 0;">🏪 Retail Customer Monthly Running Statement</h3>
+                        <h3 style="font-size: 1.15rem; font-weight: 800; color: var(--text-heading); margin: 0; display:inline-flex; align-items:center; gap:8px;">
+                            <span style="color:var(--accent-lime);">${window.AppIcons ? AppIcons.get('store', {size:20}) : ''}</span>
+                            <span>Retail Customer Monthly Running Statement</span>
+                        </h3>
                         <p style="font-size: 0.78rem; color: var(--text-muted); margin: 3px 0 0;">Itemized invoices, field debt payments, and return credit notes ledger</p>
                     </div>
 
@@ -509,7 +534,9 @@ const ReportsView = (() => {
                 <!-- Shop Profile Summary Cards -->
                 <div class="report-summary-kpis">
                     <div class="report-summary-card">
-                        <div class="report-summary-icon" style="background: rgba(14, 165, 233, 0.12); color: #0ea5e9;">🏪</div>
+                        <div class="report-summary-icon" style="background: rgba(14, 165, 233, 0.12); color: #0ea5e9;">
+                            ${window.AppIcons ? AppIcons.get('store', {size:20}) : ''}
+                        </div>
                         <div class="report-summary-data">
                             <span class="report-summary-label">Retail Customer</span>
                             <span class="report-summary-val" style="color: var(--text-heading); font-size: 1.05rem;">${SecurityClient.escapeHtml(shop.name)}</span>
@@ -517,7 +544,9 @@ const ReportsView = (() => {
                         </div>
                     </div>
                     <div class="report-summary-card">
-                        <div class="report-summary-icon" style="background: rgba(168, 85, 247, 0.12); color: #a855f7;">🗺️</div>
+                        <div class="report-summary-icon" style="background: rgba(168, 85, 247, 0.12); color: #a855f7;">
+                            ${window.AppIcons ? AppIcons.get('radar', {size:20}) : ''}
+                        </div>
                         <div class="report-summary-data">
                             <span class="report-summary-label">Assigned Delivery Route</span>
                             <span class="report-summary-val" style="color: #a855f7; font-size: 1.05rem;">${SecurityClient.escapeHtml(shop.route_name)}</span>
@@ -525,7 +554,9 @@ const ReportsView = (() => {
                         </div>
                     </div>
                     <div class="report-summary-card">
-                        <div class="report-summary-icon" style="background: rgba(245, 158, 11, 0.12); color: #f59e0b;">💳</div>
+                        <div class="report-summary-icon" style="background: rgba(245, 158, 11, 0.12); color: #f59e0b;">
+                            ${window.AppIcons ? AppIcons.get('credit-card', {size:20}) : ''}
+                        </div>
                         <div class="report-summary-data">
                             <span class="report-summary-label">Credit Tier & Ceiling</span>
                             <span class="report-summary-val" style="color: #f59e0b; font-size: 1.05rem;">${shop.credit_tier}</span>
@@ -533,7 +564,9 @@ const ReportsView = (() => {
                         </div>
                     </div>
                     <div class="report-summary-card">
-                        <div class="report-summary-icon" style="background: rgba(239, 68, 68, 0.12); color: #ef4444;">⚠️</div>
+                        <div class="report-summary-icon" style="background: rgba(239, 68, 68, 0.12); color: #ef4444;">
+                            ${window.AppIcons ? AppIcons.get('alert-triangle', {size:20}) : ''}
+                        </div>
                         <div class="report-summary-data">
                             <span class="report-summary-label">Outstanding Debt Balance</span>
                             <span class="report-summary-val" style="color: #ef4444;">${SecurityClient.formatCurrency(shop.outstanding_balance)}</span>
@@ -614,14 +647,19 @@ const ReportsView = (() => {
         return `
             <div>
                 <div style="margin-bottom: 1.25rem;">
-                    <h3 style="font-size: 1.15rem; font-weight: 800; color: var(--text-heading); margin: 0;">🏆 Sales Representatives Target Performance & Incentive Payroll</h3>
+                    <h3 style="font-size: 1.15rem; font-weight: 800; color: var(--text-heading); margin: 0; display:inline-flex; align-items:center; gap:8px;">
+                        <span style="color:var(--accent-lime);">${window.AppIcons ? AppIcons.get('trophy', {size:20}) : ''}</span>
+                        <span>Sales Representatives Target Performance & Incentive Payroll</span>
+                    </h3>
                     <p style="font-size: 0.78rem; color: var(--text-muted); margin: 3px 0 0;">Volume Rate: Rs. 1.50/cup &bull; Target Milestone Bonus: Rs. 2,500.00 &bull; Field Debt Recovery Incentive</p>
                 </div>
 
                 <!-- Executive KPI Summary Bar -->
                 <div class="report-summary-kpis">
                     <div class="report-summary-card">
-                        <div class="report-summary-icon" style="background: rgba(16, 185, 129, 0.12); color: #10b981;">🏆</div>
+                        <div class="report-summary-icon" style="background: rgba(16, 185, 129, 0.12); color: #10b981;">
+                            ${window.AppIcons ? AppIcons.get('trophy', {size:20}) : ''}
+                        </div>
                         <div class="report-summary-data">
                             <span class="report-summary-label">Monthly Payroll Payout</span>
                             <span class="report-summary-val" style="color: #10b981;">${SecurityClient.formatCurrency(totalPayout)}</span>
@@ -629,7 +667,9 @@ const ReportsView = (() => {
                         </div>
                     </div>
                     <div class="report-summary-card">
-                        <div class="report-summary-icon" style="background: rgba(56, 189, 248, 0.12); color: #38bdf8;">📦</div>
+                        <div class="report-summary-icon" style="background: rgba(56, 189, 248, 0.12); color: #38bdf8;">
+                            ${window.AppIcons ? AppIcons.get('package', {size:20}) : ''}
+                        </div>
                         <div class="report-summary-data">
                             <span class="report-summary-label">Volume Delivered</span>
                             <span class="report-summary-val" style="color: #38bdf8;">${totalCups.toLocaleString()} cups</span>
@@ -637,7 +677,9 @@ const ReportsView = (() => {
                         </div>
                     </div>
                     <div class="report-summary-card">
-                        <div class="report-summary-icon" style="background: rgba(168, 85, 247, 0.12); color: #a855f7;">🎯</div>
+                        <div class="report-summary-icon" style="background: rgba(168, 85, 247, 0.12); color: #a855f7;">
+                            ${window.AppIcons ? AppIcons.get('check-circle', {size:20}) : ''}
+                        </div>
                         <div class="report-summary-data">
                             <span class="report-summary-label">Target Achievement Rate</span>
                             <span class="report-summary-val" style="color: #a855f7;">${avgAchieve}%</span>
@@ -645,7 +687,9 @@ const ReportsView = (() => {
                         </div>
                     </div>
                     <div class="report-summary-card">
-                        <div class="report-summary-icon" style="background: rgba(245, 158, 11, 0.12); color: #f59e0b;">💵</div>
+                        <div class="report-summary-icon" style="background: rgba(245, 158, 11, 0.12); color: #f59e0b;">
+                            ${window.AppIcons ? AppIcons.get('coins', {size:20}) : ''}
+                        </div>
                         <div class="report-summary-data">
                             <span class="report-summary-label">Bonus Incentives Paid</span>
                             <span class="report-summary-val" style="color: #f59e0b;">${SecurityClient.formatCurrency(totalTargetBonus + totalCashBonus)}</span>
