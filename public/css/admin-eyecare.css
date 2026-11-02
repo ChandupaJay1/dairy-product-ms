@@ -727,6 +727,84 @@ html:not(.dark) .map-legend {
     margin: 0 0 0.85rem;
 }
 
+/* Executive KPI Summary Bar for Reports */
+.report-summary-kpis {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+    gap: 12px;
+    margin-bottom: 1.25rem;
+}
+
+.report-summary-card {
+    background: var(--bg-surface-elevated, rgba(15, 23, 42, 0.65));
+    border: 1px solid var(--border-subtle, rgba(255, 255, 255, 0.1));
+    border-radius: var(--radius-lg, 12px);
+    padding: 1rem 1.15rem;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    transition: all 0.2s ease;
+}
+
+.report-summary-card:hover {
+    border-color: var(--accent-lime, #a3e635);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.3);
+}
+
+.report-summary-icon {
+    font-size: 1.8rem;
+    line-height: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 48px;
+    height: 48px;
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.05);
+    flex-shrink: 0;
+}
+
+.report-summary-data {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+}
+
+.report-summary-label {
+    font-size: 0.72rem;
+    color: var(--text-muted, #94a3b8);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    font-weight: 600;
+}
+
+.report-summary-val {
+    font-size: 1.35rem;
+    font-weight: 800;
+    color: var(--text-primary, #ffffff);
+    font-family: monospace;
+    margin-top: 2px;
+    line-height: 1.2;
+}
+
+.report-summary-sub {
+    font-size: 0.7rem;
+    color: var(--text-muted, #64748b);
+    margin-top: 2px;
+}
+
+.report-tfoot-row {
+    background: rgba(255, 255, 255, 0.04) !important;
+    border-top: 2px solid var(--border-medium, rgba(255, 255, 255, 0.16)) !important;
+    font-weight: 800 !important;
+    font-size: 0.85rem !important;
+}
+
+.report-tfoot-row td {
+    padding: 10px 8px !important;
+}
+
 /* ========================================================
    4. APPROVAL CENTER & TACTILE SEGMENTED TABS
    ======================================================== */

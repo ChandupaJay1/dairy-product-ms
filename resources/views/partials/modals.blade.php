@@ -790,7 +790,7 @@
             </div>
 
             <div class="flex-between gap-2 mt-3">
-                <button class="btn btn-secondary btn-block font-bold" onclick="window.print()" data-i18n="btn_print_statement">
+                <button class="btn btn-secondary btn-block font-bold" onclick="ReportsView.printStatementSlip()" data-i18n="btn_print_statement">
                     🖨️ Print Statement / Save PDF
                 </button>
                 <button class="btn btn-primary btn-block font-bold" onclick="document.getElementById('shopStatementModal').style.display='none'" data-i18n="btn_done">
