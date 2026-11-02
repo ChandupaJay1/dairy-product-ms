@@ -46,6 +46,16 @@
   - Streamlined navigation eliminating complex menus in favor of a clean, responsive sidebar.
   - Self-service account profile and security credentials manager with confirmation modals.
 
+- **🏢 Dual Enterprise Navigation Modules (Admin & Distribution)**:
+  - **Office Admin Suite**: Dedicated accordion module featuring deep-linked direct access to Command & KPIs, Maker-Checker Approvals Center (with live dynamic pending badges), Daily Dispatches, Fleet GPS Radar, 4-tab Fleet & Staff Control Hub, Credit & Shop Risk, and immutable Audit Trail.
+  - **Distribution Operations Suite**: Mobile-first field modules including Sales Rep Order Booking Wizard, Driver Mobile Manifest & Navigation, Day-End Settlement Hub (with full-width vertically stacked reconciliation ledgers and active vehicle switcher), and Financial Reports.
+  - **Fluid Deep-Linking & Highlight**: Smooth scroll DOM positioning with emerald neon pulse border glow highlighting.
+
+- **🚨 24/7 Global Fleet SOS Telemetry & Rescue Handshake**:
+  - Continuous 4-second breakdown telemetry polling active across all system views.
+  - Built-in Web Audio API synthesized siren emergency alarm (zero external audio dependency).
+  - Dual-Driver Stock Rescue Handshake protocol verifying itemized 5-flavor inventory transfer (Usable vs Heat-Damaged) into dynamic `MNF-RESCUE` manifests.
+
 - **🔒 Enterprise Security**:
   - Complete authentication workflows (Login, Registration, Password Update, Profile Deletion).
   - Built-in TLS 1.3 telemetry indicators and CSRF session protections.
