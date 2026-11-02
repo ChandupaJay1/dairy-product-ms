@@ -146,7 +146,7 @@
                                 </button>
                             </li>
                             <li>
-                                <button class="sidebar-nav-btn role-nav-btn" data-view="audit" id="sideBtnAudit">
+                                <button class="sidebar-nav-btn role-nav-btn" data-view="admin" data-admin-section="auditLogsSection" id="sideBtnAudit">
                                     <span class="sidebar-nav-icon">🔒</span>
                                     <span class="sidebar-nav-text" data-i18n="nav_audit">Activity Logs</span>
                                 </button>
@@ -319,7 +319,7 @@
                             <li><button class="sidebar-nav-btn role-nav-btn" data-view="admin" data-admin-section="fleetRadarSection"><span class="sidebar-nav-icon">🗺️</span><span data-i18n="nav_admin_radar">Fleet GPS Radar</span></button></li>
                             <li><button class="sidebar-nav-btn role-nav-btn" data-view="admin" data-admin-section="fleetStaffManagementSection"><span class="sidebar-nav-icon">🚛</span><span data-i18n="nav_admin_fleet">Fleet & Staff Control</span></button></li>
                             <li><button class="sidebar-nav-btn role-nav-btn" data-view="admin" data-admin-section="creditRiskSection"><span class="sidebar-nav-icon">💳</span><span data-i18n="nav_admin_credit">Credit & Shop Risk</span></button></li>
-                            <li><button class="sidebar-nav-btn role-nav-btn" data-view="audit"><span class="sidebar-nav-icon">🔒</span><span data-i18n="nav_audit">Activity Logs</span></button></li>
+                            <li><button class="sidebar-nav-btn role-nav-btn" data-view="admin" data-admin-section="auditLogsSection"><span class="sidebar-nav-icon">🔒</span><span data-i18n="nav_audit">Activity Logs</span></button></li>
                         </ul>
                     </div>
                     @endif
@@ -388,9 +388,9 @@
                     <div class="breadcrumb-trail">
                         <span class="breadcrumb-root">PulseERP</span>
                         <span class="breadcrumb-sep">/</span>
-                        <span class="breadcrumb-root" style="color:var(--accent-lime); font-weight:700;">🚚 Distribution</span>
+                        <span class="breadcrumb-root" id="currentModuleBreadcrumb" style="color:var(--accent-lime); font-weight:700;">🏢 Office Admin</span>
                         <span class="breadcrumb-sep">/</span>
-                        <span class="breadcrumb-current" id="currentViewBreadcrumb">Operations Hub</span>
+                        <span class="breadcrumb-current" id="currentViewBreadcrumb">Command & KPIs</span>
                     </div>
                 </div>
 

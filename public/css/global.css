@@ -1735,6 +1735,26 @@ html:not(.dark) .sidebar-module-group.active .sidebar-module-btn {
     animation: sectionPulseHighlight 2.5s ease-out forwards;
 }
 
+/* Tabbed Process Panels for Office Admin */
+.admin-process-section {
+    display: none;
+}
+.admin-process-section.active {
+    display: block;
+    animation: adminSectionFadeIn 0.28s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes adminSectionFadeIn {
+    0% {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
 @keyframes sectionPulseHighlight {
     0% {
         box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.7), 0 0 25px rgba(16, 185, 129, 0.35);

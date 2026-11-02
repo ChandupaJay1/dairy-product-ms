@@ -35,6 +35,8 @@ const AdminDashboard = (() => {
     let editingDriverId = null;
     let editingSalesRepId = null;
     let editingRouteId = null;
+    let activeAdminSection = 'adminTopSection';
+    let hasLoadedData = false;
 
     async function loadAllAdminData() {
         // Fast Cache-First Stale-While-Revalidate
@@ -103,6 +105,7 @@ const AdminDashboard = (() => {
             console.warn('Admin background data refresh error:', err);
         }
 
+        hasLoadedData = true;
         render();
 
         // Start real-time background SOS telemetry polling
@@ -155,101 +158,156 @@ const AdminDashboard = (() => {
 
         container.innerHTML = `
             <div class="admin-eyecare-shell">
-                <!-- Top Eye-Care Status Banner -->
-                <div class="admin-top-banner" id="adminTopSection">
-                    <div>
-                        <h2>${I18n.t('admin_central_command', '🏢 Front Office Central Command (Polonnaruwa Region)')}</h2>
-                        <p class="text-sm text-eyecare-sub">
-                            ${I18n.t('admin_op_hours', 'Operational Hours: 06:00 - 18:00 • Cold Chain Telemetry: All Hubs Optimal')}
-                        </p>
-                    </div>
-                    <div class="banner-actions">
-                        <button class="btn btn-sm btn-outline font-bold" onclick="AdminDashboard.refreshData()" id="adminRefreshBtn" title="Refresh Live Fleet & Dashboard Data">
-                            🔄 ${I18n.t('btn_refresh_admin', 'Refresh Data')}
-                        </button>
-                        <button class="btn btn-sm btn-primary" onclick="AdminDashboard.openNewDispatchModal()">
-                            ${I18n.t('btn_new_dispatch', '+ New Morning Load Dispatch')}
-                        </button>
-                        <button class="btn btn-sm btn-secondary" onclick="AdminDashboard.openRotationModal()">
-                            ${I18n.t('btn_rotate_fleet_top', '🔄 Rotate Fleet & Drivers')}
-                        </button>
-                    </div>
-                </div>
-
-                <!-- High Priority SOS Alert Banner (If Active) -->
+                <!-- High Priority SOS Alert Banner (If Active, always rendered on top) -->
                 ${renderSosAlertBanners()}
 
-                <!-- Key Operational Performance Metrics (KPIs) -->
-                <div class="kpi-grid">
-                    <div class="kpi-card card-glow-cyan">
-                        <div class="kpi-icon">🥛</div>
-                        <div class="kpi-data">
-                            <span class="kpi-label">${I18n.t('kpi_morning_dispatched', 'Morning Dispatched')}</span>
-                            <span class="kpi-val">${dashboardStats ? dashboardStats.totalLoadedToday.toLocaleString() : '1,500'}</span>
-                            <span class="kpi-sub">${I18n.t('kpi_total_cups_loaded', 'Total cups loaded today')}</span>
+                <!-- 1. Command & KPIs Process Section -->
+                <div class="admin-process-section ${activeAdminSection === 'adminTopSection' ? 'active' : ''}" id="adminSec-adminTopSection">
+                    <div class="admin-top-banner" id="adminTopSection">
+                        <div>
+                            <h2>${I18n.t('admin_central_command', '🏢 Front Office Central Command (Polonnaruwa Region)')}</h2>
+                            <p class="text-sm text-eyecare-sub">
+                                ${I18n.t('admin_op_hours', 'Operational Hours: 06:00 - 18:00 • Cold Chain Telemetry: All Hubs Optimal')}
+                            </p>
+                        </div>
+                        <div class="banner-actions">
+                            <button class="btn btn-sm btn-outline font-bold" onclick="AdminDashboard.refreshData()" id="adminRefreshBtn" title="Refresh Live Fleet & Dashboard Data">
+                                🔄 ${I18n.t('btn_refresh_admin', 'Refresh Data')}
+                            </button>
+                            <button class="btn btn-sm btn-primary" onclick="AdminDashboard.openNewDispatchModal()">
+                                ${I18n.t('btn_new_dispatch', '+ New Morning Load Dispatch')}
+                            </button>
+                            <button class="btn btn-sm btn-secondary" onclick="AdminDashboard.openRotationModal()">
+                                ${I18n.t('btn_rotate_fleet_top', '🔄 Rotate Fleet & Drivers')}
+                            </button>
                         </div>
                     </div>
 
-                    <div class="kpi-card card-glow-emerald">
-                        <div class="kpi-icon">✅</div>
-                        <div class="kpi-data">
-                            <span class="kpi-label">${I18n.t('kpi_delivered_sold', 'Cups Delivered & Sold')}</span>
-                            <span class="kpi-val text-success">${dashboardStats ? dashboardStats.totalSoldToday.toLocaleString() : '180'}</span>
-                            <span class="kpi-sub">${I18n.t('kpi_delivered_network', 'Delivered to retail network')}</span>
+                    <!-- Key Operational Performance Metrics (KPIs) -->
+                    <div class="kpi-grid mt-4">
+                        <div class="kpi-card card-glow-cyan" onclick="AdminDashboard.switchAdminSection('dailyDispatchesSection')" style="cursor: pointer;" title="Open Daily Dispatches">
+                            <div class="kpi-icon">🥛</div>
+                            <div class="kpi-data">
+                                <span class="kpi-label">${I18n.t('kpi_morning_dispatched', 'Morning Dispatched')}</span>
+                                <span class="kpi-val">${dashboardStats ? dashboardStats.totalLoadedToday.toLocaleString() : '1,500'}</span>
+                                <span class="kpi-sub">${I18n.t('kpi_total_cups_loaded', 'Total cups loaded today')}</span>
+                            </div>
+                        </div>
+
+                        <div class="kpi-card card-glow-emerald" onclick="AdminDashboard.switchAdminSection('dailyDispatchesSection')" style="cursor: pointer;" title="Open Dispatches & Sales">
+                            <div class="kpi-icon">✅</div>
+                            <div class="kpi-data">
+                                <span class="kpi-label">${I18n.t('kpi_delivered_sold', 'Cups Delivered & Sold')}</span>
+                                <span class="kpi-val text-success">${dashboardStats ? dashboardStats.totalSoldToday.toLocaleString() : '180'}</span>
+                                <span class="kpi-sub">${I18n.t('kpi_delivered_network', 'Delivered to retail network')}</span>
+                            </div>
+                        </div>
+
+                        <div class="kpi-card card-glow-amber" onclick="AdminDashboard.switchAdminSection('fleetRadarSection')" style="cursor: pointer;" title="Open Fleet GPS Radar">
+                            <div class="kpi-icon">🚚</div>
+                            <div class="kpi-data">
+                                <span class="kpi-label">${I18n.t('kpi_remaining_fleet', 'Remaining On Fleet')}</span>
+                                <span class="kpi-val text-warning">${dashboardStats ? dashboardStats.totalRemainingToday.toLocaleString() : '1,320'}</span>
+                                <span class="kpi-sub">${I18n.t('kpi_in_transit_stock', 'In transit refrigerated stock')}</span>
+                            </div>
+                        </div>
+
+                        <div class="kpi-card card-glow-rose" onclick="AdminDashboard.switchAdminSection('fleetRadarSection')" style="cursor: pointer;" title="Open Incident Radar">
+                            <div class="kpi-icon">🚨</div>
+                            <div class="kpi-data">
+                                <span class="kpi-label">${I18n.t('kpi_sos_incidents', 'Active SOS Incidents')}</span>
+                                <span class="kpi-val ${sosAlerts.length > 0 ? 'text-danger font-bold' : ''}">
+                                    ${sosAlerts.length}
+                                </span>
+                                <span class="kpi-sub">${sosAlerts.length > 0 ? I18n.t('kpi_emergency_req', 'Emergency Rescue Required!') : I18n.t('kpi_fleet_smooth', 'Fleet running smooth')}</span>
+                            </div>
+                        </div>
+
+                        <div class="kpi-card card-glow-indigo" onclick="AdminDashboard.switchAdminSection('creditRiskSection')" style="cursor: pointer;" title="Open Credit & Shop Risk">
+                            <div class="kpi-icon">💰</div>
+                            <div class="kpi-data">
+                                <span class="kpi-label">${I18n.t('kpi_credit_exposure', 'Total Credit Exposure')}</span>
+                                <span class="kpi-val text-info">
+                                    ${dashboardStats ? SecurityClient.formatCurrency(dashboardStats.financials.totalCreditExposure) : 'Rs. 67,300'}
+                                </span>
+                                <span class="kpi-sub">${dashboardStats ? dashboardStats.financials.highRiskShopsCount : 1} ${I18n.t('kpi_flagged_risk', 'shop(s) flagged high-risk')}</span>
+                            </div>
+                        </div>
+
+                        <div class="kpi-card ${pendingApprovals.total_pending > 0 ? 'card-glow-amber' : ''}" onclick="AdminDashboard.switchAdminSection('approvalCenterSection')" style="cursor: pointer;" title="Open Approvals Center">
+                            <div class="kpi-icon">📋</div>
+                            <div class="kpi-data">
+                                <span class="kpi-label">${I18n.t('kpi_pending_approvals', 'Front Office Approvals')}</span>
+                                <span class="kpi-val ${pendingApprovals.total_pending > 0 ? 'text-warning font-bold' : ''}">
+                                    ${pendingApprovals.total_pending}
+                                </span>
+                                <span class="kpi-sub">${pendingApprovals.total_pending > 0 ? I18n.t('kpi_action_required', '⚠️ Front Office Review Required') : I18n.t('kpi_all_confirmed', '✅ All Data Confirmed')}</span>
+                            </div>
                         </div>
                     </div>
 
-                    <div class="kpi-card card-glow-amber">
-                        <div class="kpi-icon">🚚</div>
-                        <div class="kpi-data">
-                            <span class="kpi-label">${I18n.t('kpi_remaining_fleet', 'Remaining On Fleet')}</span>
-                            <span class="kpi-val text-warning">${dashboardStats ? dashboardStats.totalRemainingToday.toLocaleString() : '1,320'}</span>
-                            <span class="kpi-sub">${I18n.t('kpi_in_transit_stock', 'In transit refrigerated stock')}</span>
+                    <!-- Quick Navigation Process Matrix -->
+                    <div class="card eyecare-card mt-4" style="background: rgba(15, 23, 42, 0.45); border: 1px solid rgba(255,255,255,0.08);">
+                        <div class="card-header flex-between" style="padding: 1rem 1.25rem;">
+                            <h3 style="font-size:1rem; font-weight:700; margin:0;">⚡ ${I18n.t('admin_quick_nav', 'Quick Process Navigation')}</h3>
+                            <span class="badge badge-outline text-xs">All Systems Operational</span>
                         </div>
-                    </div>
-
-                    <div class="kpi-card card-glow-rose">
-                        <div class="kpi-icon">🚨</div>
-                        <div class="kpi-data">
-                            <span class="kpi-label">${I18n.t('kpi_sos_incidents', 'Active SOS Incidents')}</span>
-                            <span class="kpi-val ${sosAlerts.length > 0 ? 'text-danger font-bold' : ''}">
-                                ${sosAlerts.length}
-                            </span>
-                            <span class="kpi-sub">${sosAlerts.length > 0 ? I18n.t('kpi_emergency_req', 'Emergency Rescue Required!') : I18n.t('kpi_fleet_smooth', 'Fleet running smooth')}</span>
-                        </div>
-                    </div>
-
-                    <div class="kpi-card card-glow-indigo">
-                        <div class="kpi-icon">💰</div>
-                        <div class="kpi-data">
-                            <span class="kpi-label">${I18n.t('kpi_credit_exposure', 'Total Credit Exposure')}</span>
-                            <span class="kpi-val text-info">
-                                ${dashboardStats ? SecurityClient.formatCurrency(dashboardStats.financials.totalCreditExposure) : 'Rs. 67,300'}
-                            </span>
-                            <span class="kpi-sub">${dashboardStats ? dashboardStats.financials.highRiskShopsCount : 1} ${I18n.t('kpi_flagged_risk', 'shop(s) flagged high-risk')}</span>
-                        </div>
-                    </div>
-
-                    <div class="kpi-card ${pendingApprovals.total_pending > 0 ? 'card-glow-amber' : ''}" onclick="AdminDashboard.scrollToSection('approvalCenterSection')" style="cursor: pointer;">
-                        <div class="kpi-icon">📋</div>
-                        <div class="kpi-data">
-                            <span class="kpi-label">${I18n.t('kpi_pending_approvals', 'Front Office Approvals')}</span>
-                            <span class="kpi-val ${pendingApprovals.total_pending > 0 ? 'text-warning font-bold' : ''}">
-                                ${pendingApprovals.total_pending}
-                            </span>
-                            <span class="kpi-sub">${pendingApprovals.total_pending > 0 ? I18n.t('kpi_action_required', '⚠️ Front Office Review Required') : I18n.t('kpi_all_confirmed', '✅ All Data Confirmed')}</span>
+                        <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; padding: 1.25rem;">
+                            <button type="button" class="btn btn-outline" style="justify-content: flex-start; gap: 10px; padding: 12px;" onclick="AdminDashboard.switchAdminSection('approvalCenterSection')">
+                                <span style="font-size:1.25rem;">📋</span>
+                                <div style="text-align:left;">
+                                    <div style="font-weight:700; font-size:0.85rem;">Approvals Center</div>
+                                    <div style="font-size:0.75rem; color:var(--text-muted);">${pendingApprovals.total_pending || 0} Pending Actions</div>
+                                </div>
+                            </button>
+                            <button type="button" class="btn btn-outline" style="justify-content: flex-start; gap: 10px; padding: 12px;" onclick="AdminDashboard.switchAdminSection('dailyDispatchesSection')">
+                                <span style="font-size:1.25rem;">📦</span>
+                                <div style="text-align:left;">
+                                    <div style="font-weight:700; font-size:0.85rem;">Daily Dispatches</div>
+                                    <div style="font-size:0.75rem; color:var(--text-muted);">${activeDispatches.length} Manifests Today</div>
+                                </div>
+                            </button>
+                            <button type="button" class="btn btn-outline" style="justify-content: flex-start; gap: 10px; padding: 12px;" onclick="AdminDashboard.switchAdminSection('fleetRadarSection')">
+                                <span style="font-size:1.25rem;">🗺️</span>
+                                <div style="text-align:left;">
+                                    <div style="font-weight:700; font-size:0.85rem;">Fleet GPS Radar</div>
+                                    <div style="font-size:0.75rem; color:var(--text-muted);">Real-time Telemetry</div>
+                                </div>
+                            </button>
+                            <button type="button" class="btn btn-outline" style="justify-content: flex-start; gap: 10px; padding: 12px;" onclick="AdminDashboard.switchAdminSection('fleetStaffManagementSection')">
+                                <span style="font-size:1.25rem;">🚛</span>
+                                <div style="text-align:left;">
+                                    <div style="font-weight:700; font-size:0.85rem;">Fleet & Staff Control</div>
+                                    <div style="font-size:0.75rem; color:var(--text-muted);">Vehicles, Drivers, Reps</div>
+                                </div>
+                            </button>
+                            <button type="button" class="btn btn-outline" style="justify-content: flex-start; gap: 10px; padding: 12px;" onclick="AdminDashboard.switchAdminSection('creditRiskSection')">
+                                <span style="font-size:1.25rem;">💳</span>
+                                <div style="text-align:left;">
+                                    <div style="font-weight:700; font-size:0.85rem;">Credit & Shop Risk</div>
+                                    <div style="font-size:0.75rem; color:var(--text-muted);">${shopsList.length} Registered Shops</div>
+                                </div>
+                            </button>
+                            <button type="button" class="btn btn-outline" style="justify-content: flex-start; gap: 10px; padding: 12px;" onclick="AdminDashboard.switchAdminSection('auditLogsSection')">
+                                <span style="font-size:1.25rem;">🔒</span>
+                                <div style="text-align:left;">
+                                    <div style="font-weight:700; font-size:0.85rem;">Activity Audit Trail</div>
+                                    <div style="font-size:0.75rem; color:var(--text-muted);">${auditLogs.length} Events Logged</div>
+                                </div>
+                            </button>
                         </div>
                     </div>
                 </div>
 
-                <!-- Front Office Maker-Checker Approval Center -->
-                <div id="approvalCenterSection">
-                    ${renderApprovalCenter()}
+                <!-- 2. Approvals Center Process Section -->
+                <div class="admin-process-section ${activeAdminSection === 'approvalCenterSection' ? 'active' : ''}" id="adminSec-approvalCenterSection">
+                    <div id="approvalCenterSection">
+                        ${renderApprovalCenter()}
+                    </div>
                 </div>
 
-                <!-- Expansive Operations Layout: Full-Width Sequential Sections -->
-                <div class="admin-main-grid mt-4">
-                    <!-- 1. Daily Dispatches & Inventory Manifests -->
+                <!-- 3. Daily Dispatches Process Section -->
+                <div class="admin-process-section ${activeAdminSection === 'dailyDispatchesSection' ? 'active' : ''}" id="adminSec-dailyDispatchesSection">
                     <div class="card eyecare-card" id="dailyDispatchesSection">
                         <div class="card-header flex-between" style="flex-wrap: wrap; gap: 12px; padding: 1.25rem 1.5rem;">
                             <div>
@@ -284,8 +342,10 @@ const AdminDashboard = (() => {
                             </table>
                         </div>
                     </div>
+                </div>
 
-                    <!-- 2. Panoramic Regional Fleet GPS Radar & Sector Control -->
+                <!-- 4. Fleet GPS Radar Process Section -->
+                <div class="admin-process-section ${activeAdminSection === 'fleetRadarSection' ? 'active' : ''}" id="adminSec-fleetRadarSection">
                     <div class="card eyecare-card" id="fleetRadarSection">
                         <div class="card-header flex-between" style="padding: 1.25rem 1.5rem; flex-wrap: wrap; gap: 8px;">
                             <div>
@@ -313,7 +373,6 @@ const AdminDashboard = (() => {
                             </div>
 
                             <div class="map-graphic-layer">
-                                <!-- SVG Vector Background Grid, Concentric Rings & Connecting Route Paths -->
                                 <svg class="radar-svg-grid" viewBox="0 0 1200 500" preserveAspectRatio="none">
                                     <defs>
                                         <radialGradient id="radarCenterGlow" cx="50%" cy="50%" r="50%">
@@ -322,39 +381,21 @@ const AdminDashboard = (() => {
                                             <stop offset="100%" stop-color="#10b981" stop-opacity="0" />
                                         </radialGradient>
                                     </defs>
-
-                                    <!-- Background Sector Fill -->
                                     <rect width="100%" height="100%" fill="url(#radarCenterGlow)" />
-
-                                    <!-- Tactical Grid Lines -->
                                     <line x1="50%" y1="0" x2="50%" y2="100%" stroke="rgba(255,255,255,0.06)" stroke-width="1" stroke-dasharray="4 4" />
                                     <line x1="0" y1="50%" x2="100%" y2="50%" stroke="rgba(255,255,255,0.06)" stroke-width="1" stroke-dasharray="4 4" />
-
-                                    <!-- Concentric Range Rings (10km, 25km, 50km) -->
                                     <circle cx="50%" cy="50%" r="100" fill="none" stroke="rgba(16,185,129,0.22)" stroke-width="1" stroke-dasharray="3 3" />
                                     <circle cx="50%" cy="50%" r="220" fill="none" stroke="rgba(16,185,129,0.14)" stroke-width="1" />
                                     <circle cx="50%" cy="50%" r="380" fill="none" stroke="rgba(16,185,129,0.08)" stroke-width="1" stroke-dasharray="5 5" />
-
-                                    <!-- Range Labels -->
                                     <text x="60%" y="49%" fill="rgba(16,185,129,0.55)" font-size="10" font-family="monospace">10 KM</text>
                                     <text x="70%" y="49%" fill="rgba(16,185,129,0.4)" font-size="10" font-family="monospace">25 KM</text>
                                     <text x="83%" y="49%" fill="rgba(16,185,129,0.25)" font-size="10" font-family="monospace">50 KM</text>
-
-                                    <!-- Connecting Route Vector Paths from Kaduruwela (600, 250) -->
-                                    <!-- Route 1: Kaduruwela -> Hingurakgoda (312, 160) -->
                                     <path d="M 600 250 L 312 160" stroke="#10b981" stroke-width="2" stroke-opacity="0.45" class="route-path-line" />
-                                    <!-- Route 2: Hingurakgoda -> Minneriya (144, 240) -->
                                     <path d="M 312 160 L 144 240" stroke="#06b6d4" stroke-width="1.5" stroke-opacity="0.35" class="route-path-line" />
-                                    <!-- Route 3: Kaduruwela -> Medirigiriya (888, 100) -->
                                     <path d="M 600 250 L 888 100" stroke="#a855f7" stroke-width="1.5" stroke-opacity="0.35" class="route-path-line" />
-                                    <!-- Route 4: Kaduruwela -> Dimbulagala (936, 380) -->
                                     <path d="M 600 250 L 936 380" stroke="#f59e0b" stroke-width="1.5" stroke-opacity="0.35" class="route-path-line" />
                                 </svg>
-
-                                <!-- 360-degree Radar Sweep Beam -->
                                 <div class="radar-sweep"></div>
-
-                                <!-- Regional Landmarks & Route Pins -->
                                 <div class="map-hub hub-kaduruwela" title="Kaduruwela Central Wholesale Hub & Cold-Chain Depot">
                                     <div class="hub-radar-ring"></div>
                                     <div class="hub-label">🏢 Kaduruwela (Central Hub)</div>
@@ -375,11 +416,7 @@ const AdminDashboard = (() => {
                                     <div class="hub-radar-ring"></div>
                                     <div class="hub-label">📍 Dimbulagala Coop</div>
                                 </div>
-
-                                <!-- Fleet Vehicle Pins with Real-Time Telemetry Badges -->
                                 ${renderRadarVehicleMarkers()}
-
-                                <!-- SOS Incident Beacon if active -->
                                 ${sosAlerts.length > 0 ? `
                                     <div class="sos-radar-ping" style="top: 24%; left: 70%;" title="🚨 EMERGENCY SOS: ${SecurityClient.escapeHtml(sosAlerts[0].vehicle_number)}">
                                         <div class="ping-wave"></div>
@@ -387,8 +424,6 @@ const AdminDashboard = (() => {
                                     </div>
                                 ` : ''}
                             </div>
-
-                            <!-- Telemetry Map Legend Footer -->
                             <div class="map-legend">
                                 <span>${I18n.t('legend_active_fleet', '🟢 Active Fleet (1)')}</span>
                                 <span>${I18n.t('legend_depot_reserve', '🔵 Depot Reserve (3)')}</span>
@@ -397,13 +432,17 @@ const AdminDashboard = (() => {
                             </div>
                         </div>
                     </div>
+                </div>
 
-                    <!-- 3. Dedicated Fleet & Staff Roster Management Section -->
+                <!-- 5. Fleet & Staff Management Process Section -->
+                <div class="admin-process-section ${activeAdminSection === 'fleetStaffManagementSection' ? 'active' : ''}" id="adminSec-fleetStaffManagementSection">
                     <div id="fleetStaffManagementSection">
                         ${renderFleetStaffManagementHub()}
                     </div>
+                </div>
 
-                    <!-- 4. Smart Credit Tiering & Shop Risk Table -->
+                <!-- 6. Smart Credit Tiering & Shop Risk Process Section -->
+                <div class="admin-process-section ${activeAdminSection === 'creditRiskSection' ? 'active' : ''}" id="adminSec-creditRiskSection">
                     <div class="card eyecare-card" id="creditRiskSection">
                         <div class="card-header flex-between" style="flex-wrap: wrap; gap: 12px; padding: 1.25rem 1.5rem;">
                             <div>
@@ -436,40 +475,42 @@ const AdminDashboard = (() => {
                     </div>
                 </div>
 
-                <!-- System Activity & Audit Trail -->
-                <div class="card eyecare-card mt-4" id="auditLogsSection">
-                    <div class="card-header flex-between">
-                        <h3>${I18n.t('audit_trail_title', '🔒 System Activity & Audit Trail')}</h3>
-                        <div style="display:flex; align-items:center; gap:8px;">
-                            <button class="btn btn-xs btn-outline-cyan font-bold" onclick="App.switchView('audit')">${I18n.t('btn_view_full_audit', '🔍 Full Audit Ledger')}</button>
-                            <span class="badge badge-success">${I18n.t('audit_verified', 'Audit Verified')}</span>
+                <!-- 7. System Activity & Audit Trail Process Section -->
+                <div class="admin-process-section ${activeAdminSection === 'auditLogsSection' ? 'active' : ''}" id="adminSec-auditLogsSection">
+                    <div class="card eyecare-card" id="auditLogsSection">
+                        <div class="card-header flex-between">
+                            <h3>${I18n.t('audit_trail_title', '🔒 System Activity & Audit Trail')}</h3>
+                            <div style="display:flex; align-items:center; gap:8px;">
+                                <button class="btn btn-xs btn-outline-cyan font-bold" onclick="App.switchView('audit')">${I18n.t('btn_view_full_audit', '🔍 Full Audit Ledger')}</button>
+                                <span class="badge badge-success">${I18n.t('audit_verified', 'Audit Verified')}</span>
+                            </div>
                         </div>
-                    </div>
-                    <div class="table-responsive max-h-300">
-                        <table class="table eyecare-table text-xs">
-                            <thead>
-                                <tr>
-                                    <th>${I18n.t('th_timestamp', 'Timestamp')}</th>
-                                    <th>${I18n.t('th_action_type', 'Action Type')}</th>
-                                    <th>${I18n.t('th_actor', 'Actor')}</th>
-                                    <th>${I18n.t('th_target_entity', 'Target Entity')}</th>
-                                    <th>${I18n.t('th_verification_ref', 'Verification Ref')}</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                ${auditLogs.map(log => `
+                        <div class="table-responsive max-h-500">
+                            <table class="table eyecare-table text-xs">
+                                <thead>
                                     <tr>
-                                        <td>${new Date(log.timestamp).toLocaleTimeString()}</td>
-                                        <td><strong>${SecurityClient.escapeHtml(log.action_type)}</strong></td>
-                                        <td>${SecurityClient.escapeHtml(log.actor_name)} (${log.actor_role})</td>
-                                        <td>${SecurityClient.escapeHtml(log.target_entity)}</td>
-                                        <td class="font-mono text-cyan truncate-seal" title="${log.security_seal}">
-                                            ${log.security_seal ? log.security_seal.substring(0, 24) + '...' : 'SEALED'}
-                                        </td>
+                                        <th>${I18n.t('th_timestamp', 'Timestamp')}</th>
+                                        <th>${I18n.t('th_action_type', 'Action Type')}</th>
+                                        <th>${I18n.t('th_actor', 'Actor')}</th>
+                                        <th>${I18n.t('th_target_entity', 'Target Entity')}</th>
+                                        <th>${I18n.t('th_verification_ref', 'Verification Ref')}</th>
                                     </tr>
-                                `).join('')}
-                            </tbody>
-                        </table>
+                                </thead>
+                                <tbody>
+                                    ${auditLogs.map(log => `
+                                        <tr>
+                                            <td>${new Date(log.timestamp).toLocaleTimeString()}</td>
+                                            <td><strong>${SecurityClient.escapeHtml(log.action_type)}</strong></td>
+                                            <td>${SecurityClient.escapeHtml(log.actor_name)} (${log.actor_role})</td>
+                                            <td>${SecurityClient.escapeHtml(log.target_entity)}</td>
+                                            <td class="font-mono text-cyan truncate-seal" title="${log.security_seal}">
+                                                ${log.security_seal ? log.security_seal.substring(0, 24) + '...' : 'SEALED'}
+                                            </td>
+                                        </tr>
+                                    `).join('')}
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -593,14 +634,23 @@ const AdminDashboard = (() => {
         }).join('');
     }
 
+    function switchAdminSection(sectionId) {
+        activeAdminSection = sectionId || 'adminTopSection';
+        const targetSecId = `adminSec-${activeAdminSection}`;
+        document.querySelectorAll('.admin-process-section').forEach(sec => {
+            sec.classList.toggle('active', sec.id === targetSecId);
+        });
+
+        if (window.App && typeof window.App.updateAdminNavState === 'function') {
+            window.App.updateAdminNavState(activeAdminSection);
+        }
+
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        highlightSection(activeAdminSection);
+    }
+
     function scrollToSection(id) {
-        const el = document.getElementById(id);
-        if (!el) return;
-        const headerOffset = 95;
-        const elementPosition = el.getBoundingClientRect().top;
-        const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
-        window.scrollTo({ top: offsetPosition, behavior: 'smooth' });
-        highlightSection(id);
+        switchAdminSection(id);
     }
 
     function highlightSection(id) {
@@ -3330,6 +3380,8 @@ const AdminDashboard = (() => {
         openManifestDetailsModal,
         closeManifestDetailsModal,
         printManifest,
+        switchAdminSection,
+        getActiveAdminSection: () => activeAdminSection,
         scrollToSection,
         highlightSection,
         updateNavApprovalBadges,

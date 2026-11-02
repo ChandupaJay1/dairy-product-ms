@@ -235,7 +235,16 @@ const App = (() => {
             targetPanel.classList.add('active');
         }
 
-        // Update breadcrumb text
+        // Update module & view breadcrumb texts
+        const moduleBreadcrumbEl = document.getElementById('currentModuleBreadcrumb');
+        if (moduleBreadcrumbEl) {
+            if (viewName === 'admin' || viewName === 'audit') {
+                moduleBreadcrumbEl.textContent = '🏢 ' + I18n.t('nav_admin_suite', 'Office Admin');
+            } else {
+                moduleBreadcrumbEl.textContent = '🚚 ' + I18n.t('nav_distribution', 'Distribution');
+            }
+        }
+
         const breadcrumbEl = document.getElementById('currentViewBreadcrumb');
         if (breadcrumbEl) {
             const labels = {
@@ -253,25 +262,24 @@ const App = (() => {
                 dailyDispatchesSection: I18n.t('nav_admin_dispatches', 'Daily Dispatches'),
                 fleetRadarSection: I18n.t('nav_admin_radar', 'Fleet GPS Radar'),
                 fleetStaffManagementSection: I18n.t('nav_admin_fleet', 'Fleet & Staff Control'),
-                creditRiskSection: I18n.t('nav_admin_credit', 'Credit & Shop Risk')
+                creditRiskSection: I18n.t('nav_admin_credit', 'Credit & Shop Risk'),
+                auditLogsSection: I18n.t('nav_audit', 'Activity Logs')
             };
 
             if (viewName === 'admin' && activeSection && adminSubLabels[activeSection]) {
-                breadcrumbEl.textContent = `${labels.admin} › ${adminSubLabels[activeSection]}`;
+                breadcrumbEl.textContent = adminSubLabels[activeSection];
             } else {
                 breadcrumbEl.textContent = labels[viewName] || viewName;
             }
         }
 
-        // Load data for specific view
+        // Load data or switch section for specific view
         if (viewName === 'admin') {
-            AdminDashboard.loadAllAdminData();
-            if (activeSection) {
-                setTimeout(() => {
-                    if (window.AdminDashboard && typeof window.AdminDashboard.scrollToSection === 'function') {
-                        window.AdminDashboard.scrollToSection(activeSection);
-                    }
-                }, 160);
+            if (window.AdminDashboard) {
+                if (typeof window.AdminDashboard.switchAdminSection === 'function') {
+                    window.AdminDashboard.switchAdminSection(activeSection);
+                }
+                AdminDashboard.loadAllAdminData();
             }
         } else if (viewName === 'driver') {
             DriverView.loadDriverData();
@@ -283,6 +291,36 @@ const App = (() => {
             ReportsView.loadData();
         } else if (viewName === 'audit') {
             AdminDashboard.loadAllAdminData();
+        }
+    }
+
+    function updateAdminNavState(activeSection) {
+        const sec = activeSection || 'adminTopSection';
+        document.querySelectorAll('.role-nav-btn, .sidebar-nav-btn').forEach(btn => {
+            if (btn.dataset.adminSection) {
+                btn.classList.toggle('active', btn.dataset.adminSection === sec);
+            } else if (btn.dataset.view === 'admin' && !btn.dataset.adminSection) {
+                btn.classList.toggle('active', sec === 'adminTopSection');
+            }
+        });
+
+        const moduleBreadcrumbEl = document.getElementById('currentModuleBreadcrumb');
+        if (moduleBreadcrumbEl) {
+            moduleBreadcrumbEl.textContent = '🏢 ' + I18n.t('nav_admin_suite', 'Office Admin');
+        }
+
+        const breadcrumbEl = document.getElementById('currentViewBreadcrumb');
+        if (breadcrumbEl) {
+            const adminSubLabels = {
+                adminTopSection: I18n.t('nav_admin_kpis', 'Command & KPIs'),
+                approvalCenterSection: I18n.t('nav_admin_approvals', 'Approvals Center'),
+                dailyDispatchesSection: I18n.t('nav_admin_dispatches', 'Daily Dispatches'),
+                fleetRadarSection: I18n.t('nav_admin_radar', 'Fleet GPS Radar'),
+                fleetStaffManagementSection: I18n.t('nav_admin_fleet', 'Fleet & Staff Control'),
+                creditRiskSection: I18n.t('nav_admin_credit', 'Credit & Shop Risk'),
+                auditLogsSection: I18n.t('nav_audit', 'Activity Logs')
+            };
+            breadcrumbEl.textContent = adminSubLabels[sec] || I18n.t('nav_admin', 'Office Admin');
         }
     }
 
@@ -860,6 +898,7 @@ const App = (() => {
     return {
         init,
         switchView,
+        updateAdminNavState,
         toggleMobileDrawer,
         toggleMobileFrame,
         toggleAdminModule,
