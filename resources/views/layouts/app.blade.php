@@ -37,12 +37,196 @@
         }
     </script>
 
+    <!-- Alpine.js Cloak Rule (FOUC Prevention) -->
+    <style>
+        [x-cloak] {
+            display: none !important;
+        }
+    </style>
+
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=figtree:300,400,500,600,700,800,900&display=swap" rel="stylesheet" />
 
     <!-- Scripts & Styles via Vite -->
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+
+    <!-- SweetAlert2 CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <!-- SweetAlert2 Dark Glassmorphic Toast Custom Styles & Tailwind Preflight Isolation -->
+    <style>
+        /* Reset any global SVG or generic div/span margins/paddings for .swal2-container */
+        .swal2-container div,
+        .swal2-container span,
+        .swal2-container svg {
+            margin: 0;
+            padding: 0;
+        }
+
+        .swal2-container svg {
+            display: inline-block;
+            vertical-align: middle;
+        }
+
+        /* Force box-sizing: content-box !important to isolate .swal2-icon, .swal2-success, and all children/pseudo-elements from Tailwind Preflight */
+        .swal2-icon,
+        .swal2-icon *,
+        .swal2-icon *::before,
+        .swal2-icon *::after,
+        .swal2-success,
+        .swal2-success *,
+        .swal2-success *::before,
+        .swal2-success *::after,
+        .swal2-success-ring,
+        .swal2-success-line-tip,
+        .swal2-success-line-long {
+            box-sizing: content-box !important;
+        }
+
+        /* Ensure background of circular line masks matches dark toast background (#18181b) */
+        .swal2-popup.swal2-toast .swal2-success [class^='swal2-success-circular-line'],
+        .swal2-popup.swal2-toast .swal2-success .swal2-success-fix {
+            background-color: #18181b !important;
+        }
+
+        /* Toast Container Positioning */
+        div:where(.swal2-container).swal2-top-end,
+        div:where(.swal2-container).swal2-top-right,
+        .swal2-container.swal2-top-end,
+        .swal2-container.swal2-top-right {
+            top: 1.25rem !important;
+            right: 1.25rem !important;
+            bottom: auto !important;
+            left: auto !important;
+            width: auto !important;
+            max-width: calc(100vw - 2.5rem) !important;
+            padding: 0 !important;
+            z-index: 99999 !important;
+            pointer-events: none !important;
+        }
+
+        /* Toast Popup Pill */
+        div:where(.swal2-container) .swal2-popup.swal2-toast,
+        .swal2-popup.swal2-toast {
+            display: flex !important;
+            flex-direction: row !important;
+            align-items: center !important;
+            justify-content: flex-start !important;
+            width: auto !important;
+            min-width: 280px !important;
+            max-width: 440px !important;
+            padding: 0.75rem 1rem !important;
+            margin: 0 !important;
+            background: #18181b !important;
+            background-color: #18181b !important;
+            color: #ffffff !important;
+            border: 1px solid rgba(63, 63, 70, 0.75) !important;
+            border-radius: 0.875rem !important;
+            box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.8), 0 0 0 1px rgba(255, 255, 255, 0.05) !important;
+            backdrop-filter: blur(16px) !important;
+            -webkit-backdrop-filter: blur(16px) !important;
+            pointer-events: auto !important;
+            gap: 0 !important;
+        }
+
+        /* Suppress unused elements so they never disrupt flex flow */
+        div:where(.swal2-container) .swal2-popup.swal2-toast .swal2-header,
+        div:where(.swal2-container) .swal2-popup.swal2-toast .swal2-actions,
+        div:where(.swal2-container) .swal2-popup.swal2-toast .swal2-footer,
+        div:where(.swal2-container) .swal2-popup.swal2-toast .swal2-loader,
+        div:where(.swal2-container) .swal2-popup.swal2-toast .swal2-close,
+        div:where(.swal2-container) .swal2-popup.swal2-toast .swal2-progress-steps,
+        div:where(.swal2-container) .swal2-popup.swal2-toast .swal2-image,
+        div:where(.swal2-container) .swal2-popup.swal2-toast .swal2-html-container:empty,
+        .swal2-popup.swal2-toast .swal2-header,
+        .swal2-popup.swal2-toast .swal2-actions,
+        .swal2-popup.swal2-toast .swal2-footer,
+        .swal2-popup.swal2-toast .swal2-loader,
+        .swal2-popup.swal2-toast .swal2-close,
+        .swal2-popup.swal2-toast .swal2-progress-steps,
+        .swal2-popup.swal2-toast .swal2-image,
+        .swal2-popup.swal2-toast .swal2-html-container:empty {
+            display: none !important;
+        }
+
+        /* Icon Container: exact 2em geometry at 12px font-size to match internal checkmark coordinates */
+        div:where(.swal2-container) .swal2-popup.swal2-toast .swal2-icon,
+        .swal2-popup.swal2-toast .swal2-icon {
+            position: relative !important;
+            font-size: 12px !important;
+            width: 2em !important;
+            min-width: 2em !important;
+            height: 2em !important;
+            min-height: 2em !important;
+            margin: 0 0.75rem 0 0 !important;
+            flex-shrink: 0 !important;
+            border: 2px solid #22c55e !important;
+            border-radius: 50% !important;
+            box-sizing: content-box !important;
+        }
+
+        /* Success Icon Styling */
+        div:where(.swal2-container) .swal2-popup.swal2-toast .swal2-icon.swal2-success,
+        .swal2-popup.swal2-toast .swal2-icon.swal2-success {
+            border-color: #22c55e !important;
+            color: #22c55e !important;
+        }
+        div:where(.swal2-container) .swal2-popup.swal2-toast .swal2-icon.swal2-success [class^='swal2-success-line'],
+        .swal2-popup.swal2-toast .swal2-icon.swal2-success [class^='swal2-success-line'] {
+            background-color: #22c55e !important;
+            box-sizing: content-box !important;
+        }
+        div:where(.swal2-container) .swal2-popup.swal2-toast .swal2-icon.swal2-success .swal2-success-ring,
+        .swal2-popup.swal2-toast .swal2-icon.swal2-success .swal2-success-ring {
+            width: 2em !important;
+            height: 2em !important;
+            border: 2px solid rgba(34, 197, 94, 0.3) !important;
+            border-radius: 50% !important;
+            box-sizing: content-box !important;
+        }
+
+        /* Error Icon Styling */
+        div:where(.swal2-container) .swal2-popup.swal2-toast .swal2-icon.swal2-error,
+        .swal2-popup.swal2-toast .swal2-icon.swal2-error {
+            border-color: #ef4444 !important;
+            color: #ef4444 !important;
+        }
+        div:where(.swal2-container) .swal2-popup.swal2-toast .swal2-icon.swal2-error [class^='swal2-x-mark-line'],
+        .swal2-popup.swal2-toast .swal2-icon.swal2-error [class^='swal2-x-mark-line'] {
+            background-color: #ef4444 !important;
+            box-sizing: content-box !important;
+        }
+
+        /* Title Typography */
+        div:where(.swal2-container) .swal2-popup.swal2-toast .swal2-title,
+        .swal2-popup.swal2-toast .swal2-title {
+            display: block !important;
+            flex: 1 1 auto !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            text-align: left !important;
+            font-family: inherit !important;
+            font-size: 0.8125rem !important;
+            font-weight: 600 !important;
+            color: #f4f4f5 !important;
+            line-height: 1.4 !important;
+            letter-spacing: -0.01em !important;
+        }
+
+        /* Progress Bar: Green for success, Red for error */
+        div:where(.swal2-container) .swal2-popup.swal2-toast .swal2-timer-progress-bar,
+        .swal2-popup.swal2-toast .swal2-timer-progress-bar {
+            background: #22c55e !important;
+            height: 2.5px !important;
+            border-bottom-left-radius: 0.875rem !important;
+            border-bottom-right-radius: 0.875rem !important;
+        }
+        div:where(.swal2-container) .swal2-popup.swal2-toast.swal2-icon-error .swal2-timer-progress-bar,
+        .swal2-popup.swal2-toast.swal2-icon-error .swal2-timer-progress-bar {
+            background: #ef4444 !important;
+        }
+    </style>
 </head>
 <body class="bg-slate-50 dark:bg-zinc-950 text-zinc-800 dark:text-zinc-100 font-sans antialiased min-h-screen selection:bg-lime-400 selection:text-black overflow-x-hidden transition-colors duration-300">
 
@@ -152,6 +336,72 @@
         </footer>
 
     </div>
+
+    <!-- SweetAlert2 Toast Notification Helper & Session Flash Handlers -->
+    <script>
+        window.fireSweetToast = function (icon, message) {
+            if (typeof Swal === 'undefined' || !message) return;
+            const Toast = Swal.mixin({
+                toast: true,
+                position: 'top-end',
+                showConfirmButton: false,
+                timer: 3000,
+                timerProgressBar: true,
+                background: '#18181b',
+                color: '#ffffff',
+                iconColor: icon === 'error' ? '#ef4444' : '#22c55e',
+                grow: false,
+                width: 'auto',
+                didOpen: (toast) => {
+                    toast.onmouseenter = Swal.stopTimer;
+                    toast.onmouseleave = Swal.resumeTimer;
+                }
+            });
+
+            Toast.fire({
+                icon: icon,
+                title: message
+            });
+        };
+
+        window.showSuccessToast = function (message) {
+            window.fireSweetToast('success', message);
+        };
+
+        window.showErrorToast = function (message) {
+            window.fireSweetToast('error', message);
+        };
+    </script>
+
+    @if (session('success'))
+        <script>
+            (function () {
+                function triggerSuccessToast() {
+                    window.fireSweetToast('success', @json(session('success')));
+                }
+                if (document.readyState === 'loading') {
+                    document.addEventListener('DOMContentLoaded', triggerSuccessToast);
+                } else {
+                    triggerSuccessToast();
+                }
+            })();
+        </script>
+    @endif
+
+    @if (session('error'))
+        <script>
+            (function () {
+                function triggerErrorToast() {
+                    window.fireSweetToast('error', @json(session('error')));
+                }
+                if (document.readyState === 'loading') {
+                    document.addEventListener('DOMContentLoaded', triggerErrorToast);
+                } else {
+                    triggerErrorToast();
+                }
+            })();
+        </script>
+    @endif
 
 </body>
 </html>
