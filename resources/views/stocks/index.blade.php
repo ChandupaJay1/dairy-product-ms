@@ -14,6 +14,17 @@
         showAdjustModal: false,
         showHistoryModal: false,
         showDeleteModal: false,
+        showExportModal: false,
+        exportType: 'all',
+        openExportModal() {
+            this.exportType = 'all';
+            this.showExportModal = true;
+        },
+        downloadExportPdf() {
+            const url = '{{ route('reports.inventory-pdf') }}?type=' + encodeURIComponent(this.exportType);
+            window.open(url, '_blank');
+            this.showExportModal = false;
+        },
         activeFilter: 'all',
         searchQuery: '',
         isReceiving: false,
@@ -305,8 +316,18 @@
                     </p>
                 </div>
 
-                <!-- Primary CTA: Add/Receive Stock Button -->
-                <div class="flex items-center gap-3 shrink-0">
+                <!-- Primary CTAs: Export PDF Report & Add/Receive Stock -->
+                <div class="flex items-center gap-3 shrink-0 flex-wrap">
+                    <button type="button" 
+                            @click="openExportModal()"
+                            title="Export dynamic PDF audit report"
+                            class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-3.5 rounded-xl border border-zinc-300 dark:border-white/10 bg-white/70 dark:bg-zinc-900/60 hover:bg-white dark:hover:bg-zinc-800 text-zinc-700 dark:text-zinc-200 hover:text-red-600 dark:hover:text-red-400 hover:border-red-400/40 text-xs sm:text-sm font-bold shadow-sm backdrop-blur-md transform transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] focus:outline-none focus:ring-4 focus:ring-red-400/20">
+                        <svg class="w-4 h-4 text-red-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        </svg>
+                        <span>Export PDF Report</span>
+                    </button>
+
                     <button type="button" 
                             @disabled(empty($hasProducts))
                             @click="{{ !empty($hasProducts) ? 'showReceiveModal = true' : '' }}"
@@ -1487,6 +1508,157 @@
                             :class="isDeleting ? 'opacity-70 cursor-not-allowed' : 'hover:scale-[1.02] active:scale-[0.98]'"
                             class="px-5 py-2.5 rounded-xl bg-gradient-to-r from-red-600 to-rose-600 text-white font-bold text-xs shadow-md shadow-red-500/20 hover:from-red-500 hover:to-rose-500 transition-all inline-flex items-center gap-2">
                         <span x-text="isDeleting ? 'Deleting...' : 'Delete Batch'">Delete Batch</span>
+                    </button>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- ========================================================= -->
+        <!-- 'EXPORT PDF REPORT' MODAL (Alpine.js)                     -->
+        <!-- ========================================================= -->
+        <div x-show="showExportModal" 
+             x-cloak
+             class="fixed inset-0 z-50 overflow-y-auto px-4 py-6 flex items-center justify-center">
+            
+            <!-- Frosted Backdrop -->
+            <div x-show="showExportModal" 
+                 x-transition:enter="ease-out duration-300"
+                 x-transition:enter-start="opacity-0"
+                 x-transition:enter-end="opacity-100"
+                 x-transition:leave="ease-in duration-200"
+                 x-transition:leave-start="opacity-100"
+                 x-transition:leave-end="opacity-0"
+                 @click="showExportModal = false"
+                 class="fixed inset-0 bg-zinc-950/80 backdrop-blur-md transition-opacity"></div>
+
+            <!-- Modal Panel -->
+            <div x-show="showExportModal" 
+                 x-transition:enter="ease-out duration-300"
+                 x-transition:enter-start="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
+                 x-transition:enter-end="opacity-100 translate-y-0 sm:scale-100"
+                 x-transition:leave="ease-in duration-200"
+                 x-transition:leave-start="opacity-100 translate-y-0 sm:scale-100"
+                 x-transition:leave-end="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
+                 class="relative w-full max-w-lg rounded-3xl bg-white/95 dark:bg-zinc-950/95 border border-zinc-200/80 dark:border-white/10 p-6 sm:p-7 shadow-2xl backdrop-blur-xl transition-all">
+                
+                <!-- Modal Header -->
+                <div class="flex items-start justify-between pb-4 border-b border-zinc-200/80 dark:border-white/5">
+                    <div class="flex items-center gap-3.5">
+                        <div class="w-11 h-11 rounded-2xl bg-red-100 dark:bg-red-500/15 border border-red-300/80 dark:border-red-500/30 flex items-center justify-center shrink-0 text-red-600 dark:text-red-400 shadow-sm">
+                            <svg class="w-5 h-5 stroke-[2]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                            </svg>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-bold text-zinc-900 dark:text-white tracking-tight">
+                                Export PDF Report
+                            </h3>
+                            <p class="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">
+                                Select an inventory scope to generate a print-ready audit document.
+                            </p>
+                        </div>
+                    </div>
+
+                    <button @click="showExportModal = false" 
+                            type="button"
+                            class="p-2 rounded-xl text-zinc-400 hover:text-zinc-800 dark:hover:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-900 transition-colors">
+                        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                </div>
+
+                <!-- Scope Selection Form -->
+                <div class="my-5 space-y-2.5">
+                    <label class="block text-xs font-bold uppercase tracking-wider text-zinc-700 dark:text-zinc-300 mb-2">
+                        Select Report Scope
+                    </label>
+
+                    <!-- Option 1: All -->
+                    <label @click="exportType = 'all'"
+                           :class="exportType === 'all' ? 'border-lime-500/80 bg-lime-500/10 dark:bg-lime-400/10 ring-1 ring-lime-400/30' : 'border-zinc-200 dark:border-white/5 bg-zinc-50/60 dark:bg-zinc-900/40 hover:bg-zinc-100/70 dark:hover:bg-zinc-900/80'"
+                           class="flex items-start gap-3 p-3.5 rounded-2xl border cursor-pointer transition-all">
+                        <input type="radio" name="exportScope" value="all" x-model="exportType" class="mt-1 text-lime-500 focus:ring-lime-400/30" />
+                        <div class="flex-1">
+                            <div class="flex items-center justify-between">
+                                <span class="text-xs font-bold text-zinc-900 dark:text-zinc-100">Full Inventory Audit Report</span>
+                                <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-lime-500/20 text-lime-700 dark:text-lime-300">Recommended</span>
+                            </div>
+                            <p class="text-[11px] text-zinc-500 dark:text-zinc-400 mt-0.5">
+                                Complete summary with all KPIs, products overview, active lots, low stock alerts, and expiry watchlist.
+                            </p>
+                        </div>
+                    </label>
+
+                    <!-- Option 2: Products -->
+                    <label @click="exportType = 'products'"
+                           :class="exportType === 'products' ? 'border-lime-500/80 bg-lime-500/10 dark:bg-lime-400/10 ring-1 ring-lime-400/30' : 'border-zinc-200 dark:border-white/5 bg-zinc-50/60 dark:bg-zinc-900/40 hover:bg-zinc-100/70 dark:hover:bg-zinc-900/80'"
+                           class="flex items-start gap-3 p-3.5 rounded-2xl border cursor-pointer transition-all">
+                        <input type="radio" name="exportScope" value="products" x-model="exportType" class="mt-1 text-lime-500 focus:ring-lime-400/30" />
+                        <div class="flex-1">
+                            <span class="text-xs font-bold text-zinc-900 dark:text-zinc-100">Products Directory Only</span>
+                            <p class="text-[11px] text-zinc-500 dark:text-zinc-400 mt-0.5">
+                                Complete list of registered products, categories, SKU identifiers, unit prices, and aggregated stock.
+                            </p>
+                        </div>
+                    </label>
+
+                    <!-- Option 3: Stocks -->
+                    <label @click="exportType = 'stocks'"
+                           :class="exportType === 'stocks' ? 'border-lime-500/80 bg-lime-500/10 dark:bg-lime-400/10 ring-1 ring-lime-400/30' : 'border-zinc-200 dark:border-white/5 bg-zinc-50/60 dark:bg-zinc-900/40 hover:bg-zinc-100/70 dark:hover:bg-zinc-900/80'"
+                           class="flex items-start gap-3 p-3.5 rounded-2xl border cursor-pointer transition-all">
+                        <input type="radio" name="exportScope" value="stocks" x-model="exportType" class="mt-1 text-lime-500 focus:ring-lime-400/30" />
+                        <div class="flex-1">
+                            <span class="text-xs font-bold text-zinc-900 dark:text-zinc-100">Active Stocks Only</span>
+                            <p class="text-[11px] text-zinc-500 dark:text-zinc-400 mt-0.5">
+                                Detailed breakdown of current batches, batch numbers, initial receipts, available units, and dates.
+                            </p>
+                        </div>
+                    </label>
+
+                    <!-- Option 4: Low Stock -->
+                    <label @click="exportType = 'low_stock'"
+                           :class="exportType === 'low_stock' ? 'border-amber-500/80 bg-amber-500/10 dark:bg-amber-400/10 ring-1 ring-amber-400/30' : 'border-zinc-200 dark:border-white/5 bg-zinc-50/60 dark:bg-zinc-900/40 hover:bg-zinc-100/70 dark:hover:bg-zinc-900/80'"
+                           class="flex items-start gap-3 p-3.5 rounded-2xl border cursor-pointer transition-all">
+                        <input type="radio" name="exportScope" value="low_stock" x-model="exportType" class="mt-1 text-amber-500 focus:ring-amber-400/30" />
+                        <div class="flex-1">
+                            <span class="text-xs font-bold text-zinc-900 dark:text-zinc-100">Low Stock Alerts Only</span>
+                            <p class="text-[11px] text-zinc-500 dark:text-zinc-400 mt-0.5">
+                                Focus report displaying critical batches operating at or below the 50 units safety threshold.
+                            </p>
+                        </div>
+                    </label>
+
+                    <!-- Option 5: Expiring Soon -->
+                    <label @click="exportType = 'expiring_soon'"
+                           :class="exportType === 'expiring_soon' ? 'border-red-500/80 bg-red-500/10 dark:bg-red-400/10 ring-1 ring-red-400/30' : 'border-zinc-200 dark:border-white/5 bg-zinc-50/60 dark:bg-zinc-900/40 hover:bg-zinc-100/70 dark:hover:bg-zinc-900/80'"
+                           class="flex items-start gap-3 p-3.5 rounded-2xl border cursor-pointer transition-all">
+                        <input type="radio" name="exportScope" value="expiring_soon" x-model="exportType" class="mt-1 text-red-500 focus:ring-red-400/30" />
+                        <div class="flex-1">
+                            <span class="text-xs font-bold text-zinc-900 dark:text-zinc-100">Expiring Soon Batches Only</span>
+                            <p class="text-[11px] text-zinc-500 dark:text-zinc-400 mt-0.5">
+                                Urgent inspection report on batches expiring within the next 7 days or already past expiration.
+                            </p>
+                        </div>
+                    </label>
+                </div>
+
+                <!-- Modal Actions -->
+                <div class="flex items-center justify-end gap-3 pt-4 border-t border-zinc-200/80 dark:border-white/5">
+                    <button type="button" 
+                            @click="showExportModal = false"
+                            class="px-4 py-2.5 rounded-xl border border-zinc-200 dark:border-zinc-800 text-xs font-semibold text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-900 transition-colors">
+                        Cancel
+                    </button>
+
+                    <button type="button" 
+                            @click="downloadExportPdf()"
+                            class="px-5 py-2.5 rounded-xl bg-gradient-to-r from-amber-400 via-yellow-400 to-lime-400 text-zinc-950 font-bold text-xs shadow-md shadow-lime-500/20 hover:scale-[1.02] active:scale-[0.98] transition-all inline-flex items-center gap-2">
+                        <svg class="w-4 h-4 stroke-[2.5]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        </svg>
+                        <span>Download PDF</span>
                     </button>
                 </div>
 

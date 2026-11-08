@@ -13,6 +13,18 @@
         showAddModal: {{ $errors->any() ? 'true' : 'false' }},
         showEditModal: false,
         showDeleteModal: false,
+        showCategoryModal: false,
+        showExportModal: false,
+        exportType: 'all',
+        openExportModal() {
+            this.exportType = 'all';
+            this.showExportModal = true;
+        },
+        downloadExportPdf() {
+            const url = '{{ route('reports.inventory-pdf') }}?type=' + encodeURIComponent(this.exportType);
+            window.open(url, '_blank');
+            this.showExportModal = false;
+        },
         activeCategory: 'all',
         searchQuery: '',
         nextSku: '{{ $nextSku ?? 'DRY-0001' }}',
@@ -24,6 +36,22 @@
         deleteProductId: null,
         deleteProductName: '',
         isDeleting: false,
+        categoryForm: {
+            name: ''
+        },
+        categoryErrors: {},
+        isAddingCategory: false,
+        isDeletingCategory: null,
+        categoriesList: [
+            @foreach ($categories as $cat)
+                {
+                    id: {{ $cat->id }},
+                    name: {{ json_encode($cat->name) }},
+                    slug: {{ json_encode($cat->slug) }},
+                    products_count: {{ (int) ($cat->products_count ?? $cat->products->count()) }}
+                },
+            @endforeach
+        ],
         editForm: {
             id: null,
             name: '',
@@ -194,6 +222,114 @@
             } finally {
                 this.isDeleting = false;
             }
+        },
+        openCategoryModal() {
+            this.categoryErrors = {};
+            this.categoryForm.name = '';
+            this.showCategoryModal = true;
+        },
+        async submitAddCategory() {
+            this.categoryErrors = {};
+            if (!this.categoryForm.name || !this.categoryForm.name.trim()) {
+                this.categoryErrors = { name: 'The category name field is required.' };
+                return;
+            }
+            this.isAddingCategory = true;
+
+            try {
+                const response = await fetch('{{ route('categories.store') }}', {
+                    method: 'POST',
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                        'X-Requested-With': 'XMLHttpRequest',
+                    },
+                    body: JSON.stringify({
+                        name: this.categoryForm.name.trim()
+                    })
+                });
+
+                const data = await response.json();
+
+                if (response.status === 422 && data.errors) {
+                    const firstKey = Object.keys(data.errors)[0];
+                    if (firstKey) {
+                        this.categoryErrors = {
+                            [firstKey]: data.errors[firstKey][0]
+                        };
+                    }
+                    return;
+                }
+
+                if (response.ok && data.success) {
+                    const newCategory = {
+                        id: data.category.id,
+                        name: data.category.name,
+                        slug: data.category.slug,
+                        products_count: data.category.products_count ?? 0
+                    };
+                    this.categoriesList.push(newCategory);
+                    this.categoriesList.sort((a, b) => a.name.localeCompare(b.name));
+                    this.categoryForm.name = '';
+                    this.categoryErrors = {};
+                    if (window.showSuccessToast) {
+                        window.showSuccessToast(data.message || 'Category added successfully.');
+                    }
+                } else {
+                    this.categoryErrors = {
+                        name: data.message || 'An error occurred while adding the category.'
+                    };
+                }
+            } catch (err) {
+                console.error('Category add error:', err);
+                this.categoryErrors = {
+                    name: 'An unexpected network error occurred.'
+                };
+            } finally {
+                this.isAddingCategory = false;
+            }
+        },
+        async deleteCategory(id, name) {
+            this.isDeletingCategory = id;
+
+            try {
+                const response = await fetch('/categories/' + id, {
+                    method: 'POST',
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                        'X-Requested-With': 'XMLHttpRequest',
+                    },
+                    body: JSON.stringify({
+                        '_method': 'DELETE'
+                    })
+                });
+
+                const data = await response.json();
+
+                if (response.ok && data.success) {
+                    this.categoriesList = this.categoriesList.filter(c => c.id !== id);
+                    if (this.activeCategory === name) {
+                        this.activeCategory = 'all';
+                    }
+                    if (window.showSuccessToast) {
+                        window.showSuccessToast(data.message || 'Category deleted successfully.');
+                    }
+                } else {
+                    if (window.showErrorToast) {
+                        window.showErrorToast(data.message || 'Cannot delete this category because products are linked to it.');
+                    }
+                }
+            } catch (err) {
+                console.error('Category delete error:', err);
+                if (window.showErrorToast) {
+                    window.showErrorToast('An unexpected network error occurred.');
+                }
+            } finally {
+                this.isDeletingCategory = null;
+            }
         }
     }">
 
@@ -222,8 +358,27 @@
                     </p>
                 </div>
 
-                <!-- Primary CTA: Add New Product Button -->
-                <div class="flex items-center gap-3 shrink-0">
+                <!-- Primary Actions: Export PDF, Manage Categories & Add Product -->
+                <div class="flex items-center gap-3 shrink-0 flex-wrap">
+                    <button type="button" 
+                            @click="openExportModal()"
+                            title="Export dynamic PDF audit report"
+                            class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-3.5 rounded-xl border border-zinc-300 dark:border-white/10 bg-white/70 dark:bg-zinc-900/60 hover:bg-white dark:hover:bg-zinc-800 text-zinc-700 dark:text-zinc-200 hover:text-red-600 dark:hover:text-red-400 hover:border-red-400/40 text-xs sm:text-sm font-bold shadow-sm backdrop-blur-md transform transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] focus:outline-none focus:ring-4 focus:ring-red-400/20">
+                        <svg class="w-4 h-4 text-red-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        </svg>
+                        <span>Export PDF Report</span>
+                    </button>
+
+                    <button type="button" 
+                            @click="openCategoryModal()"
+                            class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-3.5 rounded-xl border border-zinc-300 dark:border-white/10 bg-white/70 dark:bg-zinc-900/60 hover:bg-white dark:hover:bg-zinc-800 text-zinc-700 dark:text-zinc-200 hover:text-lime-600 dark:hover:text-lime-400 hover:border-lime-400/40 text-xs sm:text-sm font-bold shadow-sm backdrop-blur-md transform transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] focus:outline-none focus:ring-4 focus:ring-lime-400/20">
+                        <svg class="w-4 h-4 stroke-[2]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
+                        </svg>
+                        <span>Manage Categories</span>
+                    </button>
+
                     <button type="button" 
                             @click="openAddModal()"
                             class="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 px-6 py-3.5 rounded-xl bg-gradient-to-r from-amber-400 via-yellow-400 to-lime-400 text-zinc-950 text-xs sm:text-sm font-bold shadow-[0_10px_25px_-5px_rgba(163,230,53,0.35)] hover:shadow-[0_15px_35px_-5px_rgba(163,230,53,0.5)] transform transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] focus:outline-none focus:ring-4 focus:ring-lime-400/30">
@@ -300,41 +455,32 @@
                             <span>All Products</span>
                         </div>
                         <div class="flex items-center gap-2">
-                            <span class="text-[11px] font-mono px-1.5 py-0.5 rounded-md bg-zinc-100 dark:bg-zinc-900 border border-zinc-200/60 dark:border-white/5 text-zinc-500 dark:text-zinc-400">{{ $products->count() }}</span>
+                            <span class="text-[11px] px-1.5 py-0.5 rounded-md bg-zinc-100 dark:bg-zinc-900 border border-zinc-200/60 dark:border-white/5 text-zinc-500 dark:text-zinc-400">{{ $products->count() }}</span>
                             <svg x-show="activeCategory === 'all'" class="w-3.5 h-3.5 text-lime-600 dark:text-lime-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" />
                             </svg>
                         </div>
                     </button>
 
-                    @foreach ($categories as $cat)
-                        @php
-                            $catDotColor = match($cat->name) {
-                                'Drinks' => 'bg-cyan-500 dark:bg-cyan-400',
-                                'Curd' => 'bg-lime-600 dark:bg-lime-400',
-                                'Yoghurt' => 'bg-pink-500 dark:bg-pink-400',
-                                'Butter' => 'bg-amber-500 dark:bg-amber-400',
-                                default => 'bg-emerald-500 dark:bg-emerald-400',
-                            };
-                        @endphp
+                    <template x-for="cat in categoriesList" :key="cat.id">
                         <button type="button" 
-                                @click="activeCategory = '{{ $cat->name }}'; dropdownOpen = false"
-                                :class="activeCategory === '{{ $cat->name }}' 
+                                @click="activeCategory = cat.name; dropdownOpen = false"
+                                :class="activeCategory === cat.name 
                                     ? 'bg-lime-500/10 dark:bg-lime-400/15 text-lime-800 dark:text-lime-300 font-bold' 
                                     : 'text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-900/70 font-medium'"
                                 class="w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs transition-colors text-left group">
                             <div class="flex items-center gap-2.5">
-                                <span class="w-2 h-2 rounded-full {{ $catDotColor }}"></span>
-                                <span>{{ $cat->name }}</span>
+                                <span class="w-2 h-2 rounded-full bg-emerald-500 dark:bg-emerald-400"></span>
+                                <span x-text="cat.name"></span>
                             </div>
                             <div class="flex items-center gap-2">
-                                <span class="text-[11px] font-mono px-1.5 py-0.5 rounded-md bg-zinc-100 dark:bg-zinc-900 border border-zinc-200/60 dark:border-white/5 text-zinc-500 dark:text-zinc-400">{{ $cat->products_count ?? $cat->products->count() }}</span>
-                                <svg x-show="activeCategory === '{{ $cat->name }}'" class="w-3.5 h-3.5 text-lime-600 dark:text-lime-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <span class="text-[11px] px-1.5 py-0.5 rounded-md bg-zinc-100 dark:bg-zinc-900 border border-zinc-200/60 dark:border-white/5 text-zinc-500 dark:text-zinc-400" x-text="cat.products_count ?? 0"></span>
+                                <svg x-show="activeCategory === cat.name" class="w-3.5 h-3.5 text-lime-600 dark:text-lime-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" />
                                 </svg>
                             </div>
                         </button>
-                    @endforeach
+                    </template>
 
                 </div>
             </div>
@@ -528,10 +674,10 @@
                             <select name="category_id" 
                                     :class="errors.category_id ? 'border-red-500 dark:border-red-500 focus:border-red-500 focus:ring-red-400/20' : 'border-zinc-300 dark:border-zinc-800 focus:border-lime-500 focus:ring-lime-400/20'"
                                     class="w-full px-4 py-2.5 bg-white/90 dark:bg-zinc-900/80 border text-zinc-900 dark:text-zinc-100 text-sm rounded-xl focus:ring-4 focus:outline-none transition-all shadow-sm">
-                                <option value="" disabled {{ old('category_id') ? '' : 'selected' }}>Select a category</option>
-                                @foreach ($categories as $category)
-                                    <option value="{{ $category->id }}" {{ old('category_id') == $category->id ? 'selected' : '' }}>{{ $category->name }}</option>
-                                @endforeach
+                                <option value="" disabled selected>Select a category</option>
+                                <template x-for="category in categoriesList" :key="category.id">
+                                    <option :value="category.id" x-text="category.name"></option>
+                                </template>
                             </select>
                             <p x-show="errors.category_id" x-text="errors.category_id" class="text-red-500 dark:text-red-400 text-xs font-medium mt-1"></p>
                         </div>
@@ -695,9 +841,9 @@
                                     :class="editErrors.category_id ? 'border-red-500 dark:border-red-500 focus:border-red-500 focus:ring-red-400/20' : 'border-zinc-300 dark:border-zinc-800 focus:border-lime-500 focus:ring-lime-400/20'"
                                     class="w-full px-4 py-2.5 bg-white/90 dark:bg-zinc-900/80 border text-zinc-900 dark:text-zinc-100 text-sm rounded-xl focus:ring-4 focus:outline-none transition-all shadow-sm">
                                 <option value="" disabled>Select a category</option>
-                                @foreach ($categories as $category)
-                                    <option value="{{ $category->id }}">{{ $category->name }}</option>
-                                @endforeach
+                                <template x-for="category in categoriesList" :key="category.id">
+                                    <option :value="category.id" x-text="category.name" :selected="editForm.category_id == category.id"></option>
+                                </template>
                             </select>
                             <p x-show="editErrors.category_id" x-text="editErrors.category_id" class="text-red-500 dark:text-red-400 text-xs font-medium mt-1"></p>
                         </div>
@@ -852,6 +998,299 @@
                             :class="isDeleting ? 'opacity-70 cursor-not-allowed' : 'hover:scale-[1.02] active:scale-[0.98]'"
                             class="px-5 py-2.5 rounded-xl bg-gradient-to-r from-red-600 to-rose-600 text-white font-bold text-xs shadow-md shadow-red-500/20 hover:from-red-500 hover:to-rose-500 transition-all inline-flex items-center gap-2">
                         <span x-text="isDeleting ? 'Deleting...' : 'Delete Product'">Delete Product</span>
+                    </button>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- ========================================================= -->
+        <!-- "MANAGE CATEGORIES" MODAL (Alpine.js)                     -->
+        <!-- ========================================================= -->
+        <div x-show="showCategoryModal" 
+             x-cloak
+             class="fixed inset-0 z-50 overflow-y-auto px-4 py-6 flex items-center justify-center">
+            
+            <!-- Frosted Backdrop -->
+            <div x-show="showCategoryModal" 
+                 x-transition:enter="ease-out duration-300"
+                 x-transition:enter-start="opacity-0"
+                 x-transition:enter-end="opacity-100"
+                 x-transition:leave="ease-in duration-200"
+                 x-transition:leave-start="opacity-100"
+                 x-transition:leave-end="opacity-0"
+                 @click="showCategoryModal = false"
+                 class="fixed inset-0 bg-zinc-900/40 dark:bg-black/80 backdrop-blur-sm"></div>
+
+            <!-- Modal Panel -->
+            <div x-show="showCategoryModal" 
+                 x-transition:enter="ease-out duration-300"
+                 x-transition:enter-start="opacity-0 translate-y-4 sm:scale-95"
+                 x-transition:enter-end="opacity-100 translate-y-0 sm:scale-100"
+                 x-transition:leave="ease-in duration-200"
+                 x-transition:leave-start="opacity-100 translate-y-0 sm:scale-100"
+                 x-transition:leave-end="opacity-0 translate-y-4 sm:scale-95"
+                 class="relative w-full max-w-lg backdrop-blur-3xl bg-white/95 dark:bg-zinc-950/95 border border-zinc-200/80 dark:border-white/10 rounded-3xl p-6 sm:p-8 shadow-2xl overflow-hidden z-10 transition-colors">
+                
+                <!-- Modal Top Accent Sheen -->
+                <div class="absolute inset-x-0 top-0 h-[2px] bg-gradient-to-r from-transparent via-amber-400 via-lime-400 to-transparent opacity-80"></div>
+
+                <!-- Header with Close Button -->
+                <div class="flex items-start justify-between mb-6">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-2xl bg-lime-100 dark:bg-lime-400/10 border border-lime-300 dark:border-lime-400/20 flex items-center justify-center text-lime-600 dark:text-lime-400">
+                            <svg class="w-5 h-5 stroke-[2]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
+                            </svg>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-bold text-zinc-900 dark:text-white tracking-tight">
+                                Manage Categories
+                            </h3>
+                            <p class="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">
+                                Add new product classifications or remove unused categories.
+                            </p>
+                        </div>
+                    </div>
+
+                    <button @click="showCategoryModal = false" 
+                            type="button"
+                            class="p-2 rounded-xl text-zinc-400 hover:text-zinc-800 dark:hover:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-900 transition-colors">
+                        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                </div>
+
+                <!-- Add Category Form (Top Section) -->
+                <div class="p-4 rounded-2xl bg-zinc-100/70 dark:bg-zinc-900/40 border border-zinc-200/70 dark:border-white/5 mb-6">
+                    <form @submit.prevent="submitAddCategory()" novalidate class="space-y-2">
+                        <label class="block text-xs font-bold uppercase tracking-wider text-zinc-700 dark:text-zinc-300">
+                            Category Name <span class="text-red-500">*</span>
+                        </label>
+                        <div class="flex items-center gap-2">
+                            <input type="text" 
+                                   x-model="categoryForm.name"
+                                   @input="categoryErrors.name = ''"
+                                   placeholder="e.g. Cheese, Butter, Ice Cream"
+                                   required
+                                   maxlength="50"
+                                   :class="categoryErrors.name ? 'border-red-500 dark:border-red-500 focus:border-red-500 focus:ring-red-400/20' : 'border-zinc-300 dark:border-zinc-800 focus:border-lime-500 focus:ring-lime-400/20'"
+                                   class="flex-1 min-w-0 px-4 py-2.5 bg-white/90 dark:bg-zinc-900/80 border text-zinc-900 dark:text-zinc-100 placeholder-zinc-400 text-sm rounded-xl focus:ring-4 focus:outline-none transition-all shadow-sm" />
+                            
+                            <button type="submit" 
+                                    :disabled="isAddingCategory"
+                                    :class="isAddingCategory ? 'opacity-70 cursor-not-allowed' : 'hover:scale-[1.02] active:scale-[0.98]'"
+                                    class="px-4 py-2.5 rounded-xl bg-gradient-to-r from-amber-400 via-yellow-400 to-lime-400 text-zinc-950 font-bold text-xs shadow-md transition-all shrink-0 inline-flex items-center gap-1.5">
+                                <svg class="w-3.5 h-3.5 stroke-[2.5]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
+                                </svg>
+                                <span x-text="isAddingCategory ? 'Adding...' : 'Add Category'">Add Category</span>
+                            </button>
+                        </div>
+                        <p x-show="categoryErrors.name" x-text="categoryErrors.name" class="text-red-500 dark:text-red-400 text-xs font-medium mt-1.5"></p>
+                    </form>
+                </div>
+
+                <!-- Existing Categories List (Bottom Section) -->
+                <div>
+                    <div class="flex items-center justify-between mb-3 px-1">
+                        <span class="text-xs font-bold uppercase tracking-wider text-zinc-500 dark:text-zinc-400">
+                            Existing Categories
+                        </span>
+                        <span class="px-2 py-0.5 rounded-full text-[11px] font-bold bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300" 
+                              x-text="categoriesList.length + ' Registered'"></span>
+                    </div>
+
+                    <div class="max-h-64 overflow-y-auto space-y-2 pr-1">
+                        <template x-for="cat in categoriesList" :key="cat.id">
+                            <div class="p-3.5 rounded-2xl bg-zinc-50/80 dark:bg-zinc-900/50 border border-zinc-200/70 dark:border-white/5 flex items-center justify-between gap-3 hover:border-zinc-300 dark:hover:border-white/10 transition-colors">
+                                <div class="flex items-center gap-2.5 min-w-0">
+                                    <span class="w-2 h-2 rounded-full bg-lime-500 dark:bg-lime-400 shrink-0"></span>
+                                    <span class="text-xs sm:text-sm font-bold text-zinc-900 dark:text-white truncate" x-text="cat.name"></span>
+                                </div>
+
+                                <div class="flex items-center gap-2 shrink-0">
+                                    <span class="px-2.5 py-1 rounded-full text-[11px] font-semibold bg-zinc-200/70 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 border border-zinc-300/50 dark:border-white/5"
+                                          x-text="(cat.products_count ?? 0) + ' ' + ((cat.products_count ?? 0) === 1 ? 'Product' : 'Products')">
+                                    </span>
+
+                                    <button type="button" 
+                                            @click="deleteCategory(cat.id, cat.name)"
+                                            :disabled="isDeletingCategory === cat.id"
+                                            title="Delete Category"
+                                            class="p-2 rounded-xl text-zinc-400 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-400/10 transition-colors">
+                                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                        </svg>
+                                    </button>
+                                </div>
+                            </div>
+                        </template>
+
+                        <div x-show="categoriesList.length === 0" class="py-8 px-4 text-center rounded-2xl bg-zinc-50/50 dark:bg-zinc-900/20 border border-dashed border-zinc-200 dark:border-zinc-800">
+                            <p class="text-xs text-zinc-500 dark:text-zinc-400">No categories registered yet.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Modal Actions -->
+                <div class="mt-6 pt-4 border-t border-zinc-200/80 dark:border-white/5 flex items-center justify-end">
+                    <button type="button" 
+                            @click="showCategoryModal = false"
+                            class="px-5 py-2.5 rounded-xl border border-zinc-300 dark:border-zinc-800 text-xs font-semibold text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-900 transition-colors">
+                        Close
+                    </button>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- ========================================================= -->
+        <!-- 'EXPORT PDF REPORT' MODAL (Alpine.js)                     -->
+        <!-- ========================================================= -->
+        <div x-show="showExportModal" 
+             x-cloak
+             class="fixed inset-0 z-50 overflow-y-auto px-4 py-6 flex items-center justify-center">
+            
+            <!-- Frosted Backdrop -->
+            <div x-show="showExportModal" 
+                 x-transition:enter="ease-out duration-300"
+                 x-transition:enter-start="opacity-0"
+                 x-transition:enter-end="opacity-100"
+                 x-transition:leave="ease-in duration-200"
+                 x-transition:leave-start="opacity-100"
+                 x-transition:leave-end="opacity-0"
+                 @click="showExportModal = false"
+                 class="fixed inset-0 bg-zinc-950/80 backdrop-blur-md transition-opacity"></div>
+
+            <!-- Modal Panel -->
+            <div x-show="showExportModal" 
+                 x-transition:enter="ease-out duration-300"
+                 x-transition:enter-start="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
+                 x-transition:enter-end="opacity-100 translate-y-0 sm:scale-100"
+                 x-transition:leave="ease-in duration-200"
+                 x-transition:leave-start="opacity-100 translate-y-0 sm:scale-100"
+                 x-transition:leave-end="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
+                 class="relative w-full max-w-lg rounded-3xl bg-white/95 dark:bg-zinc-950/95 border border-zinc-200/80 dark:border-white/10 p-6 sm:p-7 shadow-2xl backdrop-blur-xl transition-all">
+                
+                <!-- Modal Header -->
+                <div class="flex items-start justify-between pb-4 border-b border-zinc-200/80 dark:border-white/5">
+                    <div class="flex items-center gap-3.5">
+                        <div class="w-11 h-11 rounded-2xl bg-red-100 dark:bg-red-500/15 border border-red-300/80 dark:border-red-500/30 flex items-center justify-center shrink-0 text-red-600 dark:text-red-400 shadow-sm">
+                            <svg class="w-5 h-5 stroke-[2]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                            </svg>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-bold text-zinc-900 dark:text-white tracking-tight">
+                                Export PDF Report
+                            </h3>
+                            <p class="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">
+                                Select an inventory scope to generate a print-ready audit document.
+                            </p>
+                        </div>
+                    </div>
+
+                    <button @click="showExportModal = false" 
+                            type="button"
+                            class="p-2 rounded-xl text-zinc-400 hover:text-zinc-800 dark:hover:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-900 transition-colors">
+                        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                </div>
+
+                <!-- Scope Selection Form -->
+                <div class="my-5 space-y-2.5">
+                    <label class="block text-xs font-bold uppercase tracking-wider text-zinc-700 dark:text-zinc-300 mb-2">
+                        Select Report Scope
+                    </label>
+
+                    <!-- Option 1: All -->
+                    <label @click="exportType = 'all'"
+                           :class="exportType === 'all' ? 'border-lime-500/80 bg-lime-500/10 dark:bg-lime-400/10 ring-1 ring-lime-400/30' : 'border-zinc-200 dark:border-white/5 bg-zinc-50/60 dark:bg-zinc-900/40 hover:bg-zinc-100/70 dark:hover:bg-zinc-900/80'"
+                           class="flex items-start gap-3 p-3.5 rounded-2xl border cursor-pointer transition-all">
+                        <input type="radio" name="exportScope" value="all" x-model="exportType" class="mt-1 text-lime-500 focus:ring-lime-400/30" />
+                        <div class="flex-1">
+                            <div class="flex items-center justify-between">
+                                <span class="text-xs font-bold text-zinc-900 dark:text-zinc-100">Full Inventory Audit Report</span>
+                                <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-lime-500/20 text-lime-700 dark:text-lime-300">Recommended</span>
+                            </div>
+                            <p class="text-[11px] text-zinc-500 dark:text-zinc-400 mt-0.5">
+                                Complete summary with all KPIs, products overview, active lots, low stock alerts, and expiry watchlist.
+                            </p>
+                        </div>
+                    </label>
+
+                    <!-- Option 2: Products -->
+                    <label @click="exportType = 'products'"
+                           :class="exportType === 'products' ? 'border-lime-500/80 bg-lime-500/10 dark:bg-lime-400/10 ring-1 ring-lime-400/30' : 'border-zinc-200 dark:border-white/5 bg-zinc-50/60 dark:bg-zinc-900/40 hover:bg-zinc-100/70 dark:hover:bg-zinc-900/80'"
+                           class="flex items-start gap-3 p-3.5 rounded-2xl border cursor-pointer transition-all">
+                        <input type="radio" name="exportScope" value="products" x-model="exportType" class="mt-1 text-lime-500 focus:ring-lime-400/30" />
+                        <div class="flex-1">
+                            <span class="text-xs font-bold text-zinc-900 dark:text-zinc-100">Products Directory Only</span>
+                            <p class="text-[11px] text-zinc-500 dark:text-zinc-400 mt-0.5">
+                                Complete list of registered products, categories, SKU identifiers, unit prices, and aggregated stock.
+                            </p>
+                        </div>
+                    </label>
+
+                    <!-- Option 3: Stocks -->
+                    <label @click="exportType = 'stocks'"
+                           :class="exportType === 'stocks' ? 'border-lime-500/80 bg-lime-500/10 dark:bg-lime-400/10 ring-1 ring-lime-400/30' : 'border-zinc-200 dark:border-white/5 bg-zinc-50/60 dark:bg-zinc-900/40 hover:bg-zinc-100/70 dark:hover:bg-zinc-900/80'"
+                           class="flex items-start gap-3 p-3.5 rounded-2xl border cursor-pointer transition-all">
+                        <input type="radio" name="exportScope" value="stocks" x-model="exportType" class="mt-1 text-lime-500 focus:ring-lime-400/30" />
+                        <div class="flex-1">
+                            <span class="text-xs font-bold text-zinc-900 dark:text-zinc-100">Active Stocks Only</span>
+                            <p class="text-[11px] text-zinc-500 dark:text-zinc-400 mt-0.5">
+                                Detailed breakdown of current batches, batch numbers, initial receipts, available units, and dates.
+                            </p>
+                        </div>
+                    </label>
+
+                    <!-- Option 4: Low Stock -->
+                    <label @click="exportType = 'low_stock'"
+                           :class="exportType === 'low_stock' ? 'border-amber-500/80 bg-amber-500/10 dark:bg-amber-400/10 ring-1 ring-amber-400/30' : 'border-zinc-200 dark:border-white/5 bg-zinc-50/60 dark:bg-zinc-900/40 hover:bg-zinc-100/70 dark:hover:bg-zinc-900/80'"
+                           class="flex items-start gap-3 p-3.5 rounded-2xl border cursor-pointer transition-all">
+                        <input type="radio" name="exportScope" value="low_stock" x-model="exportType" class="mt-1 text-amber-500 focus:ring-amber-400/30" />
+                        <div class="flex-1">
+                            <span class="text-xs font-bold text-zinc-900 dark:text-zinc-100">Low Stock Alerts Only</span>
+                            <p class="text-[11px] text-zinc-500 dark:text-zinc-400 mt-0.5">
+                                Focus report displaying critical batches operating at or below the 50 units safety threshold.
+                            </p>
+                        </div>
+                    </label>
+
+                    <!-- Option 5: Expiring Soon -->
+                    <label @click="exportType = 'expiring_soon'"
+                           :class="exportType === 'expiring_soon' ? 'border-red-500/80 bg-red-500/10 dark:bg-red-400/10 ring-1 ring-red-400/30' : 'border-zinc-200 dark:border-white/5 bg-zinc-50/60 dark:bg-zinc-900/40 hover:bg-zinc-100/70 dark:hover:bg-zinc-900/80'"
+                           class="flex items-start gap-3 p-3.5 rounded-2xl border cursor-pointer transition-all">
+                        <input type="radio" name="exportScope" value="expiring_soon" x-model="exportType" class="mt-1 text-red-500 focus:ring-red-400/30" />
+                        <div class="flex-1">
+                            <span class="text-xs font-bold text-zinc-900 dark:text-zinc-100">Expiring Soon Batches Only</span>
+                            <p class="text-[11px] text-zinc-500 dark:text-zinc-400 mt-0.5">
+                                Urgent inspection report on batches expiring within the next 7 days or already past expiration.
+                            </p>
+                        </div>
+                    </label>
+                </div>
+
+                <!-- Modal Actions -->
+                <div class="flex items-center justify-end gap-3 pt-4 border-t border-zinc-200/80 dark:border-white/5">
+                    <button type="button" 
+                            @click="showExportModal = false"
+                            class="px-4 py-2.5 rounded-xl border border-zinc-200 dark:border-zinc-800 text-xs font-semibold text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-900 transition-colors">
+                        Cancel
+                    </button>
+
+                    <button type="button" 
+                            @click="downloadExportPdf()"
+                            class="px-5 py-2.5 rounded-xl bg-gradient-to-r from-amber-400 via-yellow-400 to-lime-400 text-zinc-950 font-bold text-xs shadow-md shadow-lime-500/20 hover:scale-[1.02] active:scale-[0.98] transition-all inline-flex items-center gap-2">
+                        <svg class="w-4 h-4 stroke-[2.5]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        </svg>
+                        <span>Download PDF</span>
                     </button>
                 </div>
 

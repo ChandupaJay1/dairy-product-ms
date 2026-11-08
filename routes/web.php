@@ -1,7 +1,9 @@
 <?php
 
+use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\ReportController;
 use App\Http\Controllers\StockController;
 use Illuminate\Support\Facades\Route;
 
@@ -17,6 +19,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/products', [ProductController::class, 'store'])->name('products.store');
     Route::put('/products/{product}', [ProductController::class, 'update'])->name('products.update');
     Route::delete('/products/{product}', [ProductController::class, 'destroy'])->name('products.destroy');
+
+    // Category Management
+    Route::get('/categories', [CategoryController::class, 'index'])->name('categories.index');
+    Route::post('/categories', [CategoryController::class, 'store'])->name('categories.store');
+    Route::delete('/categories/{category}', [CategoryController::class, 'destroy'])->name('categories.destroy');
     
     // Stocks Management
     Route::get('/stocks', [StockController::class, 'index'])->name('stocks.index');
@@ -25,6 +32,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/shipments', [StockController::class, 'store'])->name('shipments.store');
     Route::post('/stocks/{stock}/adjust', [StockController::class, 'adjust'])->name('stocks.adjust');
     Route::delete('/stocks/{stock}', [StockController::class, 'destroy'])->name('stocks.destroy');
+
+    // Reports Management
+    Route::get('/reports/inventory-pdf', [ReportController::class, 'exportInventoryPdf'])->name('reports.inventory-pdf');
 });
 
 Route::middleware('auth')->group(function () {

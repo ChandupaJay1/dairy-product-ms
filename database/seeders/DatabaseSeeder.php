@@ -27,11 +27,17 @@ class DatabaseSeeder extends Seeder
 
         // Seed dairy categories
         $categories = [
-            'Drinks' => Category::firstOrCreate(['name' => 'Drinks']),
-            'Curd' => Category::firstOrCreate(['name' => 'Curd']),
-            'Yoghurt' => Category::firstOrCreate(['name' => 'Yoghurt']),
-            'Butter' => Category::firstOrCreate(['name' => 'Butter']),
+            'Drinks' => Category::firstOrCreate(['name' => 'Drinks'], ['slug' => 'drinks']),
+            'Curd' => Category::firstOrCreate(['name' => 'Curd'], ['slug' => 'curd']),
+            'Yoghurt' => Category::firstOrCreate(['name' => 'Yoghurt'], ['slug' => 'yoghurt']),
+            'Butter' => Category::firstOrCreate(['name' => 'Butter'], ['slug' => 'butter']),
         ];
+
+        // Ensure all categories have slugs populated
+        Category::whereNull('slug')->get()->each(function (Category $category) {
+            $category->slug = \Illuminate\Support\Str::slug($category->name);
+            $category->save();
+        });
 
         // Seed initial dairy catalog products if table is empty
         if (Product::count() === 0) {
