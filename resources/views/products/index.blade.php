@@ -180,11 +180,17 @@
                     this.showDeleteModal = false;
                     window.location.href = data.redirect || '{{ route('products.index') }}';
                 } else {
-                    window.showErrorToast(data.message || 'Error deleting product.');
+                    this.showDeleteModal = false;
+                    if (window.showErrorToast) {
+                        window.showErrorToast(data.message || 'Cannot delete this product because it has active stock records in the system.');
+                    }
                 }
             } catch (err) {
                 console.error('Delete error:', err);
-                window.showErrorToast('An unexpected network error occurred.');
+                this.showDeleteModal = false;
+                if (window.showErrorToast) {
+                    window.showErrorToast('An unexpected network error occurred.');
+                }
             } finally {
                 this.isDeleting = false;
             }

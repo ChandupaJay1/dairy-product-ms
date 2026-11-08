@@ -2,6 +2,7 @@
 
 use App\Models\Category;
 use App\Models\Product;
+use App\Models\Stock;
 use App\Models\User;
 
 test('authenticated user can view products page with catalog and categories', function () {
@@ -354,4 +355,74 @@ test('delete modal product name does not use font-mono styling', function () {
     $response->assertOk();
     $response->assertSee('x-text="deleteProductName"', false);
     $response->assertDontSee('font-mono" x-text="deleteProductName"', false);
+});
+
+test('cannot delete product with active stock records via ajax', function () {
+    $user = User::factory()->create();
+    $category = Category::firstOrCreate(['name' => 'Drinks']);
+
+    $product = Product::create([
+        'name' => 'Protected Fresh Milk',
+        'sku' => 'DRY-PRT-01',
+        'category_id' => $category->id,
+        'capacity' => '1 Liter',
+        'unit_price' => 350.00,
+        'status' => 'Active',
+    ]);
+
+    // Create associated stock record
+    Stock::create([
+        'product_id' => $product->id,
+        'batch_number' => 'BATCH-PRT-001',
+        'quantity' => 100,
+        'received_quantity' => 100,
+        'manufacture_date' => '2026-11-01',
+        'issued_date' => '2026-11-05',
+        'expiry_date' => '2026-12-01',
+    ]);
+
+    $response = $this->actingAs($user)->deleteJson(route('products.destroy', $product));
+
+    $response->assertStatus(422)
+        ->assertJson([
+            'success' => false,
+            'message' => 'Cannot delete this product because it has active stock records in the system.',
+        ]);
+
+    $this->assertDatabaseHas('products', [
+        'id' => $product->id,
+    ]);
+});
+
+test('cannot delete product with active stock records via standard request', function () {
+    $user = User::factory()->create();
+    $category = Category::firstOrCreate(['name' => 'Drinks']);
+
+    $product = Product::create([
+        'name' => 'Protected Whole Milk',
+        'sku' => 'DRY-PRT-02',
+        'category_id' => $category->id,
+        'capacity' => '500 ml',
+        'unit_price' => 180.00,
+        'status' => 'Active',
+    ]);
+
+    Stock::create([
+        'product_id' => $product->id,
+        'batch_number' => 'BATCH-PRT-002',
+        'quantity' => 50,
+        'received_quantity' => 50,
+        'manufacture_date' => '2026-11-01',
+        'issued_date' => '2026-11-05',
+        'expiry_date' => '2026-12-01',
+    ]);
+
+    $response = $this->actingAs($user)->delete(route('products.destroy', $product));
+
+    $response->assertRedirect(route('products.index'));
+    $response->assertSessionHas('error', 'Cannot delete this product because it has active stock records in the system.');
+
+    $this->assertDatabaseHas('products', [
+        'id' => $product->id,
+    ]);
 });

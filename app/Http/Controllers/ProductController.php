@@ -147,6 +147,20 @@ class ProductController extends Controller
      */
     public function destroy(Product $product): JsonResponse|RedirectResponse
     {
+        if ($product->stocks()->exists()) {
+            $errorMessage = 'Cannot delete this product because it has active stock records in the system.';
+
+            if (request()->expectsJson() || request()->ajax()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => $errorMessage,
+                ], 422);
+            }
+
+            return redirect()->route('products.index')
+                ->with('error', $errorMessage);
+        }
+
         $productName = $product->name;
         $product->delete();
 
