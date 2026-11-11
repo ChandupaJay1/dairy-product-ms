@@ -2,10 +2,13 @@
 
 namespace Database\Seeders;
 
+use App\Models\Category;
+use App\Models\Product;
 use App\Models\User;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 
 class DatabaseSeeder extends Seeder
 {
@@ -57,6 +60,14 @@ class DatabaseSeeder extends Seeder
 
         // Ensure Himasha Shehan has admin privileges
         User::where('email', 'himashashehan0813@gmail.com')->update(['role' => User::ROLE_ADMIN]);
+
+        // Seed test user if not present
+        if (! User::where('email', 'test@example.com')->exists()) {
+            User::factory()->create([
+                'name' => 'Test User',
+                'email' => 'test@example.com',
+            ]);
+        }
 
         $repUser = User::where('email', 'rep@pulse.lk')->first();
 
@@ -143,7 +154,67 @@ class DatabaseSeeder extends Seeder
             ]);
         }
 
-        // 7. Products
+        // 7. Seed dairy categories
+        $categories = [
+            'Drinks' => Category::firstOrCreate(['name' => 'Drinks'], ['slug' => 'drinks']),
+            'Curd' => Category::firstOrCreate(['name' => 'Curd'], ['slug' => 'curd']),
+            'Yoghurt' => Category::firstOrCreate(['name' => 'Yoghurt'], ['slug' => 'yoghurt']),
+            'Butter' => Category::firstOrCreate(['name' => 'Butter'], ['slug' => 'butter']),
+        ];
+
+        // Ensure all categories have slugs populated
+        Category::whereNull('slug')->get()->each(function (Category $category) {
+            $category->slug = Str::slug($category->name);
+            $category->save();
+        });
+
+        // 8. Products (Eloquent catalog)
+        if (Product::count() === 0) {
+            Product::insert([
+                [
+                    'name' => 'Vanilla Fresh Milk (Bottle)',
+                    'sku' => 'DRY-MLK-01',
+                    'category_id' => $categories['Drinks']->id,
+                    'capacity' => '1 Liter',
+                    'unit_price' => 420.00,
+                    'status' => 'Active',
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ],
+                [
+                    'name' => 'Natural Set Curd (Clay Pot)',
+                    'sku' => 'DRY-CRD-02',
+                    'category_id' => $categories['Curd']->id,
+                    'capacity' => '450g',
+                    'unit_price' => 360.00,
+                    'status' => 'Active',
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ],
+                [
+                    'name' => 'Strawberry Yogurt (Cup)',
+                    'sku' => 'DRY-YGT-03',
+                    'category_id' => $categories['Yoghurt']->id,
+                    'capacity' => '200ml',
+                    'unit_price' => 140.00,
+                    'status' => 'Active',
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ],
+                [
+                    'name' => 'Salted Pure Butter (Block)',
+                    'sku' => 'DRY-BTR-04',
+                    'category_id' => $categories['Butter']->id,
+                    'capacity' => '200g',
+                    'unit_price' => 750.00,
+                    'status' => 'Active',
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ],
+            ]);
+        }
+
+        // 9. Legacy Products (fleet dispatch flavor catalog)
         if (DB::table('products')->count() === 0) {
             DB::table('products')->insert([
                 ['flavor_name' => 'Fresh Vanilla Yogurt (80g)', 'unit_price' => 80.00, 'stock_warehouse' => 12000, 'sku_code' => 'YOG-VAN-80'],
@@ -154,7 +225,7 @@ class DatabaseSeeder extends Seeder
             ]);
         }
 
-        // 8. Daily Dispatches
+        // 10. Daily Dispatches
         if (DB::table('dispatches')->count() === 0) {
             DB::table('dispatches')->insert([
                 [
@@ -179,7 +250,7 @@ class DatabaseSeeder extends Seeder
             ]);
         }
 
-        // 9. Call Operations Seeder
+        // 11. Call Operations Seeder
         $this->call(OperationsSeeder::class);
     }
 }
