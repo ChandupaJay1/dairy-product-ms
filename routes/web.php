@@ -17,6 +17,12 @@ Route::get('/stocks', function () {
     return view('stocks.index');
 })->middleware(['auth', 'verified'])->name('stocks.index');
 
+Route::get('/distribution', function () {
+    return view('distribution.hub', [
+        'appTitle' => 'PulseERP — Polonnaruwa Dairy Fleet Operations',
+    ]);
+})->middleware('auth')->name('distribution.hub');
+
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');

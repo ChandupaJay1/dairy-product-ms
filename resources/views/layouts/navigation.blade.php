@@ -74,6 +74,15 @@
                         <span class="truncate">{{ __('Stocks Management') }}</span>
                     </a>
 
+                    <!-- Distribution Hub Link -->
+                    <a href="{{ route('distribution.hub') }}" 
+                       class="group flex items-center gap-3.5 px-3 py-2.5 rounded-xl text-xs font-medium transition-all duration-200 {{ request()->routeIs('distribution.*') ? 'border-l-2 border-lime-600 dark:border-lime-400 bg-lime-500/10 dark:bg-lime-400/10 text-lime-800 dark:text-lime-300 font-semibold shadow-sm dark:shadow-[inset_0_0_20px_rgba(163,230,53,0.06)]' : 'border-l-2 border-transparent text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 hover:bg-zinc-100/70 dark:hover:bg-white/[0.03] hover:translate-x-1' }}">
+                        <svg class="w-4 h-4 shrink-0 {{ request()->routeIs('distribution.*') ? 'text-lime-600 dark:text-lime-400' : 'text-zinc-400 dark:text-zinc-500 group-hover:text-amber-500 dark:group-hover:text-amber-400 transition-colors' }}" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7h13v10H3zM16 10h3l2 3v4h-5zM7.5 18.5a1.5 1.5 0 100 3 1.5 1.5 0 000-3zM18 18.5a1.5 1.5 0 100 3 1.5 1.5 0 000-3z" />
+                        </svg>
+                        <span class="truncate">{{ __('Distribution Hub') }}</span>
+                    </a>
+
                     <!-- Profile Link -->
                     <a href="{{ route('profile.edit') }}" 
                        class="group flex items-center gap-3.5 px-3 py-2.5 rounded-xl text-xs font-medium transition-all duration-200 {{ request()->routeIs('profile.edit') ? 'border-l-2 border-lime-600 dark:border-lime-400 bg-lime-500/10 dark:bg-lime-400/10 text-lime-800 dark:text-lime-300 font-semibold shadow-sm dark:shadow-[inset_0_0_20px_rgba(163,230,53,0.06)]' : 'border-l-2 border-transparent text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 hover:bg-zinc-100/70 dark:hover:bg-white/[0.03] hover:translate-x-1' }}">
@@ -222,6 +231,16 @@
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
                 </svg>
                 <span>{{ __('Stocks Management') }}</span>
+            </a>
+
+            <!-- Distribution Hub Link -->
+            <a href="{{ route('distribution.hub') }}" 
+               @click="sidebarOpen = false"
+               class="flex items-center gap-3.5 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 {{ request()->routeIs('distribution.*') ? 'border-l-2 border-lime-600 dark:border-lime-400 bg-lime-500/10 dark:bg-lime-400/10 text-lime-800 dark:text-lime-300 font-semibold shadow-sm' : 'border-l-2 border-transparent text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-white/[0.03]' }}">
+                <svg class="w-4 h-4 shrink-0 {{ request()->routeIs('distribution.*') ? 'text-lime-600 dark:text-lime-400' : 'text-zinc-400 dark:text-zinc-500' }}" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7h13v10H3zM16 10h3l2 3v4h-5zM7.5 18.5a1.5 1.5 0 100 3 1.5 1.5 0 000-3zM18 18.5a1.5 1.5 0 100 3 1.5 1.5 0 000-3z" />
+                </svg>
+                <span>{{ __('Distribution Hub') }}</span>
             </a>
 
             <a href="{{ route('profile.edit') }}" 
